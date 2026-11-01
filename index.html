@@ -51,20 +51,17 @@
         * { -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; background-color: #f8fafc; }
         
-        /* Gradients & Visual Effects */
         .gradient-primary { background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #10b981 100%); }
         .gradient-gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
         .glass { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); }
         .glass-dark { background: rgba(6, 78, 59, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .pattern-dots { background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px); background-size: 20px 20px; }
         
-        /* Animations & Card Effects */
         .card-lift { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; }
         .card-lift:hover { transform: translateY(-6px); box-shadow: 0 20px 40px -15px rgba(6,78,59,.25); }
         .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
         .reveal.in { opacity: 1; transform: none; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 8px; }
         
@@ -74,7 +71,7 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- 1. TOP ANNOUNCEMENT BAR (Sesuai Spesifikasi Gambar 2 & Lokasi GOR GMG) -->
+    <!-- TOP ANNOUNCEMENT BAR -->
     <div id="topAnnouncementBar" class="bg-emerald-950 text-emerald-100 text-xs py-2.5 px-4 border-b border-emerald-800/80 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2 text-center md:text-left">
             <div class="flex items-center gap-2 flex-wrap justify-center md:justify-start">
@@ -97,15 +94,12 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16 md:h-20">
                     
-                    <!-- Logo Resmi (Red & Black Stamp Circle SVG) & Brand -->
                     <button onclick="go('beranda')" class="flex items-center gap-3 text-left focus:outline-none group">
-                        <!-- SVG Logo Panitia Pemilihan RW 12 GMG -->
                         <div class="w-11 h-11 shrink-0 rounded-full bg-white p-0.5 shadow-lg group-hover:scale-105 transition-transform">
                             <svg viewBox="0 0 500 500" class="w-full h-full">
                                 <circle cx="250" cy="250" r="240" fill="#e11d48"/>
                                 <circle cx="250" cy="250" r="180" fill="#ffffff"/>
                                 <path d="M 50 250 A 200 200 0 0 0 450 250 L 370 250 A 120 120 0 0 1 130 250 Z" fill="#18181b"/>
-                                <!-- Text Circular Arc -->
                                 <path id="textArcTop" d="M 75 250 A 175 175 0 0 1 425 250" fill="none"/>
                                 <text font-family="Plus Jakarta Sans" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">
                                     <textPath href="#textArcTop" startOffset="50%">PANITIA PEMILIHAN KETUA</textPath>
@@ -114,12 +108,10 @@
                                 <text font-family="Plus Jakarta Sans" font-size="22" font-weight="800" fill="#ffffff" text-anchor="middle">
                                     <textPath href="#textArcBottom" startOffset="50%">PERUM GRAND MUTIARA GADING</textPath>
                                 </text>
-                                <!-- Center Box & Flag Icon -->
                                 <rect x="210" y="210" width="80" height="80" rx="8" fill="#e2e8f0" stroke="#64748b" stroke-width="8"/>
                                 <rect x="210" y="210" width="80" height="40" rx="4" fill="#ef4444"/>
                                 <rect x="210" y="250" width="80" height="40" rx="4" fill="#ffffff"/>
                                 <path d="M 270 170 L 290 200 L 250 215 Z" fill="#f59e0b"/>
-                                <!-- RW 12 Side Badges -->
                                 <rect x="15" y="225" width="100" height="50" rx="25" fill="#ffffff" stroke="#e11d48" stroke-width="4"/>
                                 <text x="65" y="258" font-family="Plus Jakarta Sans" font-size="24" font-weight="900" fill="#18181b" text-anchor="middle">RW</text>
                                 <rect x="385" y="225" width="100" height="50" rx="25" fill="#ffffff" stroke="#e11d48" stroke-width="4"/>
@@ -132,10 +124,8 @@
                         </div>
                     </button>
 
-                    <!-- Desktop Nav Links -->
                     <nav class="hidden lg:flex items-center gap-1 font-medium text-sm" id="navDesktop"></nav>
 
-                    <!-- Mobile Drawer Toggle Button -->
                     <button id="btnMenu" class="lg:hidden w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition focus:outline-none" aria-label="Menu">
                         <i id="iconMenu" class="fa-solid fa-bars text-lg"></i>
                         <i id="iconClose" class="fa-solid fa-xmark text-xl hidden"></i>
@@ -144,7 +134,6 @@
             </div>
         </div>
 
-        <!-- Mobile Navigation Menu -->
         <div id="mobileMenu" class="lg:hidden hidden glass-dark text-white border-t border-white/10 safe-bottom">
             <nav class="px-4 py-4 flex flex-col gap-1.5" id="navMobile"></nav>
         </div>
@@ -158,7 +147,29 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
                 <div class="flex items-center gap-3 mb-4 justify-center md:justify-start">
-                    <div class="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center font-black text-emerald-950">PILWE</div>
+                    <div class="w-11 h-11 shrink-0 rounded-full bg-white p-0.5 shadow-lg">
+                        <svg viewBox="0 0 500 500" class="w-full h-full">
+                            <circle cx="250" cy="250" r="240" fill="#e11d48"/>
+                            <circle cx="250" cy="250" r="180" fill="#ffffff"/>
+                            <path d="M 50 250 A 200 200 0 0 0 450 250 L 370 250 A 120 120 0 0 1 130 250 Z" fill="#18181b"/>
+                            <path id="textArcTopF" d="M 75 250 A 175 175 0 0 1 425 250" fill="none"/>
+                            <text font-family="Plus Jakarta Sans" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">
+                                <textPath href="#textArcTopF" startOffset="50%">PANITIA PEMILIHAN KETUA</textPath>
+                            </text>
+                            <path id="textArcBottomF" d="M 425 250 A 175 175 0 0 1 75 250" fill="none"/>
+                            <text font-family="Plus Jakarta Sans" font-size="22" font-weight="800" fill="#ffffff" text-anchor="middle">
+                                <textPath href="#textArcBottomF" startOffset="50%">PERUM GRAND MUTIARA GADING</textPath>
+                            </text>
+                            <rect x="210" y="210" width="80" height="80" rx="8" fill="#e2e8f0" stroke="#64748b" stroke-width="8"/>
+                            <rect x="210" y="210" width="80" height="40" rx="4" fill="#ef4444"/>
+                            <rect x="210" y="250" width="80" height="40" rx="4" fill="#ffffff"/>
+                            <path d="M 270 170 L 290 200 L 250 215 Z" fill="#f59e0b"/>
+                            <rect x="15" y="225" width="100" height="50" rx="25" fill="#ffffff" stroke="#e11d48" stroke-width="4"/>
+                            <text x="65" y="258" font-family="Plus Jakarta Sans" font-size="24" font-weight="900" fill="#18181b" text-anchor="middle">RW</text>
+                            <rect x="385" y="225" width="100" height="50" rx="25" fill="#ffffff" stroke="#e11d48" stroke-width="4"/>
+                            <text x="435" y="258" font-family="Plus Jakarta Sans" font-size="24" font-weight="900" fill="#18181b" text-anchor="middle">12</text>
+                        </svg>
+                    </div>
                     <div>
                         <div class="font-bold text-base">PILWE 012 GMG</div>
                         <div class="text-xs text-emerald-200">Periode Jabatan 2027–2029</div>
@@ -186,19 +197,19 @@
                 <ul class="space-y-2.5 text-xs text-emerald-100/90">
                     <li class="flex items-start justify-center md:justify-start gap-2">
                         <i class="fa-solid fa-location-dot mt-0.5 text-amber-400"></i>
-                        <span id="footerLokasi">Sekretariat RW 012 Perum GMG</span>
+                        <span id="footerLokasi">TPS: GOR Perum GMG (Grand Mutiara Gading)</span>
                     </li>
                     <li class="flex items-center justify-center md:justify-start gap-2">
                         <i class="fa-solid fa-clock text-amber-400"></i>
-                        <span id="footerJam">Senin – Sabtu, 08:00 – 16:00 WIB</span>
+                        <span id="footerJam">Senin – Sabtu, 08:00 – 20:00 WIB</span>
                     </li>
                     <li class="flex items-center justify-center md:justify-start gap-2">
                         <i class="fa-solid fa-envelope text-amber-400"></i>
-                        <span id="footerEmail">panitiapemilihan.rw012@gmail.com</span>
+                        <span id="footerEmail">panitia.rw012@grandmutiaragading.id</span>
                     </li>
                     <li class="flex items-center justify-center md:justify-start gap-2">
                         <i class="fa-brands fa-whatsapp text-amber-400"></i>
-                        <span id="footerWa">+62 812-1946-122</span>
+                        <span id="footerWa">+62 812-3456-7890</span>
                     </li>
                 </ul>
             </div>
@@ -229,12 +240,8 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC & CRYPTO SECURITY -->
     <script>
-        /* =========================================================
-           1. SHA-256 HELPER FOR SECURE ADMIN CREDENTIALS
-           (Password/Username not visible in plain text in page source)
-        ========================================================= */
+        /* SHA-256 HELPER FOR ENCRYPTED ADMIN AUTH */
         async function sha256(str) {
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
@@ -243,14 +250,10 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Default SHA-256 Hash for 'admin' -> '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'
-        // Default SHA-256 Hash for 'admin123' -> '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9'
         const DEFAULT_ADMIN_USER_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
         const DEFAULT_ADMIN_PASS_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
 
-        /* =========================================================
-           2. DATABASE INITIAL STATE & LOCALSTORAGE PERSISTENCE
-        ========================================================= */
+        /* INITIAL DATABASE STATE */
         const DEFAULT_DATA = {
             profil: {
                 rw: "012",
@@ -263,9 +266,9 @@
                 countdown: "2027-01-17T06:00:00+07:00",
                 lokasiTps: "GOR Perum GMG",
                 alamatSekretariat: "Kantor Sekretariat RW 12 Perum Grand Mutiara Gading, Desa Telajung, Kec. Cikarang Barat, Kab. Bekasi",
-                jamLayanan: "Senin – Sabtu, 08:00 – 16:00 WIB",
-                email: "panitiapemilihan.rw012@gmail.com",
-                wa: "+62 812-1946-122",
+                jamLayanan: "Senin – Sabtu, 08:00 – 20:00 WIB",
+                email: "panitia.rw012@grandmutiaragading.id",
+                wa: "+62 812-3456-7890",
                 koordinat: { lat: "-6.327153", lng: "107.059916", zoom: 17 },
                 mapsLink: "https://maps.google.com/?q=-6.327153,107.059916"
             },
@@ -400,16 +403,15 @@
             ]
         };
 
-        // LocalStorage Helpers
         let DB = loadDB();
         function loadDB() {
-            const raw = localStorage.getItem("pilwe012_v2_db");
+            const raw = localStorage.getItem("pilwe012_v3_db");
             if (raw) return JSON.parse(raw);
-            localStorage.setItem("pilwe012_v2_db", JSON.stringify(DEFAULT_DATA));
+            localStorage.setItem("pilwe012_v3_db", JSON.stringify(DEFAULT_DATA));
             return JSON.parse(JSON.stringify(DEFAULT_DATA));
         }
         function saveDB() {
-            localStorage.setItem("pilwe012_v2_db", JSON.stringify(DB));
+            localStorage.setItem("pilwe012_v3_db", JSON.stringify(DB));
             syncDynamicTexts();
         }
 
@@ -423,7 +425,7 @@
             if (topBarLokasi) topBarLokasi.textContent = p.lokasiTps || "GOR Perum GMG";
             
             const footerLokasi = document.getElementById("footerLokasi");
-            if (footerLokasi) footerLokasi.textContent = "TPS: " + (p.lokasiTps || "Sekretariat RW 012 Perum GMG");
+            if (footerLokasi) footerLokasi.textContent = "TPS: " + (p.lokasiTps || "GOR Perum GMG");
             const footerJam = document.getElementById("footerJam");
             if (footerJam) footerJam.textContent = p.jamLayanan;
             const footerEmail = document.getElementById("footerEmail");
@@ -432,9 +434,7 @@
             if (footerWa) footerWa.textContent = p.wa;
         }
 
-        /* =========================================================
-           3. SPA ROUTER & NAVIGATION SYSTEM
-        ========================================================= */
+        /* SPA ROUTER */
         let route = "beranda";
 
         function go(r) {
@@ -470,9 +470,6 @@
             document.getElementById("navMobile").innerHTML = mobileHtml;
         }
 
-        /* =========================================================
-           4. PAGE VIEWS RENDERER
-        ========================================================= */
         function render() {
             renderNav();
             const app = document.getElementById("app");
@@ -494,13 +491,10 @@
             if (route === "beranda") startCountdown();
         }
 
-        /* =========================================================
-           VIEW: BERANDA (Lengkap dengan Section Tandai Tanggalnya & Countdown Gambar 1)
-        ========================================================= */
+        /* VIEW: BERANDA */
         function viewBeranda() {
             const p = DB.profil;
             return `
-            <!-- HERO BANNER -->
             <section class="relative gradient-primary text-white overflow-hidden pt-8 pb-16 lg:pt-16 lg:pb-24">
                 <div class="absolute inset-0 pattern-dots opacity-30 pointer-events-none"></div>
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -527,7 +521,6 @@
                             </div>
                         </div>
 
-                        <!-- Hero Live Mini Countdown Card -->
                         <div class="lg:col-span-5 reveal">
                             <div class="bg-emerald-950/85 border border-emerald-700/60 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur relative">
                                 <div class="flex items-center justify-between pb-4 border-b border-emerald-800">
@@ -555,7 +548,6 @@
                 </div>
             </section>
 
-            <!-- QUICK STATS BAR -->
             <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-200/80 flex items-center gap-4">
@@ -600,7 +592,6 @@
                 </div>
             </section>
 
-            <!-- SECTION KANDIDAT -->
             <section id="kandidat" class="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-20">
                 <div class="text-center max-w-3xl mx-auto mb-14 reveal">
                     <span class="inline-block text-xs font-extrabold uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3.5 py-1 rounded-full mb-3">
@@ -652,30 +643,21 @@
                 </div>
             </section>
 
-            <!-- 2. SECTION "TANDAI TANGGALNYA!" & COUNTDOWN TIMER (Sesuai Spesifikasi Gambar 1) -->
             <section class="max-w-5xl mx-auto px-4 sm:px-6 my-12 reveal">
                 <div class="gradient-primary text-white rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl border border-emerald-600">
                     <div class="absolute inset-0 pattern-dots opacity-25"></div>
-                    
                     <div class="relative z-10 max-w-2xl mx-auto">
-                        <!-- Calendar Icon Top -->
                         <div class="w-16 h-16 mx-auto mb-4 bg-white/10 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-white/20">
                             📅
                         </div>
-
                         <h2 class="text-3xl sm:text-4xl font-extrabold mb-4 tracking-tight">Tandai Tanggalnya!</h2>
-                        
                         <p class="text-emerald-50/95 text-xs sm:text-sm md:text-base leading-relaxed mb-8">
                             Pastikan Anda hadir dan menggunakan hak pilih pada hari pemilihan, <strong>Ahad, 17 Januari 2027</strong>, pukul <strong>06.00–11.00 WIB</strong> di <strong>GOR Perum GMG</strong>. Suara Anda menentukan masa depan lingkungan kita untuk 3 tahun ke depan.
                         </p>
-
-                        <!-- Live Countdown Cards inside Tandai Tanggalnya -->
                         <div class="mb-8">
                             <div class="text-[10px] uppercase font-bold tracking-widest text-amber-300 mb-2">COUNTDOWN MENUJU PENCOBLOSAN</div>
                             <div id="mainCountdown" class="grid grid-cols-4 gap-3 max-w-md mx-auto"></div>
                         </div>
-
-                        <!-- Hari Pemilihan Badge Card (Gaya Gambar 1) -->
                         <div class="inline-flex items-center gap-3 bg-white/15 backdrop-blur px-6 py-4 rounded-2xl border border-white/25 shadow-lg">
                             <div class="text-3xl">📅</div>
                             <div class="text-left">
@@ -687,7 +669,6 @@
                 </div>
             </section>
 
-            <!-- SECTION PENGUMUMAN TERKINI -->
             <section class="py-16 bg-slate-100/80 border-t border-slate-200">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10 reveal">
@@ -722,9 +703,7 @@
             `;
         }
 
-        /* =========================================================
-           COUNTDOWN TIMER LOGIC
-        ========================================================= */
+        /* COUNTDOWN TIMER LOGIC */
         let cdInterval = null;
         function startCountdown() {
             clearInterval(cdInterval);
@@ -759,9 +738,7 @@
             cdInterval = setInterval(tick, 1000);
         }
 
-        /* =========================================================
-           VIEW: PENGUMUMAN
-        ========================================================= */
+        /* VIEW: PENGUMUMAN */
         function viewPengumuman() {
             return `
             <section class="gradient-primary text-white py-12">
@@ -790,9 +767,7 @@
             `;
         }
 
-        /* =========================================================
-           VIEW: TIMELINE
-        ========================================================= */
+        /* VIEW: TIMELINE */
         function viewTimeline() {
             const statusMap = {
                 selesai: { label: "Selesai", badge: "bg-slate-200 text-slate-700", dot: "bg-emerald-600 text-white" },
@@ -815,7 +790,6 @@
             </section>
 
             <section class="py-12 max-w-4xl mx-auto px-4 sm:px-6">
-                <!-- Progress Card -->
                 <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm mb-10">
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Progres Tahapan Pemilihan</span>
@@ -826,7 +800,6 @@
                     </div>
                 </div>
 
-                <!-- Timeline Steps -->
                 <div class="relative before:absolute before:inset-0 before:left-5 sm:before:left-1/2 before:-translate-x-px before:h-full before:w-0.5 before:bg-slate-200 space-y-8">
                     ${DB.timeline.map((t) => {
                         const s = statusMap[t.status] || statusMap.akan;
@@ -851,9 +824,7 @@
             `;
         }
 
-        /* =========================================================
-           VIEW: PANITIA
-        ========================================================= */
+        /* VIEW: PANITIA */
         function viewPanitia() {
             const p = DB.panitia;
             return `
@@ -866,7 +837,6 @@
             </section>
 
             <section class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Pengurus Inti -->
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     ${[
                         { role: p.ketua.jabatan, nama: p.ketua.nama, icon: "fa-user-tie", bg: "gradient-primary text-white" },
@@ -884,7 +854,6 @@
                     `).join("")}
                 </div>
 
-                <!-- Anggota Section -->
                 <div>
                     <h3 class="text-xl font-extrabold text-slate-900 mb-6 text-center sm:text-left">
                         <i class="fa-solid fa-users text-emerald-700 mr-2"></i>Seksi & Anggota Panitia
@@ -905,9 +874,7 @@
             `;
         }
 
-        /* =========================================================
-           VIEW: TATA TERTIB (Dynamic Render)
-        ========================================================= */
+        /* VIEW: TATA TERTIB */
         function viewTatib() {
             return `
             <section class="gradient-primary text-white py-12">
@@ -941,9 +908,7 @@
             `;
         }
 
-        /* =========================================================
-           VIEW: KONTAK & SEKRETARIAT/TPS GOR GMG
-        ========================================================= */
+        /* VIEW: KONTAK & TPS GOR GMG */
         function viewKontak() {
             const p = DB.profil;
             return `
@@ -957,7 +922,6 @@
 
             <section class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid lg:grid-cols-12 gap-8">
-                    <!-- Left Sekretariat & TPS Info -->
                     <div class="lg:col-span-5 space-y-4">
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-start gap-4">
                             <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl shrink-0 font-bold">
@@ -994,7 +958,6 @@
                         </div>
                     </div>
 
-                    <!-- Right Form Pesan Direct WA -->
                     <div class="lg:col-span-7">
                         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-md">
                             <h3 class="text-xl font-bold text-slate-900 mb-1">Formulir Aspirasi & Pesan Warga</h3>
@@ -1025,7 +988,6 @@
                     </div>
                 </div>
 
-                <!-- Google Maps Embed GOR GMG -->
                 <div class="mt-8 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
                     <div class="p-4 border-b border-slate-100 font-bold text-slate-900 text-sm flex items-center justify-between">
                         <span><i class="fa-solid fa-map-location-dot text-emerald-700 mr-2"></i>Peta Lokasi TPS: ${p.lokasiTps}</span>
@@ -1053,9 +1015,7 @@
             showToast("✅", "Mengarahkan ke WhatsApp Panitia...");
         }
 
-        /* =========================================================
-           MODAL POPUPS
-        ========================================================= */
+        /* MODALS */
         function showKandidatModal(id) {
             const k = DB.kandidat.find(x => x.id === id);
             if (!k) return;
@@ -1177,10 +1137,7 @@
             if (e.target.id === "modal") closeModal();
         });
 
-        /* =========================================================
-           5. SECURE ADMIN LOGIN & COMPLETE DASHBOARD CRUD
-           (Including SHA-256 Auth, Change Password, Edit Kontak & Tatib)
-        ========================================================= */
+        /* ADMIN AUTH & DASHBOARD */
         function viewLoginAdmin() {
             return `
             <section class="min-h-[60vh] flex items-center justify-center px-4 py-12">
@@ -1263,7 +1220,6 @@
             </section>
 
             <section class="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-                <!-- STATS & SECURITY BANNER -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="text-xs text-slate-500 font-bold uppercase">Total Kandidat</div>
@@ -1283,7 +1239,27 @@
                     </div>
                 </div>
 
-                <!-- 1. EDIT LOKASI TPS & KONTAK PANITIA -->
+                <!-- BACKUP & RESTORE JSON FILE SECTION -->
+                <div class="bg-emerald-900 text-white p-6 sm:p-8 rounded-3xl border border-emerald-700 shadow-md">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">SECURITY & DATA SAFETY</span>
+                            <h3 class="text-xl font-extrabold mt-1">Backup & Restore File Data JSON</h3>
+                            <p class="text-xs text-emerald-200 mt-1">Unduh cadangan data lengkap PILWE 012 atau pulihkan data dari file JSON.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="downloadBackupJSON()" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 font-extrabold text-xs shadow flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i> Download Backup (.json)
+                            </button>
+                            <label class="px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs cursor-pointer border border-white/20 flex items-center gap-2">
+                                <i class="fa-solid fa-upload"></i> Restore / Upload JSON
+                                <input type="file" accept=".json" onchange="restoreBackupJSON(event)" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EDIT KONTAK & LOKASI TPS -->
                 <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
                     <h3 class="font-extrabold text-slate-900 text-lg mb-1">
                         <i class="fa-solid fa-pen-to-square text-emerald-700 mr-2"></i>Edit Informasi Kontak & Lokasi TPS
@@ -1293,7 +1269,7 @@
                     <form onsubmit="simpanKontakProfil(event)" class="space-y-4">
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Alamat Lokasi TPS *</label>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Alamat Panitia Pilwe 012 GMG *</label>
                                 <input id="eLokasiTps" type="text" required value="${p.lokasiTps}" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-emerald-800">
                             </div>
                             <div>
@@ -1324,7 +1300,7 @@
                     </form>
                 </div>
 
-                <!-- 2. EDITABLE TATA TERTIB (CRUD) -->
+                <!-- EDITABLE TATA TERTIB -->
                 <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <div>
@@ -1358,7 +1334,7 @@
                     </div>
                 </div>
 
-                <!-- 3. KELOLA KANDIDAT & PROGRAM UNGGULAN -->
+                <!-- KELOLA KANDIDAT & PENGUMUMAN -->
                 <div class="grid lg:grid-cols-2 gap-8">
                     <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                         <div class="flex items-center justify-between mb-4">
@@ -1392,7 +1368,6 @@
                         </div>
                     </div>
 
-                    <!-- Tambah Pengumuman -->
                     <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
                         <h3 class="font-extrabold text-slate-900 text-base mb-4">Buat Pengumuman Baru</h3>
                         <form onsubmit="tambahPengumuman(event)" class="space-y-3">
@@ -1418,7 +1393,7 @@
                     </div>
                 </div>
 
-                <!-- 4. UBAH PASSWORD ADMIN (SECURITY) -->
+                <!-- UBAH PASSWORD ADMIN -->
                 <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
                     <h3 class="font-extrabold text-slate-900 text-base mb-1">
                         <i class="fa-solid fa-key text-amber-500 mr-2"></i>Ubah Password Admin (SHA-256)
@@ -1437,7 +1412,7 @@
                     </form>
                 </div>
 
-                <!-- 5. RESET DATA -->
+                <!-- RESET DATA -->
                 <div class="bg-red-50 p-6 rounded-3xl border border-red-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                         <div class="font-bold text-red-900 text-sm">Reset Data Ke Default Demo</div>
@@ -1451,9 +1426,40 @@
             `;
         }
 
-        /* =========================================================
-           6. ADMIN LOGIC & CRUD HANDLERS
-        ========================================================= */
+        /* BACKUP & RESTORE JSON HANDLERS */
+        function downloadBackupJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `backup_pilwe012_gmg_${new Date().toISOString().slice(0, 10)}.json`);
+            document.body.appendChild(dlAnchorElem);
+            dlAnchorElem.click();
+            dlAnchorElem.remove();
+            showToast("📥", "File backup JSON berhasil diunduh!");
+        }
+
+        function restoreBackupJSON(event) {
+            const fileReader = new FileReader();
+            fileReader.onload = function (e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    if (parsedData.profil && parsedData.kandidat && parsedData.tatib) {
+                        DB = parsedData;
+                        saveDB();
+                        showToast("✅", "Data berhasil dipulihkan dari file JSON!");
+                        render();
+                    } else {
+                        showToast("❌", "Format file JSON tidak valid.");
+                    }
+                } catch (err) {
+                    showToast("❌", "Gagal membaca file JSON.");
+                }
+            };
+            if (event.target.files[0]) {
+                fileReader.readAsText(event.target.files[0]);
+            }
+        }
+
         function simpanKontakProfil(e) {
             e.preventDefault();
             const p = DB.profil;
@@ -1468,7 +1474,6 @@
             render();
         }
 
-        /* --- TATA TERTIB CRUD --- */
         function formTatib(id) {
             const isEdit = !!id;
             const t = isEdit ? DB.tatib.find(x => x.id === id) : { judul: "", isi: [""] };
@@ -1532,7 +1537,6 @@
             render();
         }
 
-        /* --- KANDIDAT CRUD --- */
         function formKandidat(id) {
             const isEdit = !!id;
             const k = isEdit ? DB.kandidat.find(x => x.id === id) : {
@@ -1684,7 +1688,7 @@
         }
 
         function confirmResetData() {
-            localStorage.removeItem("pilwe012_v2_db");
+            localStorage.removeItem("pilwe012_v3_db");
             localStorage.removeItem("pilwe012_session");
             DB = loadDB();
             session = null;
@@ -1698,9 +1702,6 @@
             go("beranda");
         }
 
-        /* =========================================================
-           7. UTILITY FUNCTIONS
-        ========================================================= */
         function fmtTanggal(str) {
             const d = new Date(str);
             return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -1731,7 +1732,6 @@
             els.forEach(el => revealObserver.observe(el));
         }
 
-        // Mobile Menu Toggle
         const btnMenu = document.getElementById("btnMenu");
         const mobileMenu = document.getElementById("mobileMenu");
         const iconMenu = document.getElementById("iconMenu");
@@ -1754,7 +1754,6 @@
             }
         });
 
-        // Initialize App
         render();
     </script>
 </body>
