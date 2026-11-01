@@ -186,8 +186,8 @@
                     <li><button onclick="go('pengumuman')" class="hover:text-amber-300 transition-colors">Pengumuman Panitia</button></li>
                     <li><button onclick="go('panitia')" class="hover:text-amber-300 transition-colors">Susunan Kepanitiaan</button></li>
                     <li><button onclick="go('timeline')" class="hover:text-amber-300 transition-colors">Timeline & Jadwal</button></li>
-                    <li><button onclick="go('tatib')" class="hover:text-amber-300 transition-colors">Tata Tertib & Rules</button></li>
-                    <li><button onclick="go('kontak')" class="hover:text-amber-300 transition-colors">Kontak & TPS GMG</button></li>
+                    <li><button onclick="go('tatib')" class="hover:text-amber-300 transition-colors">Tata Tertib & Berita Acara</button></li>
+                    <li><button onclick="go('kontak')" class="hover:text-amber-300 transition-colors">Kontak</button></li>
                 </ul>
             </div>
 
@@ -196,7 +196,7 @@
                 <ul class="space-y-2.5 text-xs text-emerald-100/90">
                     <li class="flex items-start justify-center md:justify-start gap-2">
                         <i class="fa-solid fa-location-dot mt-0.5 text-amber-400"></i>
-                        <span id="footerLokasi">GOR Perum GMG</span>
+                        <span id="footerLokasi">Sekretariat RW 012 Perum GMG</span>
                     </li>
                     <li class="flex items-center justify-center md:justify-start gap-2">
                         <i class="fa-solid fa-clock text-amber-400"></i>
@@ -379,14 +379,27 @@
                     { nama: "Umar Setiawan", jabatan: "Sie Keamanan & Ketertiban" }
                 ]
             },
-            tatibPdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+            tatibPdf1: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            tatibJudul1: "Dokumen Tata Tertib & Pedoman Pemilihan",
+            tatibPdf2: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+            tatibJudul2: "Dokumen Berita Acara & Lampiran Tambahan"
         };
 
         // LOCAL STORAGE DATABASE SYSTEM
         let DB = loadDB();
         function loadDB() {
             const raw = localStorage.getItem("pilwe012_v6_db");
-            if (raw) return JSON.parse(raw);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                // Migrasi otomatis jika data lama masih menggunakan tatibPdf tunggal
+                if (parsed.tatibPdf && !parsed.tatibPdf1) {
+                    parsed.tatibPdf1 = parsed.tatibPdf;
+                    parsed.tatibJudul1 = "Dokumen Tata Tertib & Pedoman Pemilihan";
+                    parsed.tatibPdf2 = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+                    parsed.tatibJudul2 = "Dokumen Berita Acara & Lampiran Tambahan";
+                }
+                return parsed;
+            }
             localStorage.setItem("pilwe012_v6_db", JSON.stringify(DEFAULT_DATA));
             return JSON.parse(JSON.stringify(DEFAULT_DATA));
         }
@@ -413,13 +426,12 @@
             const elTopBarLokasi = document.getElementById("topBarLokasi");
             if (elTopBarLokasi) elTopBarLokasi.textContent = ab.lokasiText;
 
-            // MENGAMBIL DATA LOKASI LANGSUNG DARI RUNNING BAR / AGENDA RESMI (SS ke-2)
             const heroLokasi = document.getElementById("heroLokasiTps");
             if (heroLokasi) heroLokasi.textContent = ab.lokasiText;
 
             const p = DB.profil;
             const footerLokasi = document.getElementById("footerLokasi");
-            if (footerLokasi) footerLokasi.textContent = ab.lokasiText || p.lokasiTps || "GOR Perum GMG";
+            if (footerLokasi) footerLokasi.textContent = "Sekretariat RW 012 Perum GMG";
             const footerJam = document.getElementById("footerJam");
             if (footerJam) footerJam.textContent = p.jamLayanan;
             const footerEmail = document.getElementById("footerEmail");
@@ -429,6 +441,7 @@
         }
 
         let route = "beranda";
+        let activeTatibTab = 1; // Tab dokumen yang sedang aktif (1 atau 2)
 
         function go(r) {
             route = r;
@@ -445,7 +458,7 @@
                 { r: "panitia", label: "Panitia", icon: "fa-users" },
                 { r: "timeline", label: "Timeline", icon: "fa-calendar-days" },
                 { r: "tatib", label: "Tata Tertib", icon: "fa-file-pdf" },
-                { r: "kontak", label: "Kontak & TPS", icon: "fa-address-book" }
+                { r: "kontak", label: "Kontak", icon: "fa-address-book" }
             ];
 
             const desktopHtml = menus.map(m => `
@@ -531,8 +544,8 @@
                                 <div class="bg-white/10 rounded-2xl p-4 border border-white/10 flex items-center gap-3">
                                     <i class="fa-solid fa-location-dot text-amber-300 text-2xl"></i>
                                     <div class="text-xs">
-                                        <div class="font-bold text-white">Lokasi TPS Pencoblosan:</div>
-                                        <div class="text-emerald-200 mt-0.5 font-bold" id="heroLokasiTps">${ab.lokasiText || 'GOR Perum GMG'}</div>
+                                        <div class="font-bold text-white">Lokasi TPS:</div>
+                                        <div class="text-emerald-200 mt-0.5 font-bold" id="heroLokasiTps">${ab.lokasiText || 'Sekretariat RW 012 Perum GMG'}</div>
                                     </div>
                                 </div>
                             </div>
@@ -863,39 +876,75 @@
             `;
         }
 
+        // TAMPILAN MENU TATA TERTIB (2 DOKUMEN PDF LENGKAP)
         function viewTatib() {
-            const pdfUrl = DB.tatibPdf || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+            const pdf1Url = DB.tatibPdf1 || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+            const pdf1Judul = DB.tatibJudul1 || "Dokumen Tata Tertib & Pedoman Pemilihan";
+            
+            const pdf2Url = DB.tatibPdf2 || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+            const pdf2Judul = DB.tatibJudul2 || "Dokumen Berita Acara & Lampiran Tambahan";
+
+            const currentUrl = activeTatibTab === 1 ? pdf1Url : pdf2Url;
+            const currentJudul = activeTatibTab === 1 ? pdf1Judul : pdf2Judul;
 
             return `
             <section class="gradient-primary text-white py-12">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
-                    <span class="text-xs font-extrabold uppercase tracking-widest text-amber-300">PANDUAN & ATURAN</span>
-                    <h1 class="text-3xl sm:text-4xl font-extrabold mt-1">Tata Tertib Pemilihan</h1>
-                    <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Dokumen resmi aturan dan pedoman pelaksanaan PILWE 012 GMG.</p>
+                    <span class="text-xs font-extrabold uppercase tracking-widest text-amber-300">PANDUAN & ATURAN RESMI</span>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold mt-1">Tata Tertib & Berita Acara</h1>
+                    <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Dokumen resmi aturan, pedoman, serta berita acara pelaksanaan PILWE 012 GMG.</p>
                 </div>
             </section>
 
             <section class="py-12 max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
+                <!-- TAB NAVIGASI PILIHAN DOKUMEN PDF -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button onclick="switchTatibTab(1)" class="p-4 sm:p-5 rounded-2xl border text-left transition-all flex items-center gap-4 ${activeTatibTab === 1 ? 'bg-white border-emerald-600 shadow-md ring-2 ring-emerald-500/30' : 'bg-slate-100/90 border-slate-200 hover:bg-white'}">
+                        <div class="w-12 h-12 rounded-xl ${activeTatibTab === 1 ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-600'} flex items-center justify-center text-2xl shrink-0 font-black">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider ${activeTatibTab === 1 ? 'text-emerald-700' : 'text-slate-500'}">DOKUMEN 1</span>
+                            <h3 class="font-extrabold text-slate-900 text-xs sm:text-sm truncate">${pdf1Judul}</h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5 truncate">Aturan & Mekanisme Pencoblosan</p>
+                        </div>
+                    </button>
+
+                    <button onclick="switchTatibTab(2)" class="p-4 sm:p-5 rounded-2xl border text-left transition-all flex items-center gap-4 ${activeTatibTab === 2 ? 'bg-white border-emerald-600 shadow-md ring-2 ring-emerald-500/30' : 'bg-slate-100/90 border-slate-200 hover:bg-white'}">
+                        <div class="w-12 h-12 rounded-xl ${activeTatibTab === 2 ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-600'} flex items-center justify-center text-2xl shrink-0 font-black">
+                            <i class="fa-solid fa-file-contract"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="text-[10px] font-extrabold uppercase tracking-wider ${activeTatibTab === 2 ? 'text-emerald-700' : 'text-slate-500'}">DOKUMEN 2</span>
+                            <h3 class="font-extrabold text-slate-900 text-xs sm:text-sm truncate">${pdf2Judul}</h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5 truncate">Berita Acara & Ketentuan Tambahan</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- CARD BAR DOKUMEN AKTIF & TOMBOL UNDUH -->
                 <div class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-2xl shrink-0">
                             <i class="fa-solid fa-file-pdf"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-slate-900 text-sm sm:text-base">Dokumen Resmi Tata Tertib PILWE 012</h3>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">DOKUMEN TAMPIL: DOKUMEN ${activeTatibTab}</span>
+                            <h3 class="font-bold text-slate-900 text-sm sm:text-base">${currentJudul}</h3>
                             <p class="text-xs text-slate-500">Format PDF · Siap cetak & diunduh</p>
                         </div>
                     </div>
-                    <a href="${pdfUrl}" target="_blank" download class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow">
-                        <i class="fa-solid fa-download"></i> Unduh PDF Tata Tertib
+                    <a href="${currentUrl}" target="_blank" download class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow">
+                        <i class="fa-solid fa-download"></i> Unduh Dokumen PDF ${activeTatibTab}
                     </a>
                 </div>
 
+                <!-- PREVIEW IFRAME DOKUMEN PDF -->
                 <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md">
-                    <iframe src="${pdfUrl}" class="w-full h-[75vh] min-h-[500px]" frameborder="0">
+                    <iframe src="${currentUrl}" class="w-full h-[75vh] min-h-[500px]" frameborder="0">
                         <p class="p-6 text-center text-xs text-slate-600">
                             Browser Anda tidak mendukung preview PDF. 
-                            <a href="${pdfUrl}" target="_blank" class="text-emerald-700 font-bold underline">Klik di sini untuk mengunduh file PDF</a>.
+                            <a href="${currentUrl}" target="_blank" class="text-emerald-700 font-bold underline">Klik di sini untuk mengunduh file PDF ini</a>.
                         </p>
                     </iframe>
                 </div>
@@ -903,10 +952,15 @@
             `;
         }
 
+        function switchTatibTab(tabNum) {
+            activeTatibTab = tabNum;
+            render();
+        }
+
         function viewKontak() {
             const p = DB.profil;
             const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
-            const lokasiUtama = ab.lokasiText || p.lokasiTps || 'GOR Perum GMG';
+            const lokasiPanitia = ab.lokasiText || p.lokasiTps || 'Sekretariat RW 012 Perum GMG';
 
             return `
             <section class="gradient-primary text-white py-12">
@@ -925,8 +979,8 @@
                                 <i class="fa-solid fa-location-dot"></i>
                             </div>
                             <div>
-                                <h4 class="font-bold text-slate-900 text-sm">Lokasi TPS Pencoblosan</h4>
-                                <p class="text-xs font-black text-emerald-700 mt-0.5">${lokasiUtama}</p>
+                                <h4 class="font-bold text-slate-900 text-sm">Alamat Panitia Pemilihan Pilwe</h4>
+                                <p class="text-xs font-black text-emerald-700 mt-0.5">Sekretariat RW 012 Perum GMG</p>
                                 <p class="text-xs text-slate-600 mt-1 leading-relaxed">${p.alamatSekretariat}</p>
                                 <a href="${p.mapsLink}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:underline mt-2">
                                     <i class="fa-solid fa-map-location-dot"></i> Buka Petunjuk Google Maps
@@ -987,7 +1041,7 @@
 
                 <div class="mt-8 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
                     <div class="p-4 border-b border-slate-100 font-bold text-slate-900 text-sm flex items-center justify-between">
-                        <span><i class="fa-solid fa-map-location-dot text-emerald-700 mr-2"></i>Peta Lokasi TPS: ${lokasiUtama}</span>
+                        <span><i class="fa-solid fa-map-location-dot text-emerald-700 mr-2"></i>Peta Lokasi Sekretariat Panitia: ${lokasiPanitia}</span>
                     </div>
                     <iframe class="w-full h-72 sm:h-80" loading="lazy" src="https://www.google.com/maps?q=${p.koordinat.lat},${p.koordinat.lng}&z=${p.koordinat.zoom}&output=embed"></iframe>
                 </div>
@@ -1227,7 +1281,7 @@
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="text-xs text-slate-500 font-bold uppercase">Dokumen Tatib</div>
-                        <div class="text-2xl font-black text-red-600 mt-1">PDF</div>
+                        <div class="text-2xl font-black text-red-600 mt-1">2 File PDF</div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="text-xs text-slate-500 font-bold uppercase">Total Pengumuman</div>
@@ -1332,34 +1386,57 @@
                     </div>
                 </div>
 
-                <!-- KELOLA DOKUMEN TATA TERTIB PDF -->
+                <!-- KELOLA DOKUMEN TATA TERTIB & BERITA ACARA PDF (DUAL PDF SUPPORT) -->
                 <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
                     <div class="flex items-center gap-3 mb-2">
-                        <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-black rounded-full uppercase">DOKUMEN PDF</span>
+                        <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-black rounded-full uppercase">DOKUMEN PDF DUAL</span>
                         <h3 class="font-extrabold text-slate-900 text-lg">
-                            <i class="fa-solid fa-file-pdf text-red-600 mr-1"></i>Kelola Dokumen PDF Tata Tertib
+                            <i class="fa-solid fa-file-pdf text-red-600 mr-1"></i>Kelola 2 Dokumen PDF (Tata Tertib & Berita Acara)
                         </h3>
                     </div>
-                    <p class="text-xs text-slate-500 mb-6">Masukkan URL dokumen PDF Tata Tertib (Google Drive / Cloud Storage) atau unggah file PDF langsung.</p>
+                    <p class="text-xs text-slate-500 mb-6">Atur judul dan URL/Upload file PDF untuk Dokumen 1 (Tata Tertib) dan Dokumen 2 (Berita Acara / Lampiran).</p>
 
-                    <form onsubmit="simpanTatibPdf(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">URL File PDF Tata Tertib *</label>
-                            <input id="inTatibPdfUrl" type="url" required value="${DB.tatibPdf || ''}" placeholder="https://domain.com/dokumen-tatib.pdf" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                    <form onsubmit="simpanTatibPdf(event)" class="space-y-6">
+                        <!-- DOKUMEN 1 FORM -->
+                        <div class="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                            <div class="font-extrabold text-xs text-emerald-800 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-file-pdf text-red-600"></i> DOKUMEN 1 (UTAMA)
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Judul Dokumen 1 *</label>
+                                <input id="inTatibJudul1" type="text" required value="${DB.tatibJudul1 || 'Dokumen Tata Tertib & Pedoman Pemilihan'}" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">URL File PDF Dokumen 1 *</label>
+                                <input id="inTatibPdfUrl1" type="url" required value="${DB.tatibPdf1 || ''}" placeholder="https://domain.com/dokumen-tatib.pdf" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs">
+                            </div>
+                            <div class="pt-2">
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Atau Upload PDF Dokumen 1 Langsung:</label>
+                                <input type="file" id="inTatibPdfFile1" accept="application/pdf" onchange="handleUploadTatibPdf(event, 1)" class="text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                            </div>
                         </div>
 
-                        <div class="flex items-center gap-2 text-xs text-slate-400 my-2">
-                            <div class="flex-grow border-t border-slate-200"></div>
-                            <span>Atau Upload File PDF Langsung</span>
-                            <div class="flex-grow border-t border-slate-200"></div>
-                        </div>
-
-                        <div>
-                            <input type="file" id="inTatibPdfFile" accept="application/pdf" onchange="handleUploadTatibPdf(event)" class="text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                        <!-- DOKUMEN 2 FORM -->
+                        <div class="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                            <div class="font-extrabold text-xs text-emerald-800 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-file-contract text-emerald-600"></i> DOKUMEN 2 (LAMPIRAN / BERITA ACARA)
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Judul Dokumen 2 *</label>
+                                <input id="inTatibJudul2" type="text" required value="${DB.tatibJudul2 || 'Dokumen Berita Acara & Lampiran Tambahan'}" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">URL File PDF Dokumen 2 *</label>
+                                <input id="inTatibPdfUrl2" type="url" required value="${DB.tatibPdf2 || ''}" placeholder="https://domain.com/berita-acara.pdf" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs">
+                            </div>
+                            <div class="pt-2">
+                                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Atau Upload PDF Dokumen 2 Langsung:</label>
+                                <input type="file" id="inTatibPdfFile2" accept="application/pdf" onchange="handleUploadTatibPdf(event, 2)" class="text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                            </div>
                         </div>
 
                         <button type="submit" class="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow">
-                            Simpan Dokumen PDF Tata Tertib
+                            Simpan Perubahan Kedua Dokumen PDF
                         </button>
                     </form>
                 </div>
@@ -1822,18 +1899,28 @@
             render();
         }
 
+        // SIMPAN DOKUMEN DUAL PDF (DOKUMEN 1 & DOKUMEN 2)
         function simpanTatibPdf(e) {
             e.preventDefault();
-            const url = document.getElementById("inTatibPdfUrl").value.trim();
-            if (!url) return;
+            const j1 = document.getElementById("inTatibJudul1").value.trim();
+            const u1 = document.getElementById("inTatibPdfUrl1").value.trim();
+            
+            const j2 = document.getElementById("inTatibJudul2").value.trim();
+            const u2 = document.getElementById("inTatibPdfUrl2").value.trim();
 
-            DB.tatibPdf = url;
+            DB.tatibJudul1 = j1 || "Dokumen Tata Tertib & Pedoman Pemilihan";
+            DB.tatibPdf1 = u1;
+
+            DB.tatibJudul2 = j2 || "Dokumen Berita Acara & Lampiran Tambahan";
+            DB.tatibPdf2 = u2;
+
             saveDB();
-            showToast("✅", "URL PDF Tata Tertib berhasil disimpan!");
+            showToast("✅", "Perubahan kedua dokumen PDF berhasil disimpan!");
             render();
         }
 
-        function handleUploadTatibPdf(e) {
+        // HANDLER UPLOAD FILE PDF (DOKUMEN 1 ATAU DOKUMEN 2)
+        function handleUploadTatibPdf(e, docNum) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -1844,9 +1931,14 @@
 
             const reader = new FileReader();
             reader.onload = function(evt) {
-                DB.tatibPdf = evt.target.result;
+                if (docNum === 1) {
+                    DB.tatibPdf1 = evt.target.result;
+                    showToast("✅", "File PDF Dokumen 1 berhasil diunggah!");
+                } else {
+                    DB.tatibPdf2 = evt.target.result;
+                    showToast("✅", "File PDF Dokumen 2 berhasil diunggah!");
+                }
                 saveDB();
-                showToast("✅", "File PDF Tata Tertib berhasil diunggah!");
                 render();
             };
             reader.readAsDataURL(file);
