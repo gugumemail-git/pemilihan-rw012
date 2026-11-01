@@ -44,7 +44,7 @@
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -56,7 +56,7 @@
         .gradient-gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
         .text-gradient-emerald { background: linear-gradient(135deg, #047857, #10b981); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .glass { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .glass-dark { background: rgba(6, 78, 59, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .glass-dark { background: rgba(6, 78, 59, 0.95); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .pattern-dots { background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px); background-size: 20px 20px; }
         
         /* Animations & Card Effects */
@@ -69,7 +69,7 @@
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 8px; }
         
-        .modal-backdrop { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(6px); }
+        .modal-backdrop { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
@@ -87,7 +87,7 @@
             <div class="flex items-center gap-3 text-[11px] text-emerald-200">
                 <span><i class="fa-solid fa-clock text-amber-400 mr-1"></i>06:00 – 11:00 WIB</span>
                 <span class="hidden md:inline">|</span>
-                <span class="hidden md:inline"><i class="fa-solid fa-location-dot text-amber-400 mr-1"></i>Kantor Sekretariat RW 12 GMG</span>
+                <span class="hidden md:inline"><i class="fa-solid fa-location-dot text-amber-400 mr-1"></i>Sekretariat RW 12 GMG</span>
             </div>
         </div>
     </div>
@@ -98,13 +98,14 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16 md:h-20">
                     
-                    <!-- Logo & Brand Name -->
+                    <!-- Logo Resmi & Brand Name -->
                     <button onclick="go('beranda')" class="flex items-center gap-3 text-left focus:outline-none group">
-                        <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl gradient-gold flex items-center justify-center font-black text-emerald-950 text-sm md:text-base shrink-0 shadow-lg group-hover:scale-105 transition-transform">
-                            PILWE
-                        </div>
+                        <div id="navLogoContainer" class="w-10 h-10 md:w-12 md:h-12 shrink-0 group-hover:scale-105 transition-transform"></div>
                         <div>
-                            <div class="font-extrabold text-sm md:text-base leading-tight tracking-tight">PILWE 012 GMG</div>
+                            <div class="font-black text-sm md:text-base leading-tight tracking-tight flex items-center gap-1.5">
+                                PILWE 012 GMG
+                                <span class="bg-amber-400 text-emerald-950 text-[9px] font-black px-1.5 py-0.2 rounded uppercase">2026</span>
+                            </div>
                             <div class="text-[10px] md:text-xs text-emerald-100/90 truncate">Perum Grand Mutiara Gading · Telajung</div>
                         </div>
                     </button>
@@ -135,9 +136,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-3 gap-8 text-center md:text-left">
             <div>
                 <div class="flex items-center gap-3 mb-4 justify-center md:justify-start">
-                    <div class="w-10 h-10 rounded-xl gradient-gold flex items-center justify-center font-black text-emerald-950">PILWE</div>
+                    <div id="footerLogoContainer" class="w-12 h-12 shrink-0"></div>
                     <div>
-                        <div class="font-bold text-base">PILWE 012 GMG</div>
+                        <div class="font-extrabold text-base">PILWE 012 GMG</div>
                         <div class="text-xs text-emerald-200">Periode Jabatan 2027–2030</div>
                     </div>
                 </div>
@@ -179,7 +180,7 @@
 
         <div class="border-t border-white/10 bg-emerald-950/60 py-4">
             <div class="max-w-7xl mx-auto px-4 text-center text-xs text-emerald-200/70 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div>&copy; 2026–2027 Panitia PILWE 012 GMG. Hak Cipta Dilindungi.</div>
+                <div>&copy; 2026 Panitia Pemilihan Ketua RW 12 Perum Grand Mutiara Gading.</div>
                 <div>
                     <button onclick="go('loginAdmin')" class="hover:text-white underline underline-offset-2 flex items-center gap-1 mx-auto sm:mx-0">
                         <i class="fa-solid fa-lock text-[10px]"></i> Login Admin Panel
@@ -204,6 +205,61 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        /* =========================================================
+           SVG OFFICIAL LOGO GENERATOR (SESUAI LOGO RW 12 GMG 2026)
+        ========================================================= */
+        function getLogoSvg(sizeClass = "w-full h-full") {
+            return `
+            <svg class="${sizeClass}" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- Red Top Arc Background -->
+                <path d="M 40,250 A 210,210 0 0,1 460,250 L 390,250 A 140,140 0 0,0 110,250 Z" fill="#E52320"/>
+                <!-- Black Bottom Arc Background -->
+                <path d="M 460,250 A 210,210 0 0,1 40,250 L 110,250 A 140,140 0 0,0 390,250 Z" fill="#111827"/>
+                
+                <!-- Text Arc Paths -->
+                <path id="topArcPath" d="M 65,250 A 185,185 0 0,1 435,250" fill="none"/>
+                <path id="bottomArcPath" d="M 435,250 A 185,185 0 0,1 65,250" fill="none"/>
+                
+                <!-- Curved Text Top -->
+                <text font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="25" fill="#FFFFFF" text-anchor="middle">
+                    <textPath href="#topArcPath" startOffset="50%">PANITIA PEMILIHAN KETUA</textPath>
+                </text>
+                
+                <!-- Curved Text Bottom -->
+                <text font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="20" fill="#FFFFFF" text-anchor="middle">
+                    <textPath href="#bottomArcPath" startOffset="50%">PERUM GRAND MUTIARA GADING</textPath>
+                </text>
+                
+                <!-- Middle Pill Banner -->
+                <rect x="20" y="220" width="460" height="60" rx="30" fill="#FFFFFF" stroke="#E52320" stroke-width="6"/>
+                <text x="75" y="261" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="32" fill="#111827" text-anchor="middle">RW</text>
+                <text x="425" y="261" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="32" fill="#111827" text-anchor="middle">12</text>
+                
+                <!-- Inner Circle -->
+                <circle cx="250" cy="250" r="135" fill="#FFFFFF"/>
+                
+                <!-- Isometric Ballot Box -->
+                <g transform="translate(0, -5)">
+                    <!-- Orange Ballot Ticket -->
+                    <polygon points="245,130 285,100 298,125 258,155" fill="#F59E0B" stroke="#D97706" stroke-width="2"/>
+                    
+                    <!-- Top Box Facet -->
+                    <polygon points="250,150 320,180 250,210 180,180" fill="#E5E7EB" stroke="#6B7280" stroke-width="6" stroke-linejoin="round"/>
+                    <line x1="230" y1="170" x2="270" y2="188" stroke="#374151" stroke-width="5" stroke-linecap="round"/>
+                    
+                    <!-- Left Facet (Indonesian Flag Red/White) -->
+                    <polygon points="180,180 250,210 250,285 180,255" fill="#FFFFFF" stroke="#6B7280" stroke-width="6" stroke-linejoin="round"/>
+                    <polygon points="180,180 250,210 250,247 180,217" fill="#E52320"/>
+                    
+                    <!-- Right Facet -->
+                    <polygon points="250,210 320,180 320,255 250,285" fill="#F9FAFB" stroke="#6B7280" stroke-width="6" stroke-linejoin="round"/>
+                    
+                    <!-- Year Text -->
+                    <text x="250" y="325" font-family="Plus Jakarta Sans, sans-serif" font-weight="900" font-size="24" fill="#111827" text-anchor="middle">TAHUN 2026</text>
+                </g>
+            </svg>`;
+        }
+
         /* =========================================================
            DATABASE INITIAL STATE & LOCALSTORAGE PERSISTENCE
         ========================================================= */
@@ -343,13 +399,13 @@
         // LocalStorage Helpers
         let DB = loadDB();
         function loadDB() {
-            const raw = localStorage.getItem("pilwe012_db");
+            const raw = localStorage.getItem("pilwe012_v2_db");
             if (raw) return JSON.parse(raw);
-            localStorage.setItem("pilwe012_db", JSON.stringify(DEFAULT_DATA));
+            localStorage.setItem("pilwe012_v2_db", JSON.stringify(DEFAULT_DATA));
             return JSON.parse(JSON.stringify(DEFAULT_DATA));
         }
         function saveDB() {
-            localStorage.setItem("pilwe012_db", JSON.stringify(DB));
+            localStorage.setItem("pilwe012_v2_db", JSON.stringify(DB));
         }
 
         let session = JSON.parse(localStorage.getItem("pilwe012_session") || "null");
@@ -392,6 +448,10 @@
                 </button>
             `).join("");
             document.getElementById("navMobile").innerHTML = mobileHtml;
+
+            // Render Logos in Header & Footer
+            document.getElementById("navLogoContainer").innerHTML = getLogoSvg();
+            document.getElementById("footerLogoContainer").innerHTML = getLogoSvg();
         }
 
         /* =========================================================
@@ -442,7 +502,7 @@
                             </p>
                             <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
                                 <a href="#kandidat" class="px-6 py-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 font-extrabold text-sm shadow-xl transition-all hover:-translate-y-0.5 flex items-center gap-2">
-                                    <i class="fa-solid fa-users"></i> lihat Calon Ketua RW
+                                    <i class="fa-solid fa-users"></i> Lihat Calon Ketua RW
                                 </a>
                                 <button onclick="go('timeline')" class="px-6 py-3.5 rounded-xl glass hover:bg-white/20 text-white font-bold text-sm transition-all flex items-center gap-2">
                                     <i class="fa-solid fa-calendar-check text-amber-300"></i> Alur Pemilihan
@@ -450,16 +510,16 @@
                             </div>
                         </div>
 
-                        <!-- Countdown Card -->
+                        <!-- Countdown Card with Logo Badge -->
                         <div class="lg:col-span-5 reveal">
-                            <div class="bg-emerald-950/80 border border-emerald-700/60 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur relative">
+                            <div class="bg-emerald-950/80 border border-emerald-700/60 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur relative overflow-hidden">
                                 <div class="flex items-center justify-between pb-4 border-b border-emerald-800">
                                     <div>
                                         <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-300">HITUNG MUNDUR</span>
-                                        <h3 class="text-lg font-bold text-white">Hari Pencoblosan</h3>
+                                        <h3 class="text-lg font-bold text-white">Hari Pemungutan Suara</h3>
                                     </div>
-                                    <div class="w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center text-amber-300">
-                                        <i class="fa-solid fa-hourglass-half text-lg"></i>
+                                    <div class="w-12 h-12 shrink-0">
+                                        ${getLogoSvg()}
                                     </div>
                                 </div>
 
@@ -721,7 +781,7 @@
 
                 <!-- Timeline Steps -->
                 <div class="relative before:absolute before:inset-0 before:left-5 sm:before:left-1/2 before:-translate-x-px before:h-full before:w-0.5 before:bg-slate-200 space-y-8">
-                    ${DB.timeline.map((t, i) => {
+                    ${DB.timeline.map((t) => {
                         const s = statusMap[t.status] || statusMap.akan;
                         return `
                         <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
@@ -991,7 +1051,7 @@
                             <i class="fa-solid fa-list-check"></i> MISI PEMBANGUNAN
                         </div>
                         <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
-                            ${k.misi.map(m => `
+                            ${(k.misi || []).map(m => `
                                 <li class="flex items-start gap-2.5">
                                     <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
                                     <span>${m}</span>
@@ -1075,15 +1135,15 @@
         });
 
         /* =========================================================
-           LOGIN & ADMIN DASHBOARD
+           LOGIN & ADMIN DASHBOARD WITH FULL CRUD (KANDIDAT & TIMELINE)
         ========================================================= */
         function viewLoginAdmin() {
             return `
             <section class="min-h-[60vh] flex items-center justify-center px-4 py-12">
                 <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-slate-200">
                     <div class="text-center mb-6">
-                        <div class="w-14 h-14 mx-auto gradient-primary text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow">
-                            <i class="fa-solid fa-user-gear"></i>
+                        <div class="w-16 h-16 mx-auto mb-3">
+                            ${getLogoSvg()}
                         </div>
                         <h2 class="text-2xl font-extrabold text-slate-900">Login Admin Panel</h2>
                         <p class="text-xs text-slate-500 mt-1">Khusus Panitia Pemilihan Ketua RW 012 GMG</p>
@@ -1155,48 +1215,50 @@
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="text-xs text-slate-500 font-bold uppercase">Total Kandidat</div>
-                        <div class="text-2xl font-black text-emerald-700 mt-1">${DB.kandidat.length}</div>
+                        <div class="text-2xl font-black text-emerald-700 mt-1">${DB.kandidat.length} Paslon</div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="text-xs text-slate-500 font-bold uppercase">Pengumuman</div>
-                        <div class="text-2xl font-black text-emerald-700 mt-1">${DB.pengumuman.length}</div>
+                        <div class="text-2xl font-black text-emerald-700 mt-1">${DB.pengumuman.length} Post</div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="text-xs text-slate-500 font-bold uppercase">Tahapan Timeline</div>
-                        <div class="text-2xl font-black text-emerald-700 mt-1">${DB.timeline.length}</div>
+                        <div class="text-2xl font-black text-emerald-700 mt-1">${DB.timeline.length} Tahap</div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="text-xs text-slate-500 font-bold uppercase">Status Sesi</div>
-                        <div class="text-xs font-bold text-emerald-700 mt-2">Active Admin</div>
+                        <div class="text-xs font-bold text-emerald-700 mt-2">● Active Admin</div>
                     </div>
                 </div>
 
                 <div class="grid lg:grid-cols-2 gap-8">
-                    <!-- Kelola Kandidat -->
+                    <!-- Kelola Kandidat (Lengkap Visi, Misi, Program) -->
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-bold text-slate-900 text-base">Kelola Kandidat Paslon</h3>
+                            <h3 class="font-bold text-slate-900 text-base">
+                                <i class="fa-solid fa-user-pen text-emerald-700 mr-1.5"></i>Kelola Paslon & Program
+                            </h3>
                             <button onclick="formKandidat()" class="px-3.5 py-1.5 rounded-xl bg-emerald-700 text-white font-bold text-xs">
-                                <i class="fa-solid fa-plus mr-1"></i> Tambah Kandidat
+                                <i class="fa-solid fa-plus mr-1"></i> Tambah Paslon
                             </button>
                         </div>
                         <div class="space-y-3">
                             ${DB.kandidat.map(k => `
-                                <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg bg-emerald-700 text-white font-bold text-xs flex items-center justify-center">
+                                <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white font-extrabold text-sm flex items-center justify-center shrink-0">
                                             0${k.no}
                                         </div>
-                                        <div>
-                                            <div class="font-bold text-xs text-slate-900">${k.nama}</div>
-                                            <div class="text-[10px] text-slate-500">${k.alamat}</div>
+                                        <div class="min-w-0">
+                                            <div class="font-bold text-xs text-slate-900 truncate">${k.nama}</div>
+                                            <div class="text-[10px] text-slate-500 truncate">${k.alamat} • ${(k.misi || []).length} Poin Misi • ${(k.program || []).length} Program</div>
                                         </div>
                                     </div>
-                                    <div class="flex gap-2">
-                                        <button onclick="formKandidat(${k.id})" class="p-2 text-xs text-emerald-700 bg-emerald-100 rounded-lg hover:bg-emerald-200">
-                                            <i class="fa-solid fa-pen"></i>
+                                    <div class="flex gap-1.5 shrink-0">
+                                        <button onclick="formKandidat(${k.id})" class="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-100 rounded-xl hover:bg-emerald-200">
+                                            <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Full
                                         </button>
-                                        <button onclick="hapusKandidat(${k.id})" class="p-2 text-xs text-red-600 bg-red-100 rounded-lg hover:bg-red-200">
+                                        <button onclick="hapusKandidat(${k.id})" class="p-2 text-xs text-red-600 bg-red-100 rounded-xl hover:bg-red-200">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </div>
@@ -1205,9 +1267,11 @@
                         </div>
                     </div>
 
-                    <!-- Tambah Pengumuman -->
+                    <!-- Tambah Pengumuman Baru -->
                     <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                        <h3 class="font-bold text-slate-900 text-base mb-4">Buat Pengumuman Baru</h3>
+                        <h3 class="font-bold text-slate-900 text-base mb-4">
+                            <i class="fa-solid fa-bullhorn text-emerald-700 mr-1.5"></i>Buat Pengumuman Baru
+                        </h3>
                         <form onsubmit="tambahPengumuman(event)" class="space-y-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-600 mb-1">Kategori</label>
@@ -1231,21 +1295,43 @@
                     </div>
                 </div>
 
-                <!-- Update Timeline Status -->
+                <!-- CRUD PENUH TIMELINE -->
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h3 class="font-bold text-slate-900 text-base mb-4">Update Status Timeline</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-900 text-base">
+                            <i class="fa-solid fa-timeline text-emerald-700 mr-1.5"></i>CRUD Penuh Timeline Tahapan PILWE
+                        </h3>
+                        <button onclick="formTimeline()" class="px-3.5 py-1.5 rounded-xl bg-emerald-700 text-white font-bold text-xs">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah Tahapan Baru
+                        </button>
+                    </div>
+                    
                     <div class="space-y-3">
                         ${DB.timeline.map(t => `
-                            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200 gap-3">
-                                <div>
-                                    <div class="font-bold text-xs text-slate-900">${t.judul}</div>
-                                    <div class="text-[10px] text-slate-500">${t.tanggal}</div>
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-emerald-950 font-bold text-lg flex items-center justify-center shrink-0">
+                                        ${t.icon}
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-xs text-slate-900">${t.judul}</div>
+                                        <div class="text-[10px] text-slate-500">${t.tanggal} • Status: <strong class="uppercase">${t.status}</strong></div>
+                                        <div class="text-[11px] text-slate-600 line-clamp-1 mt-0.5">${t.desc}</div>
+                                    </div>
                                 </div>
-                                <select onchange="ubahStatusTimeline(${t.id}, this.value)" class="px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-semibold">
-                                    <option value="selesai" ${t.status === 'selesai' ? 'selected' : ''}>Selesai</option>
-                                    <option value="berjalan" ${t.status === 'berjalan' ? 'selected' : ''}>Sedang Berlangsung</option>
-                                    <option value="akan" ${t.status === 'akan' ? 'selected' : ''}>Akan Datang</option>
-                                </select>
+                                <div class="flex items-center gap-2 self-end sm:self-center">
+                                    <select onchange="ubahStatusTimeline(${t.id}, this.value)" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-300 text-xs font-semibold">
+                                        <option value="selesai" ${t.status === 'selesai' ? 'selected' : ''}>Selesai</option>
+                                        <option value="berjalan" ${t.status === 'berjalan' ? 'selected' : ''}>Berlangsung</option>
+                                        <option value="akan" ${t.status === 'akan' ? 'selected' : ''}>Akan Datang</option>
+                                    </select>
+                                    <button onclick="formTimeline(${t.id})" class="p-2 text-xs text-emerald-700 bg-emerald-100 rounded-xl hover:bg-emerald-200">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="hapusTimeline(${t.id})" class="p-2 text-xs text-red-600 bg-red-100 rounded-xl hover:bg-red-200">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         `).join("")}
                     </div>
@@ -1255,7 +1341,7 @@
                 <div class="bg-red-50 p-6 rounded-2xl border border-red-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                         <div class="font-bold text-red-900 text-sm">Reset Data Ke Default Demo</div>
-                        <div class="text-xs text-red-700 mt-0.5">Kembalikan data kandidat dan pengumuman ke kondisi awal.</div>
+                        <div class="text-xs text-red-700 mt-0.5">Kembalikan data kandidat, pengumuman, dan timeline ke kondisi awal.</div>
                     </div>
                     <button onclick="confirmResetData()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shrink-0">
                         Reset Data LocalStorage
@@ -1266,15 +1352,16 @@
         }
 
         /* =========================================================
-           FORM KANDIDAT & ADMIN ACTION LOGIC
+           FORM KANDIDAT WITH DYNAMIC MISI & PROGRAM UNGGULAN
         ========================================================= */
         function formKandidat(id) {
             const isEdit = !!id;
             const k = isEdit ? DB.kandidat.find(x => x.id === id) : {
                 no: (DB.kandidat.length ? Math.max(...DB.kandidat.map(x => x.no)) + 1 : 1),
-                nama: "", umur: "", pekerjaan: "", alamat: "",
+                nama: "", umur: 40, pekerjaan: "Wiraswasta", alamat: "Blok GMG",
                 emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800",
-                visi: "", misi: ["", ""]
+                visi: "", misi: ["", ""],
+                program: [{ icon: "⭐", judul: "Program 1", desc: "Deskripsi program..." }]
             };
 
             const html = `
@@ -1282,22 +1369,23 @@
                     <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
-                    <h3 class="text-xl font-bold">${isEdit ? 'Edit Data Candidate' : 'Tambah Candidate Baru'}</h3>
+                    <h3 class="text-xl font-bold">${isEdit ? 'Edit Full Data Paslon' : 'Tambah Paslon Baru'}</h3>
+                    <p class="text-xs text-emerald-100 mt-0.5">Atur profil, visi, misi dinamis, serta program kerja kandidat.</p>
                 </div>
 
-                <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                    <div class="grid sm:grid-cols-2 gap-3">
+                <div class="p-6 space-y-5 max-h-[72vh] overflow-y-auto">
+                    <div class="grid sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">Nomor Urut *</label>
-                            <input id="fNo" type="number" min="1" value="${k.no}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                            <input id="fNo" type="number" min="1" value="${k.no}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap *</label>
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Paslon *</label>
                             <input id="fNama" type="text" value="${k.nama}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
                         </div>
                     </div>
 
-                    <div class="grid sm:grid-cols-2 gap-3">
+                    <div class="grid sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-600 mb-1">Alamat Blok *</label>
                             <input id="fAlamat" type="text" value="${k.alamat}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
@@ -1306,20 +1394,98 @@
                             <label class="block text-xs font-bold text-slate-600 mb-1">Pekerjaan</label>
                             <input id="fPekerjaan" type="text" value="${k.pekerjaan}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
                         </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Avatar Emoji</label>
+                            <input id="fEmoji" type="text" value="${k.emoji}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-center">
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Visi Candidate</label>
-                        <textarea id="fVisi" rows="3" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs resize-none">${k.visi}</textarea>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Visi Utama Paslon</label>
+                        <textarea id="fVisi" rows="2" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs resize-none">${k.visi}</textarea>
+                    </div>
+
+                    <!-- DYNAMIC MISI BUILDER -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-emerald-800 uppercase tracking-wider">Misi Pembangunan (Dinamis)</label>
+                            <button type="button" onclick="addMisiRow()" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                                + Tambah Poin Misi
+                            </button>
+                        </div>
+                        <div id="misiContainer" class="space-y-2">
+                            ${(k.misi || []).map((m) => `
+                                <div class="flex items-center gap-2 misi-row">
+                                    <input type="text" value="${m}" placeholder="Tuliskan poin misi..." class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                                    <button type="button" onclick="this.parentElement.remove()" class="p-2 text-xs text-red-600 bg-red-100 rounded-xl">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            `).join("")}
+                        </div>
+                    </div>
+
+                    <!-- DYNAMIC PROGRAM UNGGULAN BUILDER -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-bold text-emerald-800 uppercase tracking-wider">Program Unggulan (Dinamis)</label>
+                            <button type="button" onclick="addProgramRow()" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                                + Tambah Program Kerja
+                            </button>
+                        </div>
+                        <div id="programContainer" class="space-y-3">
+                            ${(k.program || []).map((p) => `
+                                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 program-row">
+                                    <div class="flex items-center gap-2">
+                                        <input type="text" value="${p.icon}" placeholder="Icon/Emoji" class="w-16 px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-center prog-icon">
+                                        <input type="text" value="${p.judul}" placeholder="Judul Program Kerja" class="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold prog-judul">
+                                        <button type="button" onclick="this.closest('.program-row').remove()" class="p-1.5 text-xs text-red-600 bg-red-100 rounded-lg">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <input type="text" value="${p.desc}" placeholder="Deskripsi singkat program..." class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs prog-desc">
+                                </div>
+                            `).join("")}
+                        </div>
                     </div>
                 </div>
 
                 <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
                     <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
-                    <button onclick="simpanKandidat(${isEdit ? id : 'null'})" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs">Simpan Data</button>
+                    <button onclick="simpanKandidat(${isEdit ? id : 'null'})" class="px-5 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs">Simpan Paslon</button>
                 </div>
             `;
             openModal(html);
+        }
+
+        function addMisiRow() {
+            const container = document.getElementById("misiContainer");
+            const div = document.createElement("div");
+            div.className = "flex items-center gap-2 misi-row";
+            div.innerHTML = `
+                <input type="text" placeholder="Tuliskan poin misi..." class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                <button type="button" onclick="this.parentElement.remove()" class="p-2 text-xs text-red-600 bg-red-100 rounded-xl">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addProgramRow() {
+            const container = document.getElementById("programContainer");
+            const div = document.createElement("div");
+            div.className = "p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 program-row";
+            div.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <input type="text" value="⭐" placeholder="Icon/Emoji" class="w-16 px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-center prog-icon">
+                    <input type="text" placeholder="Judul Program Kerja" class="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold prog-judul">
+                    <button type="button" onclick="this.closest('.program-row').remove()" class="p-1.5 text-xs text-red-600 bg-red-100 rounded-lg">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+                <input type="text" placeholder="Deskripsi singkat program..." class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs prog-desc">
+            `;
+            container.appendChild(div);
         }
 
         function simpanKandidat(id) {
@@ -1327,6 +1493,7 @@
             const nama = document.getElementById("fNama").value.trim();
             const alamat = document.getElementById("fAlamat").value.trim();
             const pekerjaan = document.getElementById("fPekerjaan").value.trim();
+            const emoji = document.getElementById("fEmoji").value.trim() || "👨‍💼";
             const visi = document.getElementById("fVisi").value.trim();
 
             if (!no || !nama) {
@@ -1334,16 +1501,28 @@
                 return;
             }
 
+            // Extract dynamic Misi
+            const misiInputs = document.querySelectorAll("#misiContainer .misi-row input");
+            const misiArr = Array.from(misiInputs).map(i => i.value.trim()).filter(v => v);
+
+            // Extract dynamic Program
+            const progRows = document.querySelectorAll("#programContainer .program-row");
+            const progArr = Array.from(progRows).map(r => ({
+                icon: r.querySelector(".prog-icon").value.trim() || "⭐",
+                judul: r.querySelector(".prog-judul").value.trim(),
+                desc: r.querySelector(".prog-desc").value.trim()
+            })).filter(p => p.judul);
+
             const data = {
                 no, nama,
                 alamat: alamat || "Blok GMG",
                 pekerjaan: pekerjaan || "Warga GMG",
                 umur: 40,
-                emoji: "👨‍💼",
+                emoji,
                 warna: "from-emerald-600 to-emerald-800",
                 visi: visi || "Mewujudkan RW 012 GMG yang lebih baik.",
-                misi: ["Meningkatkan kebersihan dan keamanan lingkungan.", "Menjaga kerukunan dan pelayanan terbuka bagi warga."],
-                program: [{ icon: "⭐", judul: "Program Utama", desc: "Optimalisasi pelayanan lingkungan RW 012." }]
+                misi: misiArr.length ? misiArr : ["Mengabdi untuk lingkungan RW 012 GMG."],
+                program: progArr
             };
 
             if (id) {
@@ -1355,7 +1534,7 @@
 
             saveDB();
             closeModal();
-            showToast("✅", "Data kandidat berhasil disimpan!");
+            showToast("✅", "Data kandidat berhasil diperbarui!");
             render();
         }
 
@@ -1364,6 +1543,107 @@
             saveDB();
             showToast("🗑️", "Kandidat telah dihapus.");
             render();
+        }
+
+        /* =========================================================
+           FORM CRUD FULL TIMELINE
+        ========================================================= */
+        function formTimeline(id) {
+            const isEdit = !!id;
+            const t = isEdit ? DB.timeline.find(x => x.id === id) : {
+                judul: "", tanggal: "10 Jan 2027", desc: "", icon: "📌", status: "akan"
+            };
+
+            const html = `
+                <div class="gradient-primary text-white p-6 relative">
+                    <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <h3 class="text-xl font-bold">${isEdit ? 'Edit Tahapan Timeline' : 'Tambah Tahapan Timeline Baru'}</h3>
+                </div>
+
+                <div class="p-6 space-y-4">
+                    <div class="grid sm:grid-cols-3 gap-3">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Judul Tahapan *</label>
+                            <input id="tJudul" type="text" value="${t.judul}" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Ikon Emoji</label>
+                            <input id="tIcon" type="text" value="${t.icon}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-center">
+                        </div>
+                    </div>
+
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal / Periode *</label>
+                            <input id="tTanggal" type="text" value="${t.tanggal}" placeholder="Contoh: 15–25 Des 2026" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Status Tahapan</label>
+                            <select id="tStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                                <option value="selesai" ${t.status === 'selesai' ? 'selected' : ''}>Selesai</option>
+                                <option value="berjalan" ${t.status === 'berjalan' ? 'selected' : ''}>Sedang Berlangsung</option>
+                                <option value="akan" ${t.status === 'akan' ? 'selected' : ''}>Akan Datang</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Deskripsi Ringkas *</label>
+                        <textarea id="tDesc" rows="3" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs resize-none">${t.desc}</textarea>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                    <button onclick="simpanTimeline(${isEdit ? id : 'null'})" class="px-5 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs">Simpan Tahapan</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function simpanTimeline(id) {
+            const judul = document.getElementById("tJudul").value.trim();
+            const tanggal = document.getElementById("tTanggal").value.trim();
+            const desc = document.getElementById("tDesc").value.trim();
+            const icon = document.getElementById("tIcon").value.trim() || "📌";
+            const status = document.getElementById("tStatus").value;
+
+            if (!judul || !tanggal) {
+                showToast("⚠️", "Judul dan tanggal tahapan wajib diisi!");
+                return;
+            }
+
+            const data = { judul, tanggal, desc, icon, status };
+
+            if (id) {
+                const idx = DB.timeline.findIndex(x => x.id === id);
+                if (idx !== -1) DB.timeline[idx] = { ...DB.timeline[idx], ...data };
+            } else {
+                DB.timeline.push({ id: Date.now(), ...data });
+            }
+
+            saveDB();
+            closeModal();
+            showToast("✅", "Timeline berhasil diperbarui!");
+            render();
+        }
+
+        function hapusTimeline(id) {
+            DB.timeline = DB.timeline.filter(t => t.id !== id);
+            saveDB();
+            showToast("🗑️", "Tahapan timeline dihapus.");
+            render();
+        }
+
+        function ubahStatusTimeline(id, status) {
+            const t = DB.timeline.find(x => x.id === id);
+            if (t) {
+                t.status = status;
+                saveDB();
+                showToast("✅", "Status tahapan diperbarui!");
+            }
         }
 
         function tambahPengumuman(e) {
@@ -1387,27 +1667,18 @@
             render();
         }
 
-        function ubahStatusTimeline(id, status) {
-            const t = DB.timeline.find(x => x.id === id);
-            if (t) {
-                t.status = status;
-                saveDB();
-                showToast("✅", "Status timeline diperbarui!");
-            }
-        }
-
         function confirmResetData() {
-            localStorage.removeItem("pilwe012_db");
+            localStorage.removeItem("pilwe012_v2_db");
             localStorage.removeItem("pilwe012_session");
             DB = loadDB();
             session = null;
-            showToast("🔄", "Data berhasil direset ke awal!");
+            showToast("🔄", "Data direset ke posisi awal!");
             go("beranda");
         }
 
         function doLogout() {
             clearSession();
-            showToast("👋", "Anda telah logout dari Admin Panel.");
+            showToast("👋", "Anda telah logout dari Admin.");
             go("beranda");
         }
 
