@@ -47,6 +47,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         * { -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; background-color: #f8fafc; }
@@ -240,6 +243,13 @@
     </div>
 
     <script>
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = "https://yopyipfgoznnkzzajutc.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_mTgrJ54x0j2adv0cF7XeNQ_LBb33Hye";
+        const supabaseClient = (window.supabase && window.supabase.createClient)
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+            : null;
+
         async function sha256(str) {
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
@@ -267,7 +277,7 @@
             { icon: "🎉", label: "Pelantikan" }
         ];
 
-        // DATA DEFAULT PILWE 012 GMG
+        // DATA DEFAULT TERBARU DARI FILE JSON PILWE 012 GMG
         const DEFAULT_DATA = {
             agendaBar: {
                 badge: "AGENDA RESMI",
@@ -284,8 +294,8 @@
                 periode: "2027–2029",
                 tagline: "Bersama Membangun Lingkungan GMG yang Guyub, Aman, Transparan & Maju",
                 countdown: "2027-01-17T06:00:00+07:00",
-                lokasiTps: "GOR Perum GMG",
-                alamatSekretariat: "GOR Perum Grand Mutiara Gading, Desa Telajung, Kec. Cikarang Barat, Kab. Bekasi",
+                lokasiTps: "Sekretariat RW 012 Perum GMG",
+                alamatSekretariat: "Kantor Sekretariat RW 012 Perum Grand Mutiara Gading, Desa Telajung, Kec. Cikarang Barat, Kab. Bekasi",
                 jamLayanan: "Senin – Sabtu, 08:00 – 16:00 WIB",
                 email: "pilwe.gmg2026@gmail.com",
                 wa: "+62 812-1946-122",
@@ -298,8 +308,8 @@
             },
             kandidat: [
                 {
-                    id: 1, no: 1, nama: "Calon 1", umur: 45, pekerjaan: "Wiraswasta",
-                    alamat: "Blok A2 No. 15", emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800",
+                    id: 1, no: 1, nama: "Calon 1", umur: 40, pekerjaan: "Wiraswasta",
+                    alamat: "Blok xx No. 00", emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800",
                     visi: "Mewujudkan RW 012 Perum Grand Mutiara Gading sebagai lingkungan yang asri, aman berbasis teknologi modern, serta transparan dalam pengelolaan kas warga.",
                     misi: [
                         "Pemasangan sistem CCTV online 24 jam dan optimalisasi ronda malam poskamling.",
@@ -308,14 +318,12 @@
                         "Meningkatkan kerukunan antar blok melalui kegiatan sosial dan olahraga berkala."
                     ],
                     program: [
-                        { icon: "🔒", judul: "CCTV & Security GOR", desc: "Sistem keamanan terpadu di area GOR dan jalan utama." },
-                        { icon: "💻", judul: "Transparansi Kas Digital", desc: "Akses laporan iuran dan pengeluaran RW secara online." },
-                        { icon: "🏸", judul: "Liga Olahraga GMG", desc: "Bazar dan turnamen olahraga antar RT tiap semester." }
+                        { icon: "⭐", judul: "Program Kerja Utama", desc: "Optimalisasi kebersihan & keamanan RW 012." }
                     ]
                 },
                 {
-                    id: 2, no: 2, nama: "Calon 2", umur: 42, pekerjaan: "Ibu Rumah Tangga / UMKM",
-                    alamat: "Blok C1 No. 08", emoji: "👩‍💼", warna: "from-teal-600 to-emerald-700",
+                    id: 2, no: 2, nama: "Calon 2", umur: 40, pekerjaan: "Ibu Rumah Tangga / UMKM",
+                    alamat: "Blok xx No. 00", emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800",
                     visi: "Memberdayakan warga RW 012 melalui penguatan UMKM lokal, kesehatan keluarga, dan lingkungan yang ramah anak serta lansia.",
                     misi: [
                         "Mengembangkan potensi UMKM warga GMG dengan pelatihan usaha & bazar bulanan.",
@@ -324,14 +332,12 @@
                         "Penguatan peranan PKK dan kegiatan keagamaan warga."
                     ],
                     program: [
-                        { icon: "🛍️", judul: "Bazar UMKM Warga", desc: "Pasar kaget bulanan di area GOR untuk produk warga." },
-                        { icon: "🏥", judul: "Posyandu & Sehat Bersama", desc: "Layanan pemeriksaan kesehatan berkala bagi warga." },
-                        { icon: "🎨", judul: "Ruang Kreatif Anak", desc: "Taman bermain asri & fasilitas edukasi anak." }
+                        { icon: "⭐", judul: "Program Kerja Utama", desc: "Optimalisasi kebersihan & keamanan RW 012." }
                     ]
                 },
                 {
-                    id: 3, no: 3, nama: "Calon 3", umur: 38, pekerjaan: "Karyawan Swasta / IT",
-                    alamat: "Blok D3 No. 21", emoji: "🧑‍💻", warna: "from-emerald-700 to-teal-900",
+                    id: 3, no: 3, nama: "Calon 3", umur: 40, pekerjaan: "Karyawan Swasta / IT",
+                    alamat: "Blok xx No. 00", emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800",
                     visi: "Menjadikan RW 012 sebagai pemukiman hijau, bebas banjir, responsif terhadap keluhan, serta mendorong partisipasi aktif generasi muda.",
                     misi: [
                         "Percepatan normalisasi drainase dan saluran air lingkungan bebas genangan.",
@@ -340,9 +346,7 @@
                         "Pemberdayaan Karang Taruna GMG dalam inovasi teknologi dan kebersihan."
                     ],
                     program: [
-                        { icon: "🌊", judul: "Drainase Bebas Banjir", desc: "Pembersihan berkala & perbaikan sistem saluran air." },
-                        { icon: "📱", judul: "Halo RW 012", desc: "Layanan pengaduan & tanggap darurat warga 24/7." },
-                        { icon: "🌱", judul: "GMG Hijau & Asri", desc: "Penanaman 300 bibit tanaman toga dan pohon peneduh." }
+                        { icon: "⭐", judul: "Program Kerja Utama", desc: "Optimalisasi kebersihan & keamanan RW 012." }
                     ]
                 }
             ],
@@ -352,12 +356,19 @@
                 { id: 3, tanggal: "2027-01-05", kategori: "Penting", judul: "Hari H Pemungutan Suara: Ahad, 17 Januari 2027 di GOR GMG", isi: "Pemungutan suara dilaksanakan serentak pada Ahad, 17 Januari 2027 pukul 06.00–11.00 WIB di TPS GOR Perum GMG. Harap membawa KTP/KK asli saat registrasi." }
             ],
             timeline: [
-                { id: 1, tanggal: "15–25 Des 2026", judul: "Pendaftaran Calon", desc: "Penerimaan dan pengumpulan berkas pendaftaran calon Ketua RW 012 GMG.", status: "selesai", icon: "📝" },
-                { id: 2, tanggal: "26–30 Des 2026", judul: "Verifikasi Berkas", desc: "Panitia memverifikasi kelengkapan administrasi dan keabsahan data calon.", status: "selesai", icon: "🔍" },
-                { id: 3, tanggal: "2–9 Jan 2027", judul: "Sosialisasi & Kampanye", desc: "Pemaparan visi misi dan dialog interaktif warga bersama para kandidat di GOR GMG.", status: "berjalan", icon: "📣" },
-                { id: 4, tanggal: "10–13 Jan 2027", judul: "Penetapan DPT", desc: "Pengumuman Daftar Pemilih Tetap RW 012 dan penyiapan sarana TPS GOR GMG.", status: "akan", icon: "📋" },
-                { id: 5, tanggal: "Ahad, 17 Jan 2027", judul: "Pemungutan Suara", desc: "Pencoblosan langsung di TPS GOR Perum GMG Pukul 06:00 - 11:00 WIB.", status: "akan", icon: "🗳️" },
-                { id: 6, tanggal: "17 Jan 2027", judul: "Perhitungan & Penetapan", desc: "Penghitungan suara terbuka dan penetapan Ketua RW 012 terpilih.", status: "akan", icon: "🏆" }
+                { id: 1, tanggal: "10–25 Okt 2026", icon: "📝", judul: "Pembuatan Tata Tertib, Tahapan dan Anggaran", status: "selesai", desc: "Pembuatan Tata Tertib, Tahapan dan Anggaran oleh Panitia Pemilihan Ketua RW 012 Perum GMG" },
+                { id: 2, tanggal: "26–31 Okt 2026", icon: "📝", judul: "Pendataan Daftar Pemilih Sementara Ketua RW 012 Perum GMG", status: "selesai", desc: "Panitian melakukan pendataan pemiliha sementara dengan meminta setiap ketua RT untuk menyerahkan data warga yang masuk DPS dengan data terbaru" },
+                { id: 3, tanggal: "1–15 Nov 2026", icon: "📝", judul: "Pendaftaran Balon Ketua RW 012 Perum GMG", status: "berjalan", desc: "Panitia melakukan Penetapan dan Pengambilan No. Urut Balon Ketua RW 012 Perum GMG" },
+                { id: 4, tanggal: "25 Nov 2026", icon: "📋", judul: "Penetapan dan Pengambilan No. Urut Balon Ketua RW 012 Perum GMG", status: "akan", desc: "Panitia melakukan Penetapan dan Pengambilan No. Urut Balon Ketua RW 012 Perum GMG sesuai dengan data yang telah di dapatkan" },
+                { id: 5, tanggal: "01 Des 2026", icon: "📝", judul: "Finalisasi Data Pemilih Tetap", status: "akan", desc: "Panitia Melakukan Finalisasi Data Pemilih Tetap untuk Pemilihan Ketua RW 012 Perum GMG" },
+                { id: 6, tanggal: "01-15 Des 2026", icon: "📝", judul: "Sosialiasi Bakal Calon Ketua RW oleh Panitia", status: "akan", desc: "Sosialiasi Bakal Calon Ketua RW oleh Panitia termasuk menggunakan media digital baik melalui Whatsapp maupun web resmi Pilwe 012 GMG" },
+                { id: 1793523590382, tanggal: "08-20 Des 2026", icon: "📝", judul: "Pembagian Undangan ke Semua Daftar Pemilih Tetap Ketua RW 012 Perum GMG", status: "akan", desc: "Panitia Melakukan Pembagian Undangan ke Semua Daftar Pemilih Tetap Ketua RW 012 Perum GMG sesuai dengan data yang telah ditetapkan" },
+                { id: 1793523781294, tanggal: "25-31 Des 2026", icon: "📝", judul: "Masa Kampanye Bakal Calon Ketua RW 012", status: "akan", desc: "Calon Ketua RW dipersilakan untuk Kampanye sebagai Calon Ketua RW 012" },
+                { id: 1793523890823, tanggal: "01-05 Jan 2027", icon: "📝", judul: "Lanjut Masa Kampanye Bakal Calon Ketua RW 012", status: "akan", desc: "Calon Ketua RW dipersilakan untuk Melanjutkan Kampanye sebagai Calon Ketua RW 012 Perum GMG Periode 2027-2029" },
+                { id: 1793524025597, tanggal: "10-15 Jan 2026", icon: "📝", judul: "Masa Tenang Pemilihan Ketua RW 012 Perum GMG", status: "akan", desc: "Masa Tenang Pemilihan Ketua RW 012 Perum GMG. Tidak ada lagi Calon Ketua RW yang melakukan kampanye karena masa kampanye telah berakhir" },
+                { id: 1793524116429, tanggal: "Ahad, 17 Jan 2027", icon: "📝", judul: "Pemungutan dan Penghitungan Suara Di TPS", status: "akan", desc: "Pemungutan dan Penghitungan Suara Di TPS yang berlokasi di GOR Perum Grand Mutiara Gading oleh Panitia Pemilihan disaksikan oleh Para Saksi yang telah ditetapkan." },
+                { id: 1793524241271, tanggal: "Rabu, 20 Januari 2026", icon: "📝", judul: "Pengkuhuan Ketua RW Terpilih di Rapat Panitia Panitia Pemilihan Ketua RW 012 Tahun 2026 dan Laporan Pertanggungjawaban Panitia", status: "akan", desc: "Pengkuhuan Ketua RW Terpilih di Rapat Panitia Pemilihan Ketua RW 012 Tahun 2026 dan Laporan Pertanggungjawaban Panitia" },
+                { id: 1793524408039, tanggal: "Rabu, 27 Jan 2027", icon: "📝", judul: "Serah Terima Jabatan dari Ketua RW 012 GMG lama kepada Ketua RW 012 GMG Terpilih", status: "akan", desc: "Serah Terima Jabatan dari Ketua RW 012 GMG lama kepada Ketua RW 012 GMG Terpilih Periode 2027-2029 di Balai RW" }
             ],
             panitia: {
                 ketua: { nama: "M. Widodo", jabatan: "Ketua Panitia" },
@@ -388,10 +399,9 @@
         // LOCAL STORAGE DATABASE SYSTEM
         let DB = loadDB();
         function loadDB() {
-            const raw = localStorage.getItem("pilwe012_v6_db");
+            const raw = localStorage.getItem("pilwe012_v7_db");
             if (raw) {
                 const parsed = JSON.parse(raw);
-                // Migrasi otomatis jika data lama masih menggunakan tatibPdf tunggal
                 if (parsed.tatibPdf && !parsed.tatibPdf1) {
                     parsed.tatibPdf1 = parsed.tatibPdf;
                     parsed.tatibJudul1 = "Dokumen Tata Tertib & Pedoman Pemilihan";
@@ -400,11 +410,11 @@
                 }
                 return parsed;
             }
-            localStorage.setItem("pilwe012_v6_db", JSON.stringify(DEFAULT_DATA));
+            localStorage.setItem("pilwe012_v7_db", JSON.stringify(DEFAULT_DATA));
             return JSON.parse(JSON.stringify(DEFAULT_DATA));
         }
         function saveDB() {
-            localStorage.setItem("pilwe012_v6_db", JSON.stringify(DB));
+            localStorage.setItem("pilwe012_v7_db", JSON.stringify(DB));
             syncDynamicTexts();
         }
 
@@ -441,7 +451,7 @@
         }
 
         let route = "beranda";
-        let activeTatibTab = 1; // Tab dokumen yang sedang aktif (1 atau 2)
+        let activeTatibTab = 1;
 
         function go(r) {
             route = r;
@@ -876,7 +886,6 @@
             `;
         }
 
-        // TAMPILAN MENU TATA TERTIB (2 DOKUMEN PDF LENGKAP)
         function viewTatib() {
             const pdf1Url = DB.tatibPdf1 || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
             const pdf1Judul = DB.tatibJudul1 || "Dokumen Tata Tertib & Pedoman Pemilihan";
@@ -897,7 +906,6 @@
             </section>
 
             <section class="py-12 max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
-                <!-- TAB NAVIGASI PILIHAN DOKUMEN PDF -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button onclick="switchTatibTab(1)" class="p-4 sm:p-5 rounded-2xl border text-left transition-all flex items-center gap-4 ${activeTatibTab === 1 ? 'bg-white border-emerald-600 shadow-md ring-2 ring-emerald-500/30' : 'bg-slate-100/90 border-slate-200 hover:bg-white'}">
                         <div class="w-12 h-12 rounded-xl ${activeTatibTab === 1 ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-600'} flex items-center justify-center text-2xl shrink-0 font-black">
@@ -922,7 +930,6 @@
                     </button>
                 </div>
 
-                <!-- CARD BAR DOKUMEN AKTIF & TOMBOL UNDUH -->
                 <div class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-2xl shrink-0">
@@ -939,7 +946,6 @@
                     </a>
                 </div>
 
-                <!-- PREVIEW IFRAME DOKUMEN PDF -->
                 <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md">
                     <iframe src="${currentUrl}" class="w-full h-[75vh] min-h-[500px]" frameborder="0">
                         <p class="p-6 text-center text-xs text-slate-600">
@@ -1397,7 +1403,6 @@
                     <p class="text-xs text-slate-500 mb-6">Atur judul dan URL/Upload file PDF untuk Dokumen 1 (Tata Tertib) dan Dokumen 2 (Berita Acara / Lampiran).</p>
 
                     <form onsubmit="simpanTatibPdf(event)" class="space-y-6">
-                        <!-- DOKUMEN 1 FORM -->
                         <div class="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                             <div class="font-extrabold text-xs text-emerald-800 uppercase tracking-wider flex items-center gap-2">
                                 <i class="fa-solid fa-file-pdf text-red-600"></i> DOKUMEN 1 (UTAMA)
@@ -1416,7 +1421,6 @@
                             </div>
                         </div>
 
-                        <!-- DOKUMEN 2 FORM -->
                         <div class="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                             <div class="font-extrabold text-xs text-emerald-800 uppercase tracking-wider flex items-center gap-2">
                                 <i class="fa-solid fa-file-contract text-emerald-600"></i> DOKUMEN 2 (LAMPIRAN / BERITA ACARA)
@@ -1584,8 +1588,8 @@
                 <!-- RESET DATA -->
                 <div class="bg-red-50 p-6 rounded-3xl border border-red-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
-                        <div class="font-bold text-red-900 text-sm">Reset Data Ke Default Demo</div>
-                        <div class="text-xs text-red-700 mt-0.5">Kembalikan seluruh data kandidat, timeline, pengumuman, tatib, dan kontak ke kondisi awal.</div>
+                        <div class="font-bold text-red-900 text-sm">Reset Data Ke Default Terbaru</div>
+                        <div class="text-xs text-red-700 mt-0.5">Kembalikan seluruh data kandidat, timeline, pengumuman, tatib, dan kontak ke kondisi data awal terbaru.</div>
                     </div>
                     <button onclick="confirmResetData()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shrink-0">
                         Reset Data LocalStorage
@@ -1608,7 +1612,6 @@
             render();
         }
 
-        /* --- CRUD TIMELINE FUNCTIONS DENGAN PILIHAN IKON --- */
         function formTimeline(id) {
             const isEdit = !!id;
             const t = isEdit ? DB.timeline.find(x => x.id === id) : {
@@ -1738,7 +1741,6 @@
             render();
         }
 
-        /* --- CRUD PENGUMUMAN FUNCTIONS --- */
         function formPengumuman(id) {
             const isEdit = !!id;
             const a = isEdit ? DB.pengumuman.find(x => x.id === id) : {
@@ -1842,7 +1844,6 @@
             render();
         }
 
-        // BACKUP & RESTORE JSON
         function downloadBackupJSON() {
             const now = new Date();
             const dd = String(now.getDate()).padStart(2, '0');
@@ -1899,7 +1900,6 @@
             render();
         }
 
-        // SIMPAN DOKUMEN DUAL PDF (DOKUMEN 1 & DOKUMEN 2)
         function simpanTatibPdf(e) {
             e.preventDefault();
             const j1 = document.getElementById("inTatibJudul1").value.trim();
@@ -1919,7 +1919,6 @@
             render();
         }
 
-        // HANDLER UPLOAD FILE PDF (DOKUMEN 1 ATAU DOKUMEN 2)
         function handleUploadTatibPdf(e, docNum) {
             const file = e.target.files[0];
             if (!file) return;
@@ -2099,7 +2098,7 @@
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 mb-1">Reset Semua Data?</h3>
-                    <p class="text-xs text-slate-500 mb-6">Seluruh perubahan kandidat, timeline, pengumuman, dan kontak akan dikembalikan ke data awal demo.</p>
+                    <p class="text-xs text-slate-500 mb-6">Seluruh perubahan kandidat, timeline, pengumuman, dan kontak akan dikembalikan ke data awal terbaru.</p>
                     <div class="flex justify-center gap-3">
                         <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
                         <button onclick="doResetData()" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Reset Sekarang</button>
@@ -2110,7 +2109,7 @@
         }
 
         function doResetData() {
-            localStorage.removeItem("pilwe012_v6_db");
+            localStorage.removeItem("pilwe012_v7_db");
             localStorage.removeItem("pilwe012_session");
             DB = loadDB();
             session = null;
