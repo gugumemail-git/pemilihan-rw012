@@ -75,10 +75,10 @@
     <div id="topAnnouncementBar" class="bg-emerald-950 text-emerald-100 text-xs py-2.5 px-4 border-b border-emerald-800/80 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2 text-center md:text-left">
             <div class="flex items-center gap-2 flex-wrap justify-center md:justify-start">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-emerald-950 uppercase tracking-wider shadow-sm animate-pulse">
+                <span id="topBarBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-emerald-950 uppercase tracking-wider shadow-sm animate-pulse">
                     AGENDA RESMI
                 </span>
-                <span class="font-bold">Hari Pemungutan Suara PILWE 012 GMG: <span class="text-amber-300" id="topBarTgl">Ahad, 17 Januari 2027</span></span>
+                <span class="font-bold" id="topBarJudul">Hari Pemungutan Suara PILWE 012 GMG: <span class="text-amber-300" id="topBarTgl">Ahad, 17 Januari 2027</span></span>
             </div>
             <div class="flex items-center gap-3 text-[11px] text-emerald-200/90 flex-wrap justify-center">
                 <span><i class="fa-solid fa-clock text-amber-400 mr-1"></i><span id="topBarJam">06:00 – 11:00 WIB</span></span>
@@ -93,7 +93,6 @@
         <div class="gradient-primary text-white shadow-md">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16 md:h-20">
-                    
                     <button onclick="go('beranda')" class="flex items-center gap-3 text-left focus:outline-none group">
                         <div class="w-11 h-11 shrink-0 rounded-full bg-white p-0.5 shadow-lg group-hover:scale-105 transition-transform">
                             <svg viewBox="0 0 500 500" class="w-full h-full">
@@ -188,7 +187,7 @@
                     <li><button onclick="go('panitia')" class="hover:text-amber-300 transition-colors">Susunan Kepanitiaan</button></li>
                     <li><button onclick="go('timeline')" class="hover:text-amber-300 transition-colors">Timeline & Jadwal</button></li>
                     <li><button onclick="go('tatib')" class="hover:text-amber-300 transition-colors">Tata Tertib & Rules</button></li>
-                    <li><button onclick="go('kontak')" class="hover:text-amber-300 transition-colors">Kontak & TPS GOR GMG</button></li>
+                    <li><button onclick="go('kontak')" class="hover:text-amber-300 transition-colors">Kontak & TPS GMG</button></li>
                 </ul>
             </div>
 
@@ -197,7 +196,7 @@
                 <ul class="space-y-2.5 text-xs text-emerald-100/90">
                     <li class="flex items-start justify-center md:justify-start gap-2">
                         <i class="fa-solid fa-location-dot mt-0.5 text-amber-400"></i>
-                        <span id="footerLokasi">Sekretariat RW 012 Perum GMG</span>
+                        <span id="footerLokasi">GOR Perum GMG</span>
                     </li>
                     <li class="flex items-center justify-center md:justify-start gap-2">
                         <i class="fa-solid fa-clock text-amber-400"></i>
@@ -205,7 +204,7 @@
                     </li>
                     <li class="flex items-center justify-center md:justify-start gap-2">
                         <i class="fa-solid fa-envelope text-amber-400"></i>
-                        <span id="footerEmail">panitiapemilihan.rw012@gmail.com</span>
+                        <span id="footerEmail">pilwe.gmg2026@gmail.com</span>
                     </li>
                     <li class="flex items-center justify-center md:justify-start gap-2">
                         <i class="fa-brands fa-whatsapp text-amber-400"></i>
@@ -241,7 +240,6 @@
     </div>
 
     <script>
-        /* SHA-256 HELPER FOR ENCRYPTED ADMIN AUTH */
         async function sha256(str) {
             const encoder = new TextEncoder();
             const data = encoder.encode(str);
@@ -253,8 +251,30 @@
         const DEFAULT_ADMIN_USER_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
         const DEFAULT_ADMIN_PASS_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
 
-        /* INITIAL DATABASE STATE */
+        // DAFTAR PILIHAN IKON TIMELINE
+        const TIMELINE_ICONS = [
+            { icon: "📝", label: "Pendaftaran" },
+            { icon: "🔍", label: "Verifikasi" },
+            { icon: "📣", label: "Sosialisasi/Kampanye" },
+            { icon: "📋", label: "Penetapan DPT" },
+            { icon: "🗳️", label: "Pemungutan Suara" },
+            { icon: "🏆", label: "Penetapan Hasil" },
+            { icon: "📢", label: "Pengumuman" },
+            { icon: "📌", label: "Penting" },
+            { icon: "📅", label: "Jadwal" },
+            { icon: "👥", label: "Musyawarah" },
+            { icon: "⚖️", label: "Tata Tertib" },
+            { icon: "🎉", label: "Pelantikan" }
+        ];
+
+        // DATA DEFAULT PILWE 012 GMG
         const DEFAULT_DATA = {
+            agendaBar: {
+                badge: "AGENDA RESMI",
+                judulText: "Hari Pemungutan Suara PILWE 012 GMG: Ahad, 17 Januari 2027",
+                jamText: "06:00 – 11:00 WIB",
+                lokasiText: "GOR Perum GMG"
+            },
             profil: {
                 rw: "012",
                 perumahan: "Perum Grand Mutiara Gading",
@@ -264,10 +284,10 @@
                 periode: "2027–2029",
                 tagline: "Bersama Membangun Lingkungan GMG yang Guyub, Aman, Transparan & Maju",
                 countdown: "2027-01-17T06:00:00+07:00",
-                lokasiTps: "Sekretariat RW 012 Perum GMG",
-                alamatSekretariat: "Kantor Sekretariat RW 12 Perum Grand Mutiara Gading, Desa Telajung, Kec. Cikarang Barat, Kab. Bekasi",
+                lokasiTps: "GOR Perum GMG",
+                alamatSekretariat: "GOR Perum Grand Mutiara Gading, Desa Telajung, Kec. Cikarang Barat, Kab. Bekasi",
                 jamLayanan: "Senin – Sabtu, 08:00 – 16:00 WIB",
-                email: "panitiapemilihan.rw012@gmail.com",
+                email: "pilwe.gmg2026@gmail.com",
                 wa: "+62 812-1946-122",
                 koordinat: { lat: "-6.327153", lng: "107.059916", zoom: 17 },
                 mapsLink: "https://maps.google.com/?q=-6.327153,107.059916"
@@ -359,59 +379,19 @@
                     { nama: "Umar Setiawan", jabatan: "Sie Keamanan & Ketertiban" }
                 ]
             },
-            tatib: [
-                {
-                    id: 1,
-                    judul: "Hak & Syarat Pemilih (DPT)",
-                    isi: [
-                        "Pemilih adalah warga ber-KTP/KK domisili RW 012 Perum Grand Mutiara Gading.",
-                        "Setiap KK/Pemilih terdaftar berhak menggunakan 1 (satu) hak suara.",
-                        "Pemilih wajib membawa identitas asli (KTP/KK/Surat Undangan) ke TPS GOR GMG.",
-                        "Proses pendaftaran ulang di meja registrasi TPS GOR dibuka pukul 06:00 WIB."
-                    ]
-                },
-                {
-                    id: 2,
-                    judul: "Ketentuan Calon Ketua RW",
-                    isi: [
-                        "Calon adalah warga RW 012 GMG yang telah dinyatakan lolos verifikasi berkas.",
-                        "Calon bersedia menandatangani Pakta Integritas dan siap menerima hasil pemilihan.",
-                        "Dilarang melakukan kampanye hitam (black campaign), politik uang, atau intimidasi.",
-                        "Calon wajib memaparkan visi misi dalam forum sosialisasi resmi di GOR GMG."
-                    ]
-                },
-                {
-                    id: 3,
-                    judul: "Tata Cara Pencoblosan di TPS GOR GMG",
-                    isi: [
-                        "Pemilih menyerahkan undangan/identitas di meja registrasi panitia GOR.",
-                        "Menerima lembar surat suara sah yang ditandatangani Ketua Panitia.",
-                        "Masuk ke bilik suara dan mencoblos 1 (satu) nomor urut pilihan.",
-                        "Melipat kembali surat suara dan memasukkannya ke kotak suara transparan.",
-                        "Mencelupkan salah satu jari ke tinta sebagai tanda telah memilih."
-                    ]
-                },
-                {
-                    id: 4,
-                    judul: "Asas & Larangan Pemilihan",
-                    isi: [
-                        "Pemilihan dilaksanakan berdasarkan asas LUBER JURDIL (Langsung, Umum, Bebas, Rahasia, Jujur, Adil).",
-                        "Dilarang membawa kamera atau mengambil foto/video saat berada di dalam bilik suara.",
-                        "Dilarang mempengaruhi pilihan warga lain di area TPS GOR GMG."
-                    ]
-                }
-            ]
+            tatibPdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         };
 
+        // LOCAL STORAGE DATABASE SYSTEM
         let DB = loadDB();
         function loadDB() {
-            const raw = localStorage.getItem("pilwe012_v3_db");
+            const raw = localStorage.getItem("pilwe012_v6_db");
             if (raw) return JSON.parse(raw);
-            localStorage.setItem("pilwe012_v3_db", JSON.stringify(DEFAULT_DATA));
+            localStorage.setItem("pilwe012_v6_db", JSON.stringify(DEFAULT_DATA));
             return JSON.parse(JSON.stringify(DEFAULT_DATA));
         }
         function saveDB() {
-            localStorage.setItem("pilwe012_v3_db", JSON.stringify(DB));
+            localStorage.setItem("pilwe012_v6_db", JSON.stringify(DB));
             syncDynamicTexts();
         }
 
@@ -420,12 +400,26 @@
         function clearSession() { session = null; localStorage.removeItem("pilwe012_session"); }
 
         function syncDynamicTexts() {
-            const p = DB.profil;
-            const topBarLokasi = document.getElementById("topBarLokasi");
-            if (topBarLokasi) topBarLokasi.textContent = p.lokasiTps || "GOR Perum GMG";
+            const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
+            const elBadge = document.getElementById("topBarBadge");
+            if (elBadge) elBadge.textContent = ab.badge;
             
+            const elJudul = document.getElementById("topBarJudul");
+            if (elJudul) elJudul.innerHTML = `${ab.judulText}`;
+            
+            const elJam = document.getElementById("topBarJam");
+            if (elJam) elJam.textContent = ab.jamText;
+
+            const elTopBarLokasi = document.getElementById("topBarLokasi");
+            if (elTopBarLokasi) elTopBarLokasi.textContent = ab.lokasiText;
+
+            // MENGAMBIL DATA LOKASI LANGSUNG DARI RUNNING BAR / AGENDA RESMI (SS ke-2)
+            const heroLokasi = document.getElementById("heroLokasiTps");
+            if (heroLokasi) heroLokasi.textContent = ab.lokasiText;
+
+            const p = DB.profil;
             const footerLokasi = document.getElementById("footerLokasi");
-            if (footerLokasi) footerLokasi.textContent = "TPS: " + (p.lokasiTps || "GOR Perum GMG");
+            if (footerLokasi) footerLokasi.textContent = ab.lokasiText || p.lokasiTps || "GOR Perum GMG";
             const footerJam = document.getElementById("footerJam");
             if (footerJam) footerJam.textContent = p.jamLayanan;
             const footerEmail = document.getElementById("footerEmail");
@@ -434,7 +428,6 @@
             if (footerWa) footerWa.textContent = p.wa;
         }
 
-        /* SPA ROUTER */
         let route = "beranda";
 
         function go(r) {
@@ -451,7 +444,7 @@
                 { r: "pengumuman", label: "Pengumuman", icon: "fa-bullhorn" },
                 { r: "panitia", label: "Panitia", icon: "fa-users" },
                 { r: "timeline", label: "Timeline", icon: "fa-calendar-days" },
-                { r: "tatib", label: "Tata Tertib", icon: "fa-clipboard-list" },
+                { r: "tatib", label: "Tata Tertib", icon: "fa-file-pdf" },
                 { r: "kontak", label: "Kontak & TPS", icon: "fa-address-book" }
             ];
 
@@ -491,9 +484,9 @@
             if (route === "beranda") startCountdown();
         }
 
-        /* VIEW: BERANDA */
         function viewBeranda() {
             const p = DB.profil;
+            const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
             return `
             <section class="relative gradient-primary text-white overflow-hidden pt-8 pb-16 lg:pt-16 lg:pb-24">
                 <div class="absolute inset-0 pattern-dots opacity-30 pointer-events-none"></div>
@@ -539,7 +532,7 @@
                                     <i class="fa-solid fa-location-dot text-amber-300 text-2xl"></i>
                                     <div class="text-xs">
                                         <div class="font-bold text-white">Lokasi TPS Pencoblosan:</div>
-                                        <div class="text-emerald-200 mt-0.5 font-bold">${p.lokasiTps}</div>
+                                        <div class="text-emerald-200 mt-0.5 font-bold" id="heroLokasiTps">${ab.lokasiText || 'GOR Perum GMG'}</div>
                                     </div>
                                 </div>
                             </div>
@@ -652,7 +645,7 @@
                         </div>
                         <h2 class="text-3xl sm:text-4xl font-extrabold mb-4 tracking-tight">Tandai Tanggalnya!</h2>
                         <p class="text-emerald-50/95 text-xs sm:text-sm md:text-base leading-relaxed mb-8">
-                            Pastikan Anda hadir dan menggunakan hak pilih pada hari pemilihan, <strong>Ahad, 17 Januari 2027</strong>, pukul <strong>06.00–11.00 WIB</strong> di <strong>GOR Perum GMG</strong>. Suara Anda menentukan masa depan lingkungan kita untuk 3 tahun ke depan.
+                            Pastikan Anda hadir dan menggunakan hak pilih pada hari pemilihan, <strong>Ahad, 17 Januari 2027</strong>, pukul <strong>06.00–11.00 WIB</strong> di <strong>${ab.lokasiText || 'GOR Perum GMG'}</strong>. Suara Anda menentukan masa depan lingkungan kita untuk 3 tahun ke depan.
                         </p>
                         <div class="mb-8">
                             <div class="text-[10px] uppercase font-bold tracking-widest text-amber-300 mb-2">COUNTDOWN MENUJU PENCOBLOSAN</div>
@@ -703,7 +696,6 @@
             `;
         }
 
-        /* COUNTDOWN TIMER LOGIC */
         let cdInterval = null;
         function startCountdown() {
             clearInterval(cdInterval);
@@ -738,7 +730,6 @@
             cdInterval = setInterval(tick, 1000);
         }
 
-        /* VIEW: PENGUMUMAN */
         function viewPengumuman() {
             return `
             <section class="gradient-primary text-white py-12">
@@ -767,7 +758,6 @@
             `;
         }
 
-        /* VIEW: TIMELINE */
         function viewTimeline() {
             const statusMap = {
                 selesai: { label: "Selesai", badge: "bg-slate-200 text-slate-700", dot: "bg-emerald-600 text-white" },
@@ -806,7 +796,7 @@
                         return `
                         <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
                             <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white ${s.dot} shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-sm font-bold">
-                                ${t.icon}
+                                ${t.icon || '📝'}
                             </div>
                             <div class="w-[calc(100%-3.5rem)] md:w-[calc(50%-2.5rem)] bg-white p-6 rounded-2xl border ${t.status === 'berjalan' ? 'border-amber-400 ring-2 ring-amber-100 shadow-md' : 'border-slate-200'} shadow-sm">
                                 <div class="flex items-center justify-between gap-2 mb-2">
@@ -824,7 +814,6 @@
             `;
         }
 
-        /* VIEW: PANITIA */
         function viewPanitia() {
             const p = DB.panitia;
             return `
@@ -874,49 +863,57 @@
             `;
         }
 
-        /* VIEW: TATA TERTIB */
         function viewTatib() {
+            const pdfUrl = DB.tatibPdf || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
             return `
             <section class="gradient-primary text-white py-12">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
                     <span class="text-xs font-extrabold uppercase tracking-widest text-amber-300">PANDUAN & ATURAN</span>
                     <h1 class="text-3xl sm:text-4xl font-extrabold mt-1">Tata Tertib Pemilihan</h1>
-                    <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Aturan dan pedoman resmi pelaksanaan PILWE 012 GMG.</p>
+                    <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Dokumen resmi aturan dan pedoman pelaksanaan PILWE 012 GMG.</p>
                 </div>
             </section>
 
-            <section class="py-12 max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
-                ${DB.tatib.map((t, i) => `
-                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                        <div class="gradient-primary text-white px-6 py-4 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <span class="w-7 h-7 rounded-lg bg-amber-400 text-emerald-950 font-black text-xs flex items-center justify-center shrink-0">${i + 1}</span>
-                                <h3 class="font-bold text-sm sm:text-base">${t.judul}</h3>
-                            </div>
+            <section class="py-12 max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
+                <div class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-2xl shrink-0">
+                            <i class="fa-solid fa-file-pdf"></i>
                         </div>
-                        <ul class="p-6 space-y-2.5 text-xs sm:text-sm text-slate-700">
-                            ${t.isi.map(item => `
-                                <li class="flex items-start gap-2.5">
-                                    <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5 shrink-0"></i>
-                                    <span>${item}</span>
-                                </li>
-                            `).join("")}
-                        </ul>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-sm sm:text-base">Dokumen Resmi Tata Tertib PILWE 012</h3>
+                            <p class="text-xs text-slate-500">Format PDF · Siap cetak & diunduh</p>
+                        </div>
                     </div>
-                `).join("")}
+                    <a href="${pdfUrl}" target="_blank" download class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow">
+                        <i class="fa-solid fa-download"></i> Unduh PDF Tata Tertib
+                    </a>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md">
+                    <iframe src="${pdfUrl}" class="w-full h-[75vh] min-h-[500px]" frameborder="0">
+                        <p class="p-6 text-center text-xs text-slate-600">
+                            Browser Anda tidak mendukung preview PDF. 
+                            <a href="${pdfUrl}" target="_blank" class="text-emerald-700 font-bold underline">Klik di sini untuk mengunduh file PDF</a>.
+                        </p>
+                    </iframe>
+                </div>
             </section>
             `;
         }
 
-        /* VIEW: KONTAK & TPS GOR GMG */
         function viewKontak() {
             const p = DB.profil;
+            const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
+            const lokasiUtama = ab.lokasiText || p.lokasiTps || 'GOR Perum GMG';
+
             return `
             <section class="gradient-primary text-white py-12">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
                     <span class="text-xs font-extrabold uppercase tracking-widest text-amber-300">LOKASI TPS & SEKRETARIAT</span>
                     <h1 class="text-3xl sm:text-4xl font-extrabold mt-1">Kontak & Lokasi TPS</h1>
-                    <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Hubungi Panitia PILWE 012 GMG atau lihat petunjuk lokasi TPS GOR Perum GMG.</p>
+                    <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Hubungi Panitia PILWE 012 GMG atau lihat petunjuk lokasi TPS & Sekretariat RW 012 Perum GMG.</p>
                 </div>
             </section>
 
@@ -929,7 +926,7 @@
                             </div>
                             <div>
                                 <h4 class="font-bold text-slate-900 text-sm">Lokasi TPS Pencoblosan</h4>
-                                <p class="text-xs font-black text-emerald-700 mt-0.5">${p.lokasiTps}</p>
+                                <p class="text-xs font-black text-emerald-700 mt-0.5">${lokasiUtama}</p>
                                 <p class="text-xs text-slate-600 mt-1 leading-relaxed">${p.alamatSekretariat}</p>
                                 <a href="${p.mapsLink}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:underline mt-2">
                                     <i class="fa-solid fa-map-location-dot"></i> Buka Petunjuk Google Maps
@@ -990,7 +987,7 @@
 
                 <div class="mt-8 bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
                     <div class="p-4 border-b border-slate-100 font-bold text-slate-900 text-sm flex items-center justify-between">
-                        <span><i class="fa-solid fa-map-location-dot text-emerald-700 mr-2"></i>Peta Lokasi TPS: ${p.lokasiTps}</span>
+                        <span><i class="fa-solid fa-map-location-dot text-emerald-700 mr-2"></i>Peta Lokasi TPS: ${lokasiUtama}</span>
                     </div>
                     <iframe class="w-full h-72 sm:h-80" loading="lazy" src="https://www.google.com/maps?q=${p.koordinat.lat},${p.koordinat.lng}&z=${p.koordinat.zoom}&output=embed"></iframe>
                 </div>
@@ -1015,7 +1012,6 @@
             showToast("✅", "Mengarahkan ke WhatsApp Panitia...");
         }
 
-        /* MODALS */
         function showKandidatModal(id) {
             const k = DB.kandidat.find(x => x.id === id);
             if (!k) return;
@@ -1106,7 +1102,7 @@
                         </button>
                     </div>
                     <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mb-4">${a.judul}</h2>
-                    <p class="text-slate-600 leading-relaxed text-xs sm:text-sm">${a.isi}</p>
+                    <p class="text-slate-600 leading-relaxed text-xs sm:text-sm whitespace-pre-line">${a.isi}</p>
                     <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
                         <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-emerald-700 text-white font-bold text-xs hover:bg-emerald-800">
                             Tutup Pengumuman
@@ -1137,7 +1133,6 @@
             if (e.target.id === "modal") closeModal();
         });
 
-        /* ADMIN AUTH & DASHBOARD */
         function viewLoginAdmin() {
             return `
             <section class="min-h-[60vh] flex items-center justify-center px-4 py-12">
@@ -1147,7 +1142,7 @@
                             <i class="fa-solid fa-user-gear"></i>
                         </div>
                         <h2 class="text-2xl font-extrabold text-slate-900">Admin Login Dashboard</h2>
-                        <p class="text-xs text-slate-500 mt-1">Sistem Terenkripsi SHA-256 (Aman dari Inspect Code)</p>
+                        <p class="text-xs text-slate-500 mt-1">Sistem Terenkripsi SHA-256</p>
                     </div>
 
                     <form onsubmit="doLoginAdmin(event)" class="space-y-4">
@@ -1205,6 +1200,7 @@
             }
 
             const p = DB.profil;
+            const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
 
             return `
             <section class="gradient-primary text-white py-10">
@@ -1226,20 +1222,97 @@
                         <div class="text-2xl font-black text-emerald-700 mt-1">${DB.kandidat.length} Paslon</div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <div class="text-xs text-slate-500 font-bold uppercase">Total Tatib Rules</div>
-                        <div class="text-2xl font-black text-emerald-700 mt-1">${DB.tatib.length} Pasal</div>
+                        <div class="text-xs text-slate-500 font-bold uppercase">Total Timeline</div>
+                        <div class="text-2xl font-black text-emerald-700 mt-1">${DB.timeline.length} Tahapan</div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <div class="text-xs text-slate-500 font-bold uppercase">Pengumuman</div>
+                        <div class="text-xs text-slate-500 font-bold uppercase">Dokumen Tatib</div>
+                        <div class="text-2xl font-black text-red-600 mt-1">PDF</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="text-xs text-slate-500 font-bold uppercase">Total Pengumuman</div>
                         <div class="text-2xl font-black text-emerald-700 mt-1">${DB.pengumuman.length} Item</div>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <div class="text-xs text-slate-500 font-bold uppercase">Enkripsi Password</div>
-                        <div class="text-xs font-black text-emerald-700 mt-2">SHA-256 Encrypted</div>
                     </div>
                 </div>
 
-                <!-- BACKUP & RESTORE JSON FILE SECTION -->
+                <!-- 1. EDIT RUNNING BAR / AGENDA RESMI -->
+                <div class="bg-amber-500/10 border border-amber-400/40 p-6 sm:p-8 rounded-3xl shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="px-3 py-1 bg-amber-400 text-emerald-950 text-xs font-black rounded-full uppercase">BAGIAN 1</span>
+                        <h3 class="font-extrabold text-slate-900 text-lg">
+                            <i class="fa-solid fa-bullhorn text-amber-600 mr-1"></i>Edit Running Bar / Agenda Resmi (Top Announcement)
+                        </h3>
+                    </div>
+                    <p class="text-xs text-slate-600 mb-6">Ubah teks running bar paling atas & otomatis memperbarui lokasi TPS di Hero Countdown.</p>
+
+                    <form onsubmit="simpanAgendaBar(event)" class="space-y-4">
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Badge Teks Label *</label>
+                                <input id="abBadge" type="text" required value="${ab.badge}" placeholder="AGENDA RESMI" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-amber-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Jam Acara Agenda *</label>
+                                <input id="abJamText" type="text" required value="${ab.jamText}" placeholder="06:00 – 11:00 WIB" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs">
+                            </div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Teks Judul Agenda Resmi *</label>
+                                <input id="abJudulText" type="text" required value="${ab.judulText}" placeholder="Hari Pemungutan Suara PILWE 012 GMG: Ahad, 17 Januari 2027" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Tempat di Running Bar & Hero TPS *</label>
+                                <input id="abLokasiText" type="text" required value="${ab.lokasiText}" placeholder="GOR Perum GMG" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-emerald-800">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-emerald-950 font-black text-xs shadow">
+                            Simpan Perubahan Top Announcement Bar
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. EDIT KONTAK & SEKRETARIAT PANITIA -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-black rounded-full uppercase">BAGIAN 2</span>
+                        <h3 class="font-extrabold text-slate-900 text-lg">
+                            <i class="fa-solid fa-address-book text-emerald-700 mr-1"></i>Edit Kontak & Sekretariat Panitia
+                        </h3>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-6">Ubah WhatsApp, email, dan alamat sekretariat di Footer & Halaman Kontak.</p>
+
+                    <form onsubmit="simpanKontakProfil(event)" class="space-y-4">
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">No. WhatsApp Panitia *</label>
+                                <input id="eWaPanitia" type="text" required value="${p.wa}" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Email Resmi Panitia</label>
+                                <input id="eEmailPanitia" type="email" value="${p.email}" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Jam Layanan Sekretariat Panitia</label>
+                            <input id="eJamLayanan" type="text" value="${p.jamLayanan}" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Alamat Lengkap Kantor Sekretariat Panitia / TPS</label>
+                            <textarea id="eAlamatSekretariat" rows="2" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs resize-none">${p.alamatSekretariat}</textarea>
+                        </div>
+
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow">
+                            Simpan Perubahan Kontak & Sekretariat
+                        </button>
+                    </form>
+                </div>
+
+                <!-- BACKUP & RESTORE JSON -->
                 <div class="bg-emerald-900 text-white p-6 sm:p-8 rounded-3xl border border-emerald-700 shadow-md">
                     <div class="flex flex-col md:flex-row items-center justify-between gap-6">
                         <div>
@@ -1259,73 +1332,75 @@
                     </div>
                 </div>
 
-                <!-- EDIT KONTAK & LOKASI TPS -->
+                <!-- KELOLA DOKUMEN TATA TERTIB PDF -->
                 <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
-                    <h3 class="font-extrabold text-slate-900 text-lg mb-1">
-                        <i class="fa-solid fa-pen-to-square text-emerald-700 mr-2"></i>Edit Informasi Kontak & Lokasi TPS
-                    </h3>
-                    <p class="text-xs text-slate-500 mb-6">Perubahan di sini akan langsung terupdate di Header, Footer, Banner, dan Halaman Kontak.</p>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="px-3 py-1 bg-red-100 text-red-700 text-xs font-black rounded-full uppercase">DOKUMEN PDF</span>
+                        <h3 class="font-extrabold text-slate-900 text-lg">
+                            <i class="fa-solid fa-file-pdf text-red-600 mr-1"></i>Kelola Dokumen PDF Tata Tertib
+                        </h3>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-6">Masukkan URL dokumen PDF Tata Tertib (Google Drive / Cloud Storage) atau unggah file PDF langsung.</p>
 
-                    <form onsubmit="simpanKontakProfil(event)" class="space-y-4">
-                        <div class="grid sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Alamat Panitia Pilwe 012 GMG *</label>
-                                <input id="eLokasiTps" type="text" required value="${p.lokasiTps}" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-emerald-800">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">No. WhatsApp Panitia *</label>
-                                <input id="eWaPanitia" type="text" required value="${p.wa}" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                            </div>
+                    <form onsubmit="simpanTatibPdf(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">URL File PDF Tata Tertib *</label>
+                            <input id="inTatibPdfUrl" type="url" required value="${DB.tatibPdf || ''}" placeholder="https://domain.com/dokumen-tatib.pdf" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
                         </div>
 
-                        <div class="grid sm:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Jam Layanan Panitia</label>
-                                <input id="eJamLayanan" type="text" value="${p.jamLayanan}" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Email Resmi Panitia</label>
-                                <input id="eEmailPanitia" type="email" value="${p.email}" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                            </div>
+                        <div class="flex items-center gap-2 text-xs text-slate-400 my-2">
+                            <div class="flex-grow border-t border-slate-200"></div>
+                            <span>Atau Upload File PDF Langsung</span>
+                            <div class="flex-grow border-t border-slate-200"></div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Alamat Lengkap Sekretariat / TPS</label>
-                            <textarea id="eAlamatSekretariat" rows="2" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs resize-none">${p.alamatSekretariat}</textarea>
+                            <input type="file" id="inTatibPdfFile" accept="application/pdf" onchange="handleUploadTatibPdf(event)" class="text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                         </div>
 
                         <button type="submit" class="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow">
-                            Simpan Perubahan Kontak & TPS
+                            Simpan Dokumen PDF Tata Tertib
                         </button>
                     </form>
                 </div>
 
-                <!-- EDITABLE TATA TERTIB -->
+                <!-- KELOLA TIMELINE & JADWAL KEGIATAN -->
                 <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <div>
                             <h3 class="font-extrabold text-slate-900 text-lg">
-                                <i class="fa-solid fa-list-check text-emerald-700 mr-2"></i>Kelola Tata Tertib Pemilihan (Rules)
+                                <i class="fa-solid fa-timeline text-emerald-700 mr-2"></i>Kelola Timeline & Jadwal Kegiatan
                             </h3>
-                            <p class="text-xs text-slate-500">Tambah, ubah, atau hapus aturan dan tata tertib pemilihan.</p>
+                            <p class="text-xs text-slate-500">Tambah, ubah status (Selesai, Sedang Berlangsung, Akan Datang), atau hapus tahapan alur pemilihan.</p>
                         </div>
-                        <button onclick="formTatib()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs">
-                            <i class="fa-solid fa-plus mr-1"></i> Tambah Bab Tatib
+                        <button onclick="formTimeline()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow hover:bg-emerald-800 transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah Tahapan Timeline
                         </button>
                     </div>
 
-                    <div class="space-y-4">
-                        ${DB.tatib.map((t, idx) => `
+                    <div class="space-y-3">
+                        ${DB.timeline.map((t) => `
                             <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <div>
-                                    <div class="font-bold text-slate-900 text-sm">Bab ${idx + 1}: ${t.judul}</div>
-                                    <div class="text-xs text-slate-500 mt-1">${t.isi.length} poin aturan tersimpan.</div>
+                                <div class="flex items-start sm:items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-lg flex items-center justify-center shrink-0 shadow-xs">
+                                        ${t.icon || '📝'}
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold text-slate-900 text-sm">${t.judul}</span>
+                                            <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${t.status === 'selesai' ? 'bg-slate-200 text-slate-700' : (t.status === 'berjalan' ? 'bg-amber-400 text-emerald-950 font-extrabold animate-pulse' : 'bg-slate-100 text-slate-500')}">
+                                                ${t.status === 'selesai' ? 'Selesai' : (t.status === 'berjalan' ? 'Sedang Berlangsung' : 'Akan Datang')}
+                                            </span>
+                                        </div>
+                                        <div class="text-xs text-emerald-700 font-medium mt-0.5"><i class="fa-regular fa-calendar mr-1"></i>${t.tanggal}</div>
+                                        <div class="text-xs text-slate-500 mt-1 line-clamp-1">${t.desc}</div>
+                                    </div>
                                 </div>
-                                <div class="flex gap-2 shrink-0">
-                                    <button onclick="formTatib(${t.id})" class="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 font-bold text-xs">
+                                <div class="flex gap-2 shrink-0 self-end sm:self-center">
+                                    <button onclick="formTimeline(${t.id})" class="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 font-bold text-xs hover:bg-emerald-200 transition">
                                         <i class="fa-solid fa-pen mr-1"></i> Edit
                                     </button>
-                                    <button onclick="hapusTatib(${t.id})" class="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs">
+                                    <button onclick="confirmHapusTimeline(${t.id})" class="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
@@ -1334,62 +1409,79 @@
                     </div>
                 </div>
 
-                <!-- KELOLA KANDIDAT & PENGUMUMAN -->
-                <div class="grid lg:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-extrabold text-slate-900 text-base">Kelola Paslon Kandidat</h3>
-                            <button onclick="formKandidat()" class="px-3.5 py-1.5 rounded-xl bg-emerald-700 text-white font-bold text-xs">
-                                <i class="fa-solid fa-plus mr-1"></i> Tambah Kandidat
-                            </button>
+                <!-- KELOLA KANDIDAT PASLON -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-lg">
+                                <i class="fa-solid fa-users text-emerald-700 mr-2"></i>Kelola Paslon Kandidat
+                            </h3>
+                            <p class="text-xs text-slate-500">Tambah, ubah visi misi, atau hapus data kandidat calon Ketua RW 012.</p>
                         </div>
-                        <div class="space-y-3">
-                            ${DB.kandidat.map(k => `
-                                <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg bg-emerald-700 text-white font-bold text-xs flex items-center justify-center">
-                                            0${k.no}
-                                        </div>
-                                        <div>
-                                            <div class="font-bold text-xs text-slate-900">${k.nama}</div>
-                                            <div class="text-[10px] text-slate-500">${k.alamat}</div>
-                                        </div>
+                        <button onclick="formKandidat()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow hover:bg-emerald-800 transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah Kandidat
+                        </button>
+                    </div>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${DB.kandidat.map(k => `
+                            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white font-bold text-sm flex items-center justify-center shrink-0">
+                                        0${k.no}
                                     </div>
-                                    <div class="flex gap-2">
-                                        <button onclick="formKandidat(${k.id})" class="p-2 text-xs text-emerald-700 bg-emerald-100 rounded-lg hover:bg-emerald-200">
-                                            <i class="fa-solid fa-pen"></i> Edit
-                                        </button>
-                                        <button onclick="hapusKandidat(${k.id})" class="p-2 text-xs text-red-600 bg-red-100 rounded-lg hover:bg-red-200">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
+                                    <div>
+                                        <div class="font-bold text-xs text-slate-900">${k.nama}</div>
+                                        <div class="text-[10px] text-slate-500">${k.alamat}</div>
                                     </div>
                                 </div>
-                            `).join("")}
+                                <div class="flex gap-2">
+                                    <button onclick="formKandidat(${k.id})" class="p-2 text-xs text-emerald-700 bg-emerald-100 rounded-lg hover:bg-emerald-200">
+                                        <i class="fa-solid fa-pen"></i> Edit
+                                    </button>
+                                    <button onclick="confirmHapusKandidat(${k.id})" class="p-2 text-xs text-red-600 bg-red-100 rounded-lg hover:bg-red-200">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join("")}
+                    </div>
+                </div>
+
+                <!-- KELOLA PENGUMUMAN (CRUD LENGKAP) -->
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-lg">
+                                <i class="fa-solid fa-bullhorn text-emerald-700 mr-2"></i>Kelola Pengumuman Panitia
+                            </h3>
+                            <p class="text-xs text-slate-500">Tambah pengumuman baru, edit pengumuman yang ada, atau hapus pengumuman lama.</p>
                         </div>
+                        <button onclick="formPengumuman()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow hover:bg-emerald-800 transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah Pengumuman
+                        </button>
                     </div>
 
-                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                        <h3 class="font-extrabold text-slate-900 text-base mb-4">Buat Pengumuman Baru</h3>
-                        <form onsubmit="tambahPengumuman(event)" class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Kategori</label>
-                                <select id="pKat" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                                    <option value="Informasi">Informasi</option>
-                                    <option value="Penting">Penting</option>
-                                </select>
+                    <div class="space-y-3">
+                        ${DB.pengumuman.map(a => `
+                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider ${a.kategori === 'Penting' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${a.kategori}</span>
+                                        <span class="text-xs font-bold text-slate-900">${a.judul}</span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-500"><i class="fa-regular fa-calendar mr-1"></i>${fmtTanggal(a.tanggal)}</div>
+                                    <p class="text-xs text-slate-600 line-clamp-1">${a.isi}</p>
+                                </div>
+                                <div class="flex gap-2 shrink-0 self-end sm:self-center">
+                                    <button onclick="formPengumuman(${a.id})" class="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 font-bold text-xs hover:bg-emerald-200 transition">
+                                        <i class="fa-solid fa-pen mr-1"></i> Edit
+                                    </button>
+                                    <button onclick="confirmHapusPengumuman(${a.id})" class="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Judul Pengumuman</label>
-                                <input id="pJudul" type="text" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-600 mb-1">Isi Pengumuman</label>
-                                <textarea id="pIsi" rows="3" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs resize-none"></textarea>
-                            </div>
-                            <button type="submit" class="w-full py-2.5 rounded-xl bg-emerald-700 text-white font-bold text-xs">
-                                Publikasikan Pengumuman
-                            </button>
-                        </form>
+                        `).join("")}
                     </div>
                 </div>
 
@@ -1416,7 +1508,7 @@
                 <div class="bg-red-50 p-6 rounded-3xl border border-red-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div>
                         <div class="font-bold text-red-900 text-sm">Reset Data Ke Default Demo</div>
-                        <div class="text-xs text-red-700 mt-0.5">Kembalikan seluruh data kandidat, tatib, dan kontak ke kondisi standar awal.</div>
+                        <div class="text-xs text-red-700 mt-0.5">Kembalikan seluruh data kandidat, timeline, pengumuman, tatib, dan kontak ke kondisi awal.</div>
                     </div>
                     <button onclick="confirmResetData()" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shrink-0">
                         Reset Data LocalStorage
@@ -1426,12 +1518,269 @@
             `;
         }
 
-        /* BACKUP & RESTORE JSON HANDLERS */
+        function simpanAgendaBar(e) {
+            e.preventDefault();
+            if (!DB.agendaBar) DB.agendaBar = {};
+            DB.agendaBar.badge = document.getElementById("abBadge").value.trim();
+            DB.agendaBar.judulText = document.getElementById("abJudulText").value.trim();
+            DB.agendaBar.jamText = document.getElementById("abJamText").value.trim();
+            DB.agendaBar.lokasiText = document.getElementById("abLokasiText").value.trim();
+
+            saveDB();
+            showToast("✅", "Running Bar / Agenda Resmi berhasil diperbarui!");
+            render();
+        }
+
+        /* --- CRUD TIMELINE FUNCTIONS DENGAN PILIHAN IKON --- */
+        function formTimeline(id) {
+            const isEdit = !!id;
+            const t = isEdit ? DB.timeline.find(x => x.id === id) : {
+                tanggal: "",
+                judul: "",
+                desc: "",
+                status: "akan",
+                icon: "📝"
+            };
+
+            const html = `
+                <div class="gradient-primary text-white p-6 relative">
+                    <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <h3 class="text-xl font-bold">${isEdit ? 'Edit Tahapan Timeline' : 'Tambah Tahapan Timeline Baru'}</h3>
+                </div>
+
+                <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal / Rentang Waktu *</label>
+                            <input id="tlTanggal" type="text" value="${t.tanggal}" placeholder="cth: 15–25 Des 2026 atau Ahad, 17 Jan 2027" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Status Tahapan *</label>
+                            <select id="tlStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+                                <option value="selesai" ${t.status === 'selesai' ? 'selected' : ''}>Selesai</option>
+                                <option value="berjalan" ${t.status === 'berjalan' ? 'selected' : ''}>Sedang Berlangsung (Berjalan)</option>
+                                <option value="akan" ${t.status === 'akan' ? 'selected' : ''}>Akan Datang</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Pilih Ikon Emoji Timeline *</label>
+                        <div class="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-2" id="iconPickerBox">
+                            ${TIMELINE_ICONS.map(item => `
+                                <button type="button" onclick="selectTimelineIcon('${item.icon}')" class="icon-option p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 ${t.icon === item.icon ? 'bg-emerald-100 border-emerald-600 ring-2 ring-emerald-500 font-bold' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'}">
+                                    <span class="text-2xl">${item.icon}</span>
+                                    <span class="text-[9px] text-slate-600 leading-none truncate w-full">${item.label}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                        <input id="tlIcon" type="hidden" value="${t.icon || '📝'}">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Judul Tahapan *</label>
+                        <input id="tlJudul" type="text" value="${t.judul}" placeholder="cth: Pendaftaran Calon" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Deskripsi Tahapan *</label>
+                        <textarea id="tlDesc" rows="3" placeholder="Rincian kegiatan tahapan..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs resize-none">${t.desc}</textarea>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                    <button onclick="simpanTimeline(${isEdit ? id : 'null'})" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs">Simpan Timeline</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function selectTimelineIcon(iconVal) {
+            document.getElementById("tlIcon").value = iconVal;
+            const buttons = document.querySelectorAll("#iconPickerBox .icon-option");
+            buttons.forEach(btn => {
+                if (btn.querySelector("span").textContent === iconVal) {
+                    btn.className = "icon-option p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 bg-emerald-100 border-emerald-600 ring-2 ring-emerald-500 font-bold";
+                } else {
+                    btn.className = "icon-option p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 bg-slate-50 border-slate-200 hover:bg-slate-100";
+                }
+            });
+        }
+
+        function simpanTimeline(id) {
+            const tanggal = document.getElementById("tlTanggal").value.trim();
+            const icon = document.getElementById("tlIcon").value.trim() || "📝";
+            const judul = document.getElementById("tlJudul").value.trim();
+            const status = document.getElementById("tlStatus").value;
+            const desc = document.getElementById("tlDesc").value.trim();
+
+            if (!tanggal || !judul) {
+                showToast("⚠️", "Tanggal dan Judul tahapan wajib diisi!");
+                return;
+            }
+
+            if (id) {
+                const idx = DB.timeline.findIndex(x => x.id === id);
+                if (idx !== -1) DB.timeline[idx] = { id, tanggal, icon, judul, status, desc };
+            } else {
+                DB.timeline.push({ id: Date.now(), tanggal, icon, judul, status, desc });
+            }
+
+            saveDB();
+            closeModal();
+            showToast("✅", "Data Timeline berhasil disimpan!");
+            render();
+        }
+
+        function confirmHapusTimeline(id) {
+            const item = DB.timeline.find(x => x.id === id);
+            const html = `
+                <div class="p-6 text-center">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Hapus Tahapan Timeline?</h3>
+                    <p class="text-xs text-slate-500 mb-6">Apakah Anda yakin ingin menghapus tahapan <strong>"${item ? item.judul : ''}"</strong>?</p>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                        <button onclick="hapusTimeline(${id})" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Hapus</button>
+                    </div>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function hapusTimeline(id) {
+            DB.timeline = DB.timeline.filter(x => x.id !== id);
+            saveDB();
+            closeModal();
+            showToast("🗑️", "Tahapan Timeline berhasil dihapus.");
+            render();
+        }
+
+        /* --- CRUD PENGUMUMAN FUNCTIONS --- */
+        function formPengumuman(id) {
+            const isEdit = !!id;
+            const a = isEdit ? DB.pengumuman.find(x => x.id === id) : {
+                kategori: "Informasi",
+                judul: "",
+                isi: "",
+                tanggal: new Date().toISOString().slice(0, 10)
+            };
+
+            const html = `
+                <div class="gradient-primary text-white p-6 relative">
+                    <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <h3 class="text-xl font-bold">${isEdit ? 'Edit Pengumuman' : 'Tambah Pengumuman Baru'}</h3>
+                </div>
+
+                <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Kategori *</label>
+                            <select id="fKatPengumuman" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold">
+                                <option value="Informasi" ${a.kategori === 'Informasi' ? 'selected' : ''}>Informasi</option>
+                                <option value="Penting" ${a.kategori === 'Penting' ? 'selected' : ''}>Penting</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Tanggal *</label>
+                            <input id="fTglPengumuman" type="date" value="${a.tanggal}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Judul Pengumuman *</label>
+                        <input id="fJudulPengumuman" type="text" value="${a.judul}" placeholder="Tuliskan judul pengumuman..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Isi Pengumuman *</label>
+                        <textarea id="fIsiPengumuman" rows="5" placeholder="Tuliskan detail pengumuman lengkap..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs resize-none">${a.isi}</textarea>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                    <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                    <button onclick="simpanPengumuman(${isEdit ? id : 'null'})" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs">Simpan Pengumuman</button>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function simpanPengumuman(id) {
+            const kat = document.getElementById("fKatPengumuman").value;
+            const tgl = document.getElementById("fTglPengumuman").value || new Date().toISOString().slice(0, 10);
+            const judul = document.getElementById("fJudulPengumuman").value.trim();
+            const isi = document.getElementById("fIsiPengumuman").value.trim();
+
+            if (!judul || !isi) {
+                showToast("⚠️", "Judul dan Isi pengumuman wajib diisi!");
+                return;
+            }
+
+            if (id) {
+                const idx = DB.pengumuman.findIndex(x => x.id === id);
+                if (idx !== -1) {
+                    DB.pengumuman[idx] = { id, kategori: kat, tanggal: tgl, judul, isi };
+                }
+            } else {
+                DB.pengumuman.unshift({ id: Date.now(), kategori: kat, tanggal: tgl, judul, isi });
+            }
+
+            saveDB();
+            closeModal();
+            showToast("✅", "Pengumuman berhasil disimpan!");
+            render();
+        }
+
+        function confirmHapusPengumuman(id) {
+            const item = DB.pengumuman.find(x => x.id === id);
+            const html = `
+                <div class="p-6 text-center">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Hapus Pengumuman?</h3>
+                    <p class="text-xs text-slate-500 mb-6">Apakah Anda yakin ingin menghapus pengumuman <strong>"${item ? item.judul : ''}"</strong>?</p>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                        <button onclick="hapusPengumuman(${id})" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Hapus</button>
+                    </div>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function hapusPengumuman(id) {
+            DB.pengumuman = DB.pengumuman.filter(x => x.id !== id);
+            saveDB();
+            closeModal();
+            showToast("🗑️", "Pengumuman berhasil dihapus.");
+            render();
+        }
+
+        // BACKUP & RESTORE JSON
         function downloadBackupJSON() {
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yyyy = now.getFullYear();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+
+            const fileName = `BU-Pilwe012GMG-${dd}-${mm}-${yyyy}-${hh}-${min}-${ss}.json`;
+
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB, null, 2));
             const dlAnchorElem = document.createElement('a');
             dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `backup_pilwe012_gmg_${new Date().toISOString().slice(0, 10)}.json`);
+            dlAnchorElem.setAttribute("download", fileName);
             document.body.appendChild(dlAnchorElem);
             dlAnchorElem.click();
             dlAnchorElem.remove();
@@ -1443,7 +1792,7 @@
             fileReader.onload = function (e) {
                 try {
                     const parsedData = JSON.parse(e.target.result);
-                    if (parsedData.profil && parsedData.kandidat && parsedData.tatib) {
+                    if (parsedData.profil && parsedData.kandidat) {
                         DB = parsedData;
                         saveDB();
                         showToast("✅", "Data berhasil dipulihkan dari file JSON!");
@@ -1463,78 +1812,44 @@
         function simpanKontakProfil(e) {
             e.preventDefault();
             const p = DB.profil;
-            p.lokasiTps = document.getElementById("eLokasiTps").value.trim();
             p.wa = document.getElementById("eWaPanitia").value.trim();
             p.jamLayanan = document.getElementById("eJamLayanan").value.trim();
             p.email = document.getElementById("eEmailPanitia").value.trim();
             p.alamatSekretariat = document.getElementById("eAlamatSekretariat").value.trim();
 
             saveDB();
-            showToast("✅", "Informasi Kontak & Lokasi TPS berhasil diperbarui!");
+            showToast("✅", "Informasi Kontak & Sekretariat berhasil diperbarui!");
             render();
         }
 
-        function formTatib(id) {
-            const isEdit = !!id;
-            const t = isEdit ? DB.tatib.find(x => x.id === id) : { judul: "", isi: [""] };
+        function simpanTatibPdf(e) {
+            e.preventDefault();
+            const url = document.getElementById("inTatibPdfUrl").value.trim();
+            if (!url) return;
 
-            const html = `
-                <div class="gradient-primary text-white p-6 relative">
-                    <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                    <h3 class="text-xl font-bold">${isEdit ? 'Edit Bab Tata Tertib' : 'Tambah Bab Tata Tertib Baru'}</h3>
-                </div>
-
-                <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Judul Bab Aturan *</label>
-                        <input id="tJudul" type="text" value="${t.judul}" placeholder="cth: Hak & Syarat Pemilih" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Poin-poin Aturan (Satu per baris) *</label>
-                        <textarea id="tIsi" rows="6" placeholder="Tulis tiap poin di baris baru..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 text-xs resize-none">${t.isi.join("\n")}</textarea>
-                    </div>
-                </div>
-
-                <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
-                    <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
-                    <button onclick="simpanTatib(${isEdit ? id : 'null'})" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs">Simpan Bab Tatib</button>
-                </div>
-            `;
-            openModal(html);
+            DB.tatibPdf = url;
+            saveDB();
+            showToast("✅", "URL PDF Tata Tertib berhasil disimpan!");
+            render();
         }
 
-        function simpanTatib(id) {
-            const judul = document.getElementById("tJudul").value.trim();
-            const rawIsi = document.getElementById("tIsi").value.trim();
+        function handleUploadTatibPdf(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-            if (!judul || !rawIsi) {
-                showToast("⚠️", "Judul dan poin aturan wajib diisi!");
+            if (file.type !== "application/pdf") {
+                showToast("❌", "File harus berformat .pdf!");
                 return;
             }
 
-            const isiArr = rawIsi.split("\n").map(s => s.trim()).filter(s => s.length > 0);
-
-            if (id) {
-                const idx = DB.tatib.findIndex(x => x.id === id);
-                if (idx !== -1) DB.tatib[idx] = { id, judul, isi: isiArr };
-            } else {
-                DB.tatib.push({ id: Date.now(), judul, isi: isiArr });
-            }
-
-            saveDB();
-            closeModal();
-            showToast("✅", "Tata tertib berhasil disimpan!");
-            render();
-        }
-
-        function hapusTatib(id) {
-            DB.tatib = DB.tatib.filter(x => x.id !== id);
-            saveDB();
-            showToast("🗑️", "Bab Tata Tertib dihapus.");
-            render();
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                DB.tatibPdf = evt.target.result;
+                saveDB();
+                showToast("✅", "File PDF Tata Tertib berhasil diunggah!");
+                render();
+            };
+            reader.readAsDataURL(file);
         }
 
         function formKandidat(id) {
@@ -1636,31 +1951,29 @@
             render();
         }
 
+        function confirmHapusKandidat(id) {
+            const item = DB.kandidat.find(k => k.id === id);
+            const html = `
+                <div class="p-6 text-center">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Hapus Kandidat Paslon?</h3>
+                    <p class="text-xs text-slate-500 mb-6">Apakah Anda yakin ingin menghapus <strong>"${item ? item.nama : ''}"</strong>?</p>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                        <button onclick="hapusKandidat(${id})" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Hapus</button>
+                    </div>
+                </div>
+            `;
+            openModal(html);
+        }
+
         function hapusKandidat(id) {
             DB.kandidat = DB.kandidat.filter(k => k.id !== id);
             saveDB();
+            closeModal();
             showToast("🗑️", "Kandidat dihapus.");
-            render();
-        }
-
-        function tambahPengumuman(e) {
-            e.preventDefault();
-            const kat = document.getElementById("pKat").value;
-            const judul = document.getElementById("pJudul").value.trim();
-            const isi = document.getElementById("pIsi").value.trim();
-
-            if (!judul || !isi) return;
-
-            DB.pengumuman.unshift({
-                id: Date.now(),
-                tanggal: new Date().toISOString().slice(0, 10),
-                kategori: kat,
-                judul,
-                isi
-            });
-
-            saveDB();
-            showToast("✅", "Pengumuman dipublikasikan!");
             render();
         }
 
@@ -1688,10 +2001,28 @@
         }
 
         function confirmResetData() {
-            localStorage.removeItem("pilwe012_v3_db");
+            const html = `
+                <div class="p-6 text-center">
+                    <div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Reset Semua Data?</h3>
+                    <p class="text-xs text-slate-500 mb-6">Seluruh perubahan kandidat, timeline, pengumuman, dan kontak akan dikembalikan ke data awal demo.</p>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                        <button onclick="doResetData()" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Reset Sekarang</button>
+                    </div>
+                </div>
+            `;
+            openModal(html);
+        }
+
+        function doResetData() {
+            localStorage.removeItem("pilwe012_v6_db");
             localStorage.removeItem("pilwe012_session");
             DB = loadDB();
             session = null;
+            closeModal();
             showToast("🔄", "Data berhasil direset!");
             go("beranda");
         }
