@@ -7,7 +7,11 @@
     <title>PILWE 012 GMG — Pemilihan Ketua RW 012 Perum Grand Mutiara Gading</title>
     
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<script>
+  // Tambahkan baris ini untuk mematikan peringatan console Tailwind
+  console.log = function() {}; 
+</script>
     <script>
         tailwind.config = {
             theme: {
@@ -246,9 +250,7 @@
         // SUPABASE CONFIGURATION
         const SUPABASE_URL = "https://yopyipfgoznnkzzajutc.supabase.co";
         const SUPABASE_KEY = "sb_publishable_mTgrJ54x0j2adv0cF7XeNQ_LBb33Hye";
-        const supabaseClient = (window.supabase && window.supabase.createClient)
-            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-            : null;
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function sha256(str) {
             const encoder = new TextEncoder();
@@ -644,21 +646,45 @@
 };
 
         // LOCAL STORAGE DATABASE SYSTEM
-        let DB = loadDB();
-        function loadDB() {
-            const raw = localStorage.getItem("pilwe012_v8_db") || localStorage.getItem("pilwe012_v7_db");
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (parsed.tatibPdf && !parsed.tatibPdf1) {
-                    parsed.tatibPdf1 = parsed.tatibPdf;
-                    parsed.tatibJudul1 = "Dokumen Tata Tertib & Pedoman Pemilihan";
-                    parsed.tatibPdf2 = "Dokumen Berita Acara & Lampiran Tambahan";
-                }
-                return parsed;
-            }
-            localStorage.setItem("pilwe012_v8_db", JSON.stringify(DEFAULT_DATA));
-            return JSON.parse(JSON.stringify(DEFAULT_DATA));
-        }
+let DB = JSON.parse(JSON.stringify(DEFAULT_DATA)); // Sementara pakai default
+
+async function loadDB() {
+    try {
+        const [
+            { data: siteConfig },
+            { data: kandidat },
+            { data: timeline },
+            { data: pengumuman },
+            { data: panitia },
+            { data: tatib }
+        ] = await Promise.all([
+            supabaseClient.from('site_config').select('*').single(),
+            supabaseClient.from('kandidat').select('*'),
+            supabaseClient.from('timeline').select('*'),
+            supabaseClient.from('pengumuman').select('*'),
+            supabaseClient.from('panitia').select('*').single(),
+            supabaseClient.from('tatib').select('*').single()
+        ]);
+
+        // Jika tabel site_config kosong (baru pertama kali), gunakan data default
+        return {
+            profil: siteConfig?.data?.profil || DEFAULT_DATA.profil,
+            agendaBar: siteConfig?.data?.agendaBar || DEFAULT_DATA.agendaBar,
+            adminAuth: siteConfig?.data?.adminAuth || DEFAULT_DATA.adminAuth,
+            kandidat: kandidat?.length ? kandidat : DEFAULT_DATA.kandidat,
+            timeline: timeline?.length ? timeline : DEFAULT_DATA.timeline,
+            pengumuman: pengumuman?.length ? pengumuman : DEFAULT_DATA.pengumuman,
+            panitia: panitia?.data || DEFAULT_DATA.panitia,
+            tatibPdf1: tatib?.pdf1 || DEFAULT_DATA.tatibPdf1,
+            tatibJudul1: tatib?.judul1 || DEFAULT_DATA.tatibJudul1,
+            tatibPdf2: tatib?.pdf2 || DEFAULT_DATA.tatibPdf2,
+            tatibJudul2: tatib?.judul2 || DEFAULT_DATA.tatibJudul2,
+        };
+    } catch (error) {
+        console.error("Gagal load dari Supabase, menggunakan data default:", error);
+        return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+}
         function saveDB() {
             localStorage.setItem("pilwe012_v8_db", JSON.stringify(DB));
             syncDynamicTexts();
@@ -2422,7 +2448,12 @@
             }
         });
 
-        render();
+        async function initApp() {
+    DB = await loadDB();
+    render();
+}
+initApp();
+
     </script>
 </body>
 </html>
