@@ -96,7 +96,7 @@ async function loadDB() {
         ] = await Promise.all([
             supabaseClient.from('site_config').select('*').maybeSingle(),
             supabaseClient.from('kandidat').select('*'),
-            supabaseClient.from('timeline').select('*'),
+            supabaseClient.from('timeline').select('*').order('urutan', { ascending: true }),
             supabaseClient.from('pengumuman').select('*'),
             supabaseClient.from('panitia').select('*').maybeSingle(),
             supabaseClient.from('tatib').select('*').maybeSingle()

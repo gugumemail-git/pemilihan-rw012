@@ -259,10 +259,19 @@ async function simpanTimeline(id) {
 
     if (!tanggal || !judul) { showToast("⚠️", "Tanggal & Judul wajib diisi!"); return; }
 
-    const data = { tanggal, icon, judul, status, desc };
+    let data = { tanggal, icon, judul, status, desc };
     let response;
-    if (id) response = await supabaseClient.from('timeline').update(data).eq('id', id);
-    else { data.id = Date.now(); response = await supabaseClient.from('timeline').insert([data]); }
+
+    if (id) {
+        // JIKA EDIT: Jangan ubah urutan
+        response = await supabaseClient.from('timeline').update(data).eq('id', id);
+    } else {
+        // JIKA TAMBAH BARU: Cari urutan paling akhir, lalu tambah 1
+        const maxUrutan = DB.timeline.length > 0 ? Math.max(...DB.timeline.map(t => t.urutan || 0)) : 0;
+        data.id = Date.now();
+        data.urutan = maxUrutan + 1;
+        response = await supabaseClient.from('timeline').insert([data]);
+    }
 
     if (response.error) { showToast("❌", "Gagal: " + response.error.message); return; }
     DB = await loadDB(); closeModal(); showToast("✅", "Timeline disimpan!"); render();
@@ -522,4 +531,38 @@ function doResetData() {
     localStorage.removeItem("pilwe012_v8_db");
     localStorage.removeItem("pilwe012_session");
     window.location.reload(); 
+}
+// ================= FITUR DRAG & DROP TIMELINE =================
+// Panggil fungsi ini setelah render() selesai di app.js
+function initDragAndDropTimeline() {
+    const el = document.getElementById('sortableTimeline');
+    if (!el) return;
+
+    // Hapus listener lama jika ada (mencegah duplikasi saat re-render)
+    if (el.sortableInstance) {
+        el.sortableInstance.destroy();
+    }
+
+    el.sortableInstance = new Sortable(el, {
+        animation: 150,
+        ghostClass: 'bg-emerald-100', // Warna saat di-drag
+        onEnd: async function (evt) {
+            // Ambil semua ID berdasarkan urutan baru setelah di-drag
+            const items = el.querySelectorAll('[data-id]');
+            const newOrderIds = Array.from(items).map(item => parseInt(item.getAttribute('data-id')));
+
+            showToast("⏳", "Menyimpan urutan baru...");
+
+            // Update urutan di Supabase satu per satu
+            for (let i = 0; i < newOrderIds.length; i++) {
+                const id = newOrderIds[i];
+                await supabaseClient.from('timeline').update({ urutan: i + 1 }).eq('id', id);
+            }
+
+            // Reload data agar sinkron
+            DB = await loadDB();
+            render();
+            showToast("✅", "Urutan Timeline berhasil disimpan!");
+        }
+    });
 }

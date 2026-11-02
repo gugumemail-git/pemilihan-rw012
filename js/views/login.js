@@ -227,18 +227,20 @@ function viewAdmin() {
             </form>
         </div>
 
+        <!-- KELOLA TIMELINE DENGAN DRAG & DROP -->
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h3 class="font-extrabold text-slate-900 text-lg"><i class="fa-solid fa-timeline text-emerald-700 mr-2"></i>Kelola Timeline</h3>
+                    <p class="text-[11px] text-slate-500 mt-1">💡 Tips: Tahan dan geser kotak di bawah untuk mengubah urutan.</p>
                 </div>
                 <button onclick="formTimeline()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow hover:bg-emerald-800 transition"><i class="fa-solid fa-plus mr-1"></i> Tambah Tahapan</button>
             </div>
-            <div class="space-y-3">
+            <div class="space-y-3" id="sortableTimeline">
                 ${DB.timeline.map((t) => `
-                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-move hover:bg-white transition-colors" data-id="${t.id}">
                         <div class="flex items-start sm:items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-lg flex items-center justify-center shrink-0 shadow-xs">${t.icon || '📝'}</div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-lg flex items-center justify-center shrink-0 shadow-xs"><i class="fa-solid fa-grip-vertical text-slate-400 mr-2"></i> ${t.icon || '📝'}</div>
                             <div>
                                 <div class="flex items-center gap-2">
                                     <span class="font-bold text-slate-900 text-sm">${t.judul}</span>
