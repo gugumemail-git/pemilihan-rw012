@@ -3,41 +3,215 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>PILWE 012 GMG — Pemilihan Ketua RW 012</title>
+    <meta name="theme-color" content="#065f46" />
+    <title>PILWE 012 GMG — Pemilihan Ketua RW 012 Perum Grand Mutiara Gading</title>
     
-    <!-- Tailwind CSS & FontAwesome -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        emerald: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b', 950: '#022c22' },
-                        amber: { 300: '#fde047', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' }
+                        emerald: {
+                            50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b', 950: '#022c22',
+                        },
+                        amber: {
+                            300: '#fde047', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706',
+                        }
                     },
-                    fontFamily: { sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    }
                 }
             }
         }
     </script>
+    
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- (SALIN SEMUA HTML DARI TOP ANNOUNCEMENT BAR SAMPAI FOOTER DARI KODE LAMA ANDA KE SINI) -->
-    <!-- Pastikan Anda menyalin elemen <div id="topAnnouncementBar">, <header>, <main id="app">, <footer>, <div id="modal">, dan <div id="toast"> -->
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div id="topAnnouncementBar" class="bg-emerald-950 text-emerald-100 text-xs py-2.5 px-4 border-b border-emerald-800/80 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-2 text-center md:text-left">
+            <div class="flex items-center gap-2 flex-wrap justify-center md:justify-start">
+                <span id="topBarBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-emerald-950 uppercase tracking-wider shadow-sm animate-pulse">
+                    AGENDA RESMI
+                </span>
+                <span class="font-bold" id="topBarJudul">Hari Pemungutan Suara PILWE 012 GMG: <span class="text-amber-300" id="topBarTgl">Ahad, 17 Januari 2027</span></span>
+            </div>
+            <div class="flex items-center gap-3 text-[11px] text-emerald-200/90 flex-wrap justify-center">
+                <span><i class="fa-solid fa-clock text-amber-400 mr-1"></i><span id="topBarJam">06:00 – 11:00 WIB</span></span>
+                <span class="hidden md:inline text-emerald-700">|</span>
+                <span><i class="fa-solid fa-location-dot text-amber-400 mr-1"></i><strong id="topBarLokasi" class="text-white">GOR Perum GMG</strong></span>
+            </div>
+        </div>
+    </div>
 
-    <!-- LOAD JAVASCRIPT MODULES (Urutan Penting!) -->
+    <!-- NAVBAR HEADER -->
+    <header id="navbar" class="relative z-40 transition-all duration-300">
+        <div class="gradient-primary text-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16 md:h-20">
+                    <button onclick="go('beranda')" class="flex items-center gap-3 text-left focus:outline-none group">
+                        <div class="w-11 h-11 shrink-0 rounded-full bg-white p-0.5 shadow-lg group-hover:scale-105 transition-transform">
+                            <svg viewBox="0 0 500 500" class="w-full h-full">
+                                <circle cx="250" cy="250" r="240" fill="#e11d48"/>
+                                <circle cx="250" cy="250" r="180" fill="#ffffff"/>
+                                <path d="M 50 250 A 200 200 0 0 0 450 250 L 370 250 A 120 120 0 0 1 130 250 Z" fill="#18181b"/>
+                                <path id="textArcTop" d="M 75 250 A 175 175 0 0 1 425 250" fill="none"/>
+                                <text font-family="Plus Jakarta Sans" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">
+                                    <textPath href="#textArcTop" startOffset="50%">PANITIA PEMILIHAN KETUA</textPath>
+                                </text>
+                                <path id="textArcBottom" d="M 425 250 A 175 175 0 0 1 75 250" fill="none"/>
+                                <text font-family="Plus Jakarta Sans" font-size="22" font-weight="800" fill="#ffffff" text-anchor="middle">
+                                    <textPath href="#textArcBottom" startOffset="50%">PERUM GRAND MUTIARA GADING</textPath>
+                                </text>
+                                <rect x="210" y="210" width="80" height="80" rx="8" fill="#e2e8f0" stroke="#64748b" stroke-width="8"/>
+                                <rect x="210" y="210" width="80" height="40" rx="4" fill="#ef4444"/>
+                                <rect x="210" y="250" width="80" height="40" rx="4" fill="#ffffff"/>
+                                <path d="M 270 170 L 290 200 L 250 215 Z" fill="#f59e0b"/>
+                                <rect x="15" y="225" width="100" height="50" rx="25" fill="#ffffff" stroke="#e11d48" stroke-width="4"/>
+                                <text x="65" y="258" font-family="Plus Jakarta Sans" font-size="24" font-weight="900" fill="#18181b" text-anchor="middle">RW</text>
+                                <rect x="385" y="225" width="100" height="50" rx="25" fill="#ffffff" stroke="#e11d48" stroke-width="4"/>
+                                <text x="435" y="258" font-family="Plus Jakarta Sans" font-size="24" font-weight="900" fill="#18181b" text-anchor="middle">12</text>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="font-black text-base md:text-lg leading-tight tracking-tight">PILWE 012 GMG</div>
+                            <div class="text-[10px] md:text-xs text-emerald-100/90 truncate">Perum Grand Mutiara Gading · Telajung</div>
+                        </div>
+                    </button>
+
+                    <nav class="hidden lg:flex items-center gap-1 font-medium text-sm" id="navDesktop"></nav>
+
+                    <button id="btnMenu" class="lg:hidden w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition focus:outline-none" aria-label="Menu">
+                        <i id="iconMenu" class="fa-solid fa-bars text-lg"></i>
+                        <i id="iconClose" class="fa-solid fa-xmark text-xl hidden"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="lg:hidden hidden glass-dark text-white border-t border-white/10 safe-bottom">
+            <nav class="px-4 py-4 flex flex-col gap-1.5" id="navMobile"></nav>
+        </div>
+    </header>
+
+    <!-- MAIN SPA CONTAINER -->
+    <main id="app" class="flex-grow min-h-[70vh]"></main>
+
+    <!-- FOOTER -->
+    <footer class="gradient-primary text-white mt-16 border-t border-emerald-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+                <div class="flex items-center gap-3 mb-4 justify-center md:justify-start">
+                    <div class="w-11 h-11 shrink-0 rounded-full bg-white p-0.5 shadow-lg">
+                        <svg viewBox="0 0 500 500" class="w-full h-full">
+                            <circle cx="250" cy="250" r="240" fill="#e11d48"/>
+                            <circle cx="250" cy="250" r="180" fill="#ffffff"/>
+                            <path d="M 50 250 A 200 200 0 0 0 450 250 L 370 250 A 120 120 0 0 1 130 250 Z" fill="#18181b"/>
+                            <path id="textArcTopF" d="M 75 250 A 175 175 0 0 1 425 250" fill="none"/>
+                            <text font-family="Plus Jakarta Sans" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">
+                                <textPath href="#textArcTopF" startOffset="50%">PANITIA PEMILIHAN KETUA</textPath>
+                            </text>
+                            <path id="textArcBottomF" d="M 425 250 A 175 175 0 0 1 75 250" fill="none"/>
+                            <text font-family="Plus Jakarta Sans" font-size="22" font-weight="800" fill="#ffffff" text-anchor="middle">
+                                <textPath href="#textArcBottomF" startOffset="50%">PERUM GRAND MUTIARA GADING</textPath>
+                            </text>
+                            <rect x="210" y="210" width="80" height="80" rx="8" fill="#e2e8f0" stroke="#64748b" stroke-width="8"/>
+                            <rect x="210" y="210" width="80" height="40" rx="4" fill="#ef4444"/>
+                            <rect x="210" y="250" width="80" height="40" rx="4" fill="#ffffff"/>
+                            <path d="M 270 170 L 290 200 L 250 215 Z" fill="#f59e0b"/>
+                            <rect x="15" y="225" width="100" height="50" rx="25" fill="#ffffff" stroke="#e11d48" stroke-width="4"/>
+                            <text x="65" y="258" font-family="Plus Jakarta Sans" font-size="24" font-weight="900" fill="#18181b" text-anchor="middle">RW</text>
+                            <rect x="385" y="225" width="100" height="50" rx="25" fill="#ffffff" stroke="#e11d48" stroke-width="4"/>
+                            <text x="435" y="258" font-family="Plus Jakarta Sans" font-size="24" font-weight="900" fill="#18181b" text-anchor="middle">12</text>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="font-bold text-base">PILWE 012 GMG</div>
+                        <div class="text-xs text-emerald-200">Periode Jabatan 2027–2029</div>
+                    </div>
+                </div>
+                <p class="text-xs text-emerald-100/80 leading-relaxed max-w-sm mx-auto md:mx-0">
+                    Panitia Pemilihan Ketua RW 012, Perum Grand Mutiara Gading, Desa Telajung, Kec. Cikarang Barat, Kab. Bekasi, Jawa Barat.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-sm uppercase tracking-wider mb-4 text-amber-300">Navigasi Cepat</h4>
+                <ul class="space-y-2 text-xs text-emerald-100/90">
+                    <li><button onclick="go('beranda')" class="hover:text-amber-300 transition-colors">Beranda Utama</button></li>
+                    <li><button onclick="go('pengumuman')" class="hover:text-amber-300 transition-colors">Pengumuman Panitia</button></li>
+                    <li><button onclick="go('panitia')" class="hover:text-amber-300 transition-colors">Susunan Kepanitiaan</button></li>
+                    <li><button onclick="go('timeline')" class="hover:text-amber-300 transition-colors">Timeline & Jadwal</button></li>
+                    <li><button onclick="go('tatib')" class="hover:text-amber-300 transition-colors">Tata Tertib & Berita Acara</button></li>
+                    <li><button onclick="go('kontak')" class="hover:text-amber-300 transition-colors">Kontak</button></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-sm uppercase tracking-wider mb-4 text-amber-300">Lokasi & Kontak Panitia</h4>
+                <ul class="space-y-2.5 text-xs text-emerald-100/90">
+                    <li class="flex items-start justify-center md:justify-start gap-2">
+                        <i class="fa-solid fa-location-dot mt-0.5 text-amber-400"></i>
+                        <span id="footerLokasi">Sekretariat RW 012 Perum GMG</span>
+                    </li>
+                    <li class="flex items-center justify-center md:justify-start gap-2">
+                        <i class="fa-solid fa-clock text-amber-400"></i>
+                        <span id="footerJam">Senin – Sabtu, 08:00 – 16:00 WIB</span>
+                    </li>
+                    <li class="flex items-center justify-center md:justify-start gap-2">
+                        <i class="fa-solid fa-envelope text-amber-400"></i>
+                        <span id="footerEmail">pilwe.gmg2026@gmail.com</span>
+                    </li>
+                    <li class="flex items-center justify-center md:justify-start gap-2">
+                        <i class="fa-brands fa-whatsapp text-amber-400"></i>
+                        <span id="footerWa">+62 812-1946-122</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="border-t border-white/10 bg-emerald-950/80 py-4">
+            <div class="max-w-7xl mx-auto px-4 text-center text-xs text-emerald-200/70 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <div>&copy; 2026–2027 Panitia PILWE 012 GMG. Hak Cipta Dilindungi.</div>
+                <div>
+                    <button onclick="go('loginAdmin')" class="hover:text-white underline underline-offset-2 flex items-center gap-1 mx-auto sm:mx-0">
+                        <i class="fa-solid fa-user-shield text-[10px]"></i> Login Admin Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- GLOBAL DYNAMIC MODAL CONTAINER -->
+    <div id="modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-3 sm:p-6 modal-backdrop overflow-y-auto">
+        <div id="modalContent" class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto my-auto relative border border-slate-200"></div>
+    </div>
+
+    <!-- GLOBAL TOAST NOTIFICATION -->
+    <div id="toast" class="fixed z-[70] bottom-5 left-4 right-4 sm:left-auto sm:right-6 hidden transition-all duration-300">
+        <div class="bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm border border-slate-700">
+            <span id="toastIcon" class="text-lg">✅</span>
+            <span id="toastMsg" class="font-medium"></span>
+        </div>
+    </div>
+
+    <!-- LOAD JAVASCRIPT MODULES -->
     <script src="js/config.js"></script>
     <script src="js/data.js"></script>
     <script src="js/utils.js"></script>
