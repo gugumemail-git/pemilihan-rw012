@@ -1,0 +1,19 @@
+* { -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; background-color: #f8fafc; }
+
+.gradient-primary { background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #10b981 100%); }
+.gradient-gold { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+.glass { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.2); }
+.glass-dark { background: rgba(6, 78, 59, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.pattern-dots { background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px); background-size: 20px 20px; }
+
+.card-lift { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; }
+.card-lift:hover { transform: translateY(-6px); box-shadow: 0 20px 40px -15px rgba(6,78,59,.25); }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #10b981; border-radius: 8px; }
+
+.modal-backdrop { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(6px); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
