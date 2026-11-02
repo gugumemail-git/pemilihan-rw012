@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
+    // console.log = function() {};
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#065f46" />
@@ -1492,80 +1493,46 @@
         }
 
         async function doLoginAdmin(e) {
-            e.preventDefault();
-            // SEMENTARA KITA MATIKAN HASHING UNTUK TES
-            const u = document.getElementById("inUser").value.trim();
-            const p = document.getElementById("inPassA").value.trim();
+    e.preventDefault();
+    const u = document.getElementById("inUser").value.trim();
+    const p = document.getElementById("inPassA").value.trim();
 
-            // 2. Ambil data admin langsung dari Supabase
-            const { data: siteData, error } = await supabaseClient
-                .from('site_config')
-                .select('data')
-                .eq('id', 1)
-                .maybeSingle();
+    // 1. Enkripsi input user (kode asli Anda)
+    const uHash = await sha256(u);
+    const pHash = await sha256(p);
 
-            // --- DATA CADANGAN (FALLBACK) JIKA SUPABASE GAGAL ---
-            // Kita set password sementara menjadi "admin123" dalam bentuk teks biasa
-            let adminAuth = { userHash: "admin", passHash: "admin123" };
+    // 2. Ambil data admin langsung dari Supabase
+    const { data: siteData, error } = await supabaseClient
+        .from('site_config')
+        .select('data')
+        .eq('id', 1)
+        .maybeSingle();
 
-            // Jika Supabase berhasil mengambil data
-            if (!error && siteData && siteData.data && siteData.data.adminAuth) {
-                // Karena di database masih berupa hash, kita ABAIKAN dulu hash-nya
-                console.warn("Data Supabase ditemukan, tapi kita pakai tes teks biasa dulu.");
-            }
+    // --- DATA CADANGAN (FALLBACK) JIKA SUPABASE GAGAL ---
+    const fallbackAuth = {
+        userHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+        passHash: "d2a6f3e9b8578bd7f9f3a0d5e9f3b8578bd7f9f3a0d5e9f3b8578bd7f9f3a0d5"
+    };
 
-            // 3. Cek kecocokan (Teks Biasa)
-            if (u !== adminAuth.userHash || p !== adminAuth.passHash) {
-                showToast("❌", "Username atau Password salah (Mode Tes)!");
-                return;
-            }
+    let adminAuth = fallbackAuth;
 
-            // 4. Jika cocok, buat sesi login
-            setSession({ role: "admin", nama: "Administrator PILWE 012" });
-            showToast("✅", "Login Admin berhasil (Mode Tes)!");
-            go("admin");
-        }
-            e.preventDefault();
-            const u = document.getElementById("inUser").value.trim();
-            const p = document.getElementById("inPassA").value.trim();
+    if (!error && siteData && siteData.data && siteData.data.adminAuth) {
+        adminAuth = siteData.data.adminAuth;
+    } else {
+        console.warn("Menggunakan data cadangan HTML karena Supabase gagal/kosong.");
+    }
 
-            // 1. Enkripsi input user
-            const uHash = await sha256(u);
-            const pHash = await sha256(p);
+    // 3. Cek kecocokan
+    if (uHash !== adminAuth.userHash || pHash !== adminAuth.passHash) {
+        showToast("❌", "Username atau Password salah!");
+        return;
+    }
 
-            // 2. Ambil data admin langsung dari Supabase
-            const { data: siteData, error } = await supabaseClient
-                .from('site_config')
-                .select('data')
-                .eq('id', 1)
-                .maybeSingle();
-
-            // --- DATA CADANGAN (FALLBACK) JIKA SUPABASE GAGAL ---
-            const fallbackAuth = {
-                userHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-                passHash: "d2a6f3e9b8578bd7f9f3a0d5e9f3b8578bd7f9f3a0d5e9f3b8578bd7f9f3a0d5"
-            };
-
-            let adminAuth = fallbackAuth;
-
-            // Jika Supabase berhasil mengambil data, gunakan data dari Supabase
-            if (!error && siteData && siteData.data && siteData.data.adminAuth) {
-                adminAuth = siteData.data.adminAuth;
-            } else {
-                console.warn("Menggunakan data cadangan HTML karena Supabase gagal/kosong.");
-            }
-
-            // 3. Cek kecocokan
-            if (uHash !== adminAuth.userHash || pHash !== adminAuth.passHash) {
-                showToast("❌", "Username atau Password salah!");
-                return;
-            }
-
-            // 4. Jika cocok, buat sesi login
-            setSession({ role: "admin", nama: "Administrator PILWE 012" });
-            showToast("✅", "Login Admin berhasil!");
-            go("admin");
-        }
+    // 4. Jika cocok, buat sesi login
+    setSession({ role: "admin", nama: "Administrator PILWE 012" });
+    showToast("✅", "Login Admin berhasil!");
+    go("admin");
+}
 
         function viewAdmin() {
             if (!session || session.role !== "admin") {
