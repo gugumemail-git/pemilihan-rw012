@@ -16,22 +16,30 @@ function renderNav() {
         { r: "kontak", label: "Kontak", icon: "fa-address-book" }
     ];
 
-    document.getElementById("navDesktop").innerHTML = menus.map(m => `
-        <button onclick="go('${m.r}')" class="px-3.5 py-2 rounded-xl transition-all ${route === m.r ? 'bg-white/20 font-bold text-amber-300' : 'hover:bg-white/10 text-white'}">
-            ${m.label}
-        </button>
-    `).join("");
+    const navDesktop = document.getElementById("navDesktop");
+    if (navDesktop) {
+        navDesktop.innerHTML = menus.map(m => `
+            <button onclick="go('${m.r}')" class="px-3.5 py-2 rounded-xl transition-all ${route === m.r ? 'bg-white/20 font-bold text-amber-300' : 'hover:bg-white/10 text-white'}">
+                ${m.label}
+            </button>
+        `).join("");
+    }
 
-    document.getElementById("navMobile").innerHTML = menus.map(m => `
-        <button onclick="go('${m.r}')" class="flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-semibold transition ${route === m.r ? 'bg-amber-400 text-emerald-950 font-bold' : 'hover:bg-white/10 text-white'}">
-            <i class="fa-solid ${m.icon} w-5"></i> ${m.label}
-        </button>
-    `).join("");
+    const navMobile = document.getElementById("navMobile");
+    if (navMobile) {
+        navMobile.innerHTML = menus.map(m => `
+            <button onclick="go('${m.r}')" class="flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm font-semibold transition ${route === m.r ? 'bg-amber-400 text-emerald-950 font-bold' : 'hover:bg-white/10 text-white'}">
+                <i class="fa-solid ${m.icon} w-5"></i> ${m.label}
+            </button>
+        `).join("");
+    }
 }
 
 function render() {
     renderNav();
     const app = document.getElementById("app");
+    if (!app) return; // Pengaman jika elemen app tidak ketemu
+
     let html = "";
     switch (route) {
         case "beranda": html = viewBeranda(); break;
@@ -45,42 +53,64 @@ function render() {
         default: html = viewBeranda();
     }
     app.innerHTML = html;
-    initReveal();
-    syncDynamicTexts();
-    if (route === "beranda") startCountdown();
+    
+    if (typeof initReveal === 'function') initReveal();
+    if (typeof syncDynamicTexts === 'function') syncDynamicTexts();
+    if (route === "beranda" && typeof startCountdown === 'function') startCountdown();
 }
 
-// Event Listener Menu Mobile
+// Event Listener Menu Mobile (DENGAN PENGAMAN)
 function closeMobileMenu() {
     const mobileMenu = document.getElementById("mobileMenu");
     const iconMenu = document.getElementById("iconMenu");
     const iconClose = document.getElementById("iconClose");
-    mobileMenu.classList.add("hidden");
-    iconMenu.classList.remove("hidden");
-    iconClose.classList.add("hidden");
+    
+    // Cek dulu apakah elemennya ada sebelum diakses
+    if (mobileMenu) mobileMenu.classList.add("hidden");
+    if (iconMenu) iconMenu.classList.remove("hidden");
+    if (iconClose) iconClose.classList.add("hidden");
 }
 
-document.getElementById("btnMenu").addEventListener("click", () => {
-    const mobileMenu = document.getElementById("mobileMenu");
-    const iconMenu = document.getElementById("iconMenu");
-    const iconClose = document.getElementById("iconClose");
-    const isHidden = mobileMenu.classList.contains("hidden");
-    if (isHidden) {
-        mobileMenu.classList.remove("hidden");
-        iconMenu.classList.add("hidden");
-        iconClose.classList.remove("hidden");
-    } else {
-        closeMobileMenu();
+// Pastikan kode berjalan setelah HTML selesai dimuat
+document.addEventListener("DOMContentLoaded", () => {
+    
+    const btnMenu = document.getElementById("btnMenu");
+    if (btnMenu) {
+        btnMenu.addEventListener("click", () => {
+            const mobileMenu = document.getElementById("mobileMenu");
+            const iconMenu = document.getElementById("iconMenu");
+            const iconClose = document.getElementById("iconClose");
+            
+            if (!mobileMenu) return; // Jika menu tidak ada, hentikan
+
+            const isHidden = mobileMenu.classList.contains("hidden");
+            if (isHidden) {
+                mobileMenu.classList.remove("hidden");
+                if (iconMenu) iconMenu.classList.add("hidden");
+                if (iconClose) iconClose.classList.remove("hidden");
+            } else {
+                closeMobileMenu();
+            }
+        });
     }
+
+    const modal = document.getElementById("modal");
+    if (modal) {
+        modal.addEventListener("click", e => {
+            if (e.target.id === "modal") closeModal();
+        });
+    }
+
+    // Jalankan aplikasi utama
+    initApp();
 });
 
-document.getElementById("modal").addEventListener("click", e => {
-    if (e.target.id === "modal") closeModal();
-});
-
-// Mulai Aplikasi
+// Fungsi Inisialisasi Aplikasi
 async function initApp() {
-    DB = await loadDB();
-    render();
+    if (typeof loadDB === 'function') {
+        DB = await loadDB();
+        render();
+    } else {
+        console.error("Fungsi loadDB tidak ditemukan. Pastikan file data.js sudah dimuat.");
+    }
 }
-initApp();
