@@ -3,11 +3,23 @@ async function doLoginAdmin(e) {
     const u = document.getElementById("inUser").value.trim();
     const p = document.getElementById("inPassA").value.trim();
 
-    // --- MODE TES: LOGIN TEKS BIASA (BYPASS HASH) ---
-    const validUser = "admin";
-    const validPass = "5=hC4TCtE>hK%^q.3KW)zm+R"; 
+    const uHash = await sha256(u);
+    const pHash = await sha256(p);
 
-    if (u !== validUser || p !== validPass) {
+    const { data: siteData, error } = await supabaseClient
+        .from('site_config').select('data').eq('id', 1).maybeSingle();
+
+    const fallbackAuth = {
+        userHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", // admin
+        passHash: "HASH_PASSWORD_CADANGAN_JIKA_DB_OFFLINE" 
+    };
+
+    let adminAuth = fallbackAuth;
+    if (!error && siteData && siteData.data && siteData.data.adminAuth) {
+        adminAuth = siteData.data.adminAuth;
+    }
+
+    if (uHash !== adminAuth.userHash || pHash !== adminAuth.passHash) {
         showToast("❌", "Username atau Password salah!");
         return;
     }
