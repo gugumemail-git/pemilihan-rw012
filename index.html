@@ -1957,7 +1957,7 @@
             });
         }
 
-        function simpanTimeline(id) {
+        async function simpanTimeline(id) {
             const tanggal = document.getElementById("tlTanggal").value.trim();
             const icon = document.getElementById("tlIcon").value.trim() || "📝";
             const judul = document.getElementById("tlJudul").value.trim();
@@ -1969,16 +1969,24 @@
                 return;
             }
 
+            const data = { tanggal, icon, judul, status, desc };
+            let response;
+
             if (id) {
-                const idx = DB.timeline.findIndex(x => x.id === id);
-                if (idx !== -1) DB.timeline[idx] = { id, tanggal, icon, judul, status, desc };
+                response = await supabaseClient.from('timeline').update(data).eq('id', id);
             } else {
-                DB.timeline.push({ id: Date.now(), tanggal, icon, judul, status, desc });
+                data.id = Date.now();
+                response = await supabaseClient.from('timeline').insert([data]);
             }
 
-            saveDB();
+            if (response.error) {
+                showToast("❌", "Gagal menyimpan: " + response.error.message);
+                return;
+            }
+
+            DB = await loadDB();
             closeModal();
-            showToast("✅", "Data Timeline berhasil disimpan!");
+            showToast("✅", "Data Timeline berhasil disimpan ke Database!");
             render();
         }
 
@@ -2000,11 +2008,17 @@
             openModal(html);
         }
 
-        function hapusTimeline(id) {
-            DB.timeline = DB.timeline.filter(x => x.id !== id);
-            saveDB();
+        async function hapusTimeline(id) {
+            const response = await supabaseClient.from('timeline').delete().eq('id', id);
+            
+            if (response.error) {
+                showToast("❌", "Gagal menghapus: " + response.error.message);
+                return;
+            }
+
+            DB = await loadDB();
             closeModal();
-            showToast("🗑️", "Tahapan Timeline berhasil dihapus.");
+            showToast("🗑️", "Tahapan Timeline berhasil dihapus dari Database.");
             render();
         }
 
@@ -2059,7 +2073,7 @@
             openModal(html);
         }
 
-        function simpanPengumuman(id) {
+                async function simpanPengumuman(id) {
             const kat = document.getElementById("fKatPengumuman").value;
             const tgl = document.getElementById("fTglPengumuman").value || new Date().toISOString().slice(0, 10);
             const judul = document.getElementById("fJudulPengumuman").value.trim();
@@ -2070,18 +2084,24 @@
                 return;
             }
 
+            const data = { kategori: kat, tanggal: tgl, judul, isi };
+            let response;
+
             if (id) {
-                const idx = DB.pengumuman.findIndex(x => x.id === id);
-                if (idx !== -1) {
-                    DB.pengumuman[idx] = { id, kategori: kat, tanggal: tgl, judul, isi };
-                }
+                response = await supabaseClient.from('pengumuman').update(data).eq('id', id);
             } else {
-                DB.pengumuman.unshift({ id: Date.now(), kategori: kat, tanggal: tgl, judul, isi });
+                data.id = Date.now();
+                response = await supabaseClient.from('pengumuman').insert([data]);
             }
 
-            saveDB();
+            if (response.error) {
+                showToast("❌", "Gagal menyimpan: " + response.error.message);
+                return;
+            }
+
+            DB = await loadDB(); // Muat ulang data terbaru dari Supabase
             closeModal();
-            showToast("✅", "Pengumuman berhasil disimpan!");
+            showToast("✅", "Pengumuman berhasil disimpan ke Database!");
             render();
         }
 
@@ -2103,11 +2123,17 @@
             openModal(html);
         }
 
-        function hapusPengumuman(id) {
-            DB.pengumuman = DB.pengumuman.filter(x => x.id !== id);
-            saveDB();
+        async function hapusPengumuman(id) {
+            const response = await supabaseClient.from('pengumuman').delete().eq('id', id);
+            
+            if (response.error) {
+                showToast("❌", "Gagal menghapus: " + response.error.message);
+                return;
+            }
+
+            DB = await loadDB();
             closeModal();
-            showToast("🗑️", "Pengumuman berhasil dihapus.");
+            showToast("🗑️", "Pengumuman berhasil dihapus dari Database.");
             render();
         }
 
@@ -2269,7 +2295,7 @@
             openModal(html);
         }
 
-        function simpanKandidat(id) {
+        async function simpanKandidat(id) {
             const no = parseInt(document.getElementById("fNo").value);
             const nama = document.getElementById("fNama").value.trim();
             const alamat = document.getElementById("fAlamat").value.trim();
@@ -2296,16 +2322,22 @@
                 program: [{ icon: "⭐", judul: "Program Kerja Utama", desc: "Optimalisasi kebersihan & keamanan RW 012." }]
             };
 
+            let response;
             if (id) {
-                const idx = DB.kandidat.findIndex(k => k.id === id);
-                if (idx !== -1) DB.kandidat[idx] = { ...DB.kandidat[idx], ...data };
+                response = await supabaseClient.from('kandidat').update(data).eq('id', id);
             } else {
-                DB.kandidat.push({ id: Date.now(), ...data });
+                data.id = Date.now();
+                response = await supabaseClient.from('kandidat').insert([data]);
             }
 
-            saveDB();
+            if (response.error) {
+                showToast("❌", "Gagal menyimpan: " + response.error.message);
+                return;
+            }
+
+            DB = await loadDB();
             closeModal();
-            showToast("✅", "Data kandidat disimpan!");
+            showToast("✅", "Data kandidat disimpan ke Database!");
             render();
         }
 
@@ -2327,11 +2359,17 @@
             openModal(html);
         }
 
-        function hapusKandidat(id) {
-            DB.kandidat = DB.kandidat.filter(k => k.id !== id);
-            saveDB();
+        async function hapusKandidat(id) {
+            const response = await supabaseClient.from('kandidat').delete().eq('id', id);
+            
+            if (response.error) {
+                showToast("❌", "Gagal menghapus: " + response.error.message);
+                return;
+            }
+
+            DB = await loadDB();
             closeModal();
-            showToast("🗑️", "Kandidat dihapus.");
+            showToast("🗑️", "Kandidat berhasil dihapus dari Database.");
             render();
         }
 
