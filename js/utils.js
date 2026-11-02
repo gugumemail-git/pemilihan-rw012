@@ -39,4 +39,82 @@ function closeModal() {
     document.body.style.overflow = "";
 }
 
-// ... (Salin fungsi utilitas lain seperti handleSendWa, initReveal, startCountdown, syncDynamicTexts, dll ke sini) ...
+// Tambahkan ini di bawah fungsi closeModal() di dalam utils.js
+
+let cdInterval = null;
+function startCountdown() {
+    clearInterval(cdInterval);
+    const target = new Date(DB.profil.countdown).getTime();
+
+    function tick() {
+        const now = new Date().getTime();
+        const diff = Math.max(0, target - now);
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        const renderBox = (val, label) => `
+            <div class="p-2.5 bg-emerald-950/80 rounded-2xl border border-white/20 text-center shadow">
+                <span class="block text-xl sm:text-2xl font-black text-amber-300 tabular-nums">${String(val).padStart(2, '0')}</span>
+                <span class="text-[9px] font-extrabold text-emerald-200 uppercase">${label}</span>
+            </div>
+        `;
+
+        const html = renderBox(d, "Hari") + renderBox(h, "Jam") + renderBox(m, "Menit") + renderBox(s, "Detik");
+
+        const elHero = document.getElementById("heroCountdown");
+        if (elHero) elHero.innerHTML = html;
+
+        const elMain = document.getElementById("mainCountdown");
+        if (elMain) elMain.innerHTML = html;
+    }
+
+    tick();
+    cdInterval = setInterval(tick, 1000);
+}
+
+function syncDynamicTexts() {
+    const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
+    const elBadge = document.getElementById("topBarBadge");
+    if (elBadge) elBadge.textContent = ab.badge;
+    
+    const elJudul = document.getElementById("topBarJudul");
+    if (elJudul) elJudul.innerHTML = `${ab.judulText}`;
+    
+    const elJam = document.getElementById("topBarJam");
+    if (elJam) elJam.textContent = ab.jamText;
+
+    const elTopBarLokasi = document.getElementById("topBarLokasi");
+    if (elTopBarLokasi) elTopBarLokasi.textContent = ab.lokasiText;
+
+    const heroLokasi = document.getElementById("heroLokasiTps");
+    if (heroLokasi) heroLokasi.textContent = ab.lokasiText;
+
+    const p = DB.profil;
+    const footerLokasi = document.getElementById("footerLokasi");
+    if (footerLokasi) footerLokasi.textContent = "Sekretariat RW 012 Perum GMG";
+    const footerJam = document.getElementById("footerJam");
+    if (footerJam) footerJam.textContent = p.jamLayanan;
+    const footerEmail = document.getElementById("footerEmail");
+    if (footerEmail) footerEmail.textContent = p.email;
+    const footerWa = document.getElementById("footerWa");
+    if (footerWa) footerWa.textContent = p.wa;
+}
+
+let revealObserver = null;
+function initReveal() {
+    const els = document.querySelectorAll(".reveal");
+    if (!revealObserver) {
+        revealObserver = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add("in");
+                    revealObserver.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.1 });
+    }
+    els.forEach(el => revealObserver.observe(el));
+}
