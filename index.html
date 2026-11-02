@@ -1500,7 +1500,7 @@
             const uHash = await sha256(u);
             const pHash = await sha256(p);
 
-            // 2. Ambil data admin langsung dari Supabase (bukan dari DB lokal)
+            // 2. Ambil data admin langsung dari Supabase
             const { data: siteData, error } = await supabaseClient
                 .from('site_config')
                 .select('data')
@@ -1526,25 +1526,6 @@
             }
 
             // 5. Jika cocok, buat sesi login
-            setSession({ role: "admin", nama: "Administrator PILWE 012" });
-            showToast("✅", "Login Admin berhasil!");
-            go("admin");
-        }
-            e.preventDefault();
-            const u = document.getElementById("inUser").value.trim();
-            const p = document.getElementById("inPassA").value.trim();
-
-            const uHash = await sha256(u);
-            const pHash = await sha256(p);
-
-            const storedUserHash = DB.adminAuth?.userHash || DEFAULT_ADMIN_USER_HASH;
-            const storedPassHash = DB.adminAuth?.passHash || DEFAULT_ADMIN_PASS_HASH;
-
-            if (uHash !== storedUserHash || pHash !== storedPassHash) {
-                showToast("❌", "Username atau Password salah!");
-                return;
-            }
-
             setSession({ role: "admin", nama: "Administrator PILWE 012" });
             showToast("✅", "Login Admin berhasil!");
             go("admin");
