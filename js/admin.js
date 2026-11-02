@@ -37,55 +37,114 @@ function doLogout() {
 
 async function simpanAgendaBar(e) {
     e.preventDefault();
-    if (!DB.agendaBar) DB.agendaBar = {};
-    DB.agendaBar.badge = document.getElementById("abBadge").value.trim();
-    DB.agendaBar.judulText = document.getElementById("abJudulText").value.trim();
-    DB.agendaBar.jamText = document.getElementById("abJamText").value.trim();
-    DB.agendaBar.lokasiText = document.getElementById("abLokasiText").value.trim();
+    
+    // Ambil data dari form
+    const newAgendaBar = {
+        badge: document.getElementById("abBadge").value.trim(),
+        judulText: document.getElementById("abJudulText").value.trim(),
+        jamText: document.getElementById("abJamText").value.trim(),
+        lokasiText: document.getElementById("abLokasiText").value.trim()
+    };
 
-    // Simpan ke Supabase (asumsi tabel site_config dengan id=1)
+    // Ambil data profil yang sudah ada agar tidak tertimpa
+    const currentProfil = DB.profil || {};
+    const currentAuth = DB.adminAuth || {};
+
+    // Buat objek JSON khusus untuk site_config
+    const siteConfigData = {
+        agendaBar: newAgendaBar,
+        profil: currentProfil,
+        adminAuth: currentAuth
+    };
+
+    // Simpan HANYA siteConfigData ke Supabase
     const { error } = await supabaseClient.from('site_config').update({ 
-        data: { ...DB } // Menyimpan seluruh object DB ke kolom data JSON
+        data: siteConfigData 
     }).eq('id', 1);
 
     if (error) {
-        // Jika gagal update, mungkin baris belum ada, coba insert
-        await supabaseClient.from('site_config').insert([{ id: 1, data: DB }]);
+        await supabaseClient.from('site_config').insert([{ id: 1, data: siteConfigData }]);
     }
 
+    // Update memori aplikasi
+    DB.agendaBar = newAgendaBar;
     saveDB();
+    
     showToast("✅", "Running Bar berhasil diperbarui!");
     render();
 }
 
 async function simpanKontakProfil(e) {
     e.preventDefault();
-    const p = DB.profil;
-    p.wa = document.getElementById("eWaPanitia").value.trim();
-    p.jamLayanan = document.getElementById("eJamLayanan").value.trim();
-    p.email = document.getElementById("eEmailPanitia").value.trim();
-    p.alamatSekretariat = document.getElementById("eAlamatSekretariat").value.trim();
+    
+    // Ambil data dari form
+    const updatedProfil = {
+        ...DB.profil, // Ambil data profil lama
+        wa: document.getElementById("eWaPanitia").value.trim(),
+        jamLayanan: document.getElementById("eJamLayanan").value.trim(),
+        email: document.getElementById("eEmailPanitia").value.trim(),
+        alamatSekretariat: document.getElementById("eAlamatSekretariat").value.trim()
+    };
 
-    const { error } = await supabaseClient.from('site_config').update({ data: DB }).eq('id', 1);
-    if (error) await supabaseClient.from('site_config').insert([{ id: 1, data: DB }]);
+    const currentAgenda = DB.agendaBar || {};
+    const currentAuth = DB.adminAuth || {};
 
+    const siteConfigData = {
+        agendaBar: currentAgenda,
+        profil: updatedProfil,
+        adminAuth: currentAuth
+    };
+
+    // Simpan HANYA siteConfigData ke Supabase
+    const { error } = await supabaseClient.from('site_config').update({ 
+        data: siteConfigData 
+    }).eq('id', 1);
+    
+    if (error) await supabaseClient.from('site_config').insert([{ id: 1, data: siteConfigData }]);
+
+    // Update memori aplikasi
+    DB.profil = updatedProfil;
     saveDB();
+    
     showToast("✅", "Informasi Kontak berhasil diperbarui!");
     render();
 }
 
 async function simpanTatibPdf(e) {
     e.preventDefault();
-    DB.tatibJudul1 = document.getElementById("inTatibJudul1").value.trim();
-    DB.tatibPdf1 = document.getElementById("inTatibPdfUrl1").value.trim();
-    DB.tatibJudul2 = document.getElementById("inTatibJudul2").value.trim();
-    DB.tatibPdf2 = document.getElementById("inTatibPdfUrl2").value.trim();
+    
+    // Ambil data dari form
+    const j1 = document.getElementById("inTatibJudul1").value.trim();
+    const u1 = document.getElementById("inTatibPdfUrl1").value.trim();
+    const j2 = document.getElementById("inTatibJudul2").value.trim();
+    const u2 = document.getElementById("inTatibPdfUrl2").value.trim();
 
-    const { error } = await supabaseClient.from('site_config').update({ data: DB }).eq('id', 1);
-    if (error) await supabaseClient.from('site_config').insert([{ id: 1, data: DB }]);
+    // 1. Simpan ke memori aplikasi (DB)
+    DB.tatibJudul1 = j1;
+    DB.tatibPdf1 = u1;
+    DB.tatibJudul2 = j2;
+    DB.tatibPdf2 = u2;
 
+    // 2. Simpan KHUSUS ke tabel `tatib` di Supabase
+    const tatibData = {
+        id: 1,
+        judul1: j1,
+        pdf1: u1,
+        judul2: j2,
+        pdf2: u2
+    };
+
+    const { error } = await supabaseClient.from('tatib').upsert(tatibData);
+    
+    if (error) {
+        showToast("❌", "Gagal menyimpan ke tabel tatib: " + error.message);
+        return;
+    }
+
+    // Simpan ke LocalStorage sebagai cadangan
     saveDB();
-    showToast("✅", "Dokumen PDF berhasil disimpan!");
+    
+    showToast("✅", "Dokumen PDF berhasil disimpan ke database!");
     render();
 }
 
@@ -372,15 +431,42 @@ function restoreBackupJSON(event) {
         try {
             const parsedData = JSON.parse(e.target.result);
             if (parsedData.profil && parsedData.kandidat) {
+                
+                // 1. Simpan ke memori sementara aplikasi
                 DB = parsedData;
-                await supabaseClient.from('site_config').update({ data: DB }).eq('id', 1);
-                saveDB(); showToast("✅", "Data dipulihkan!"); render();
+
+                // 2. TAMPILKAN LOADING (Opsional)
+                showToast("⏳", "Sedang mengunggah data ke Supabase...");
+
+                // 3. KIRIM DATA KE SUPABASE
+                // Kita simpan seluruh isi JSON ke tabel site_config (kolom data)
+                const { error } = await supabaseClient
+                    .from('site_config')
+                    .update({ data: DB })
+                    .eq('id', 1);
+
+                if (error) {
+                    // Jika gagal karena baris belum ada, coba insert
+                    await supabaseClient.from('site_config').insert([{ id: 1, data: DB }]);
+                }
+
+                // 4. Simpan ke LocalStorage juga sebagai cadangan
+                saveDB(); 
+                
+                showToast("✅", "Data berhasil diunggah ke Supabase!");
+                render();
+
             } else {
-                showToast("❌", "Format JSON tidak valid.");
+                showToast("❌", "Format file JSON tidak valid.");
             }
-        } catch (err) { showToast("❌", "Gagal membaca JSON."); }
+        } catch (err) {
+            console.error(err);
+            showToast("❌", "Gagal membaca atau mengunggah file JSON.");
+        }
     };
-    if (event.target.files[0]) fileReader.readAsText(event.target.files[0]);
+    if (event.target.files[0]) {
+        fileReader.readAsText(event.target.files[0]);
+    }
 }
 
 function confirmResetData() {
