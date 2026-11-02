@@ -645,11 +645,7 @@
             "tatibJudul2": "Dokumen Berita Acara & Lampiran Tambahan"
 };
 
-        // LOCAL STORAGE DATABASE SYSTEM
-let DB = JSON.parse(JSON.stringify(DEFAULT_DATA)); // Sementara pakai default
-
-async function loadDB() {
-    try {
+        // SUPABASE DATABASE SYSTEM
         const [
             { data: siteConfig },
             { data: kandidat },
@@ -658,12 +654,12 @@ async function loadDB() {
             { data: panitia },
             { data: tatib }
         ] = await Promise.all([
-            supabaseClient.from('site_config').select('*').single(),
+            supabaseClient.from('site_config').select('*').maybeSingle(), // Ubah .single() jadi .maybeSingle()
             supabaseClient.from('kandidat').select('*'),
             supabaseClient.from('timeline').select('*'),
             supabaseClient.from('pengumuman').select('*'),
-            supabaseClient.from('panitia').select('*').single(),
-            supabaseClient.from('tatib').select('*').single()
+            supabaseClient.from('panitia').select('*').maybeSingle(), // Ubah .single() jadi .maybeSingle()
+            supabaseClient.from('tatib').select('*').maybeSingle() // Ubah .single() jadi .maybeSingle()
         ]);
 
         // Jika tabel site_config kosong (baru pertama kali), gunakan data default
