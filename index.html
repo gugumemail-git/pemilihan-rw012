@@ -1496,6 +1496,44 @@
             const u = document.getElementById("inUser").value.trim();
             const p = document.getElementById("inPassA").value.trim();
 
+            // 1. Enkripsi input user
+            const uHash = await sha256(u);
+            const pHash = await sha256(p);
+
+            // 2. Ambil data admin langsung dari Supabase (bukan dari DB lokal)
+            const { data: siteData, error } = await supabaseClient
+                .from('site_config')
+                .select('data')
+                .eq('id', 1)
+                .maybeSingle();
+
+            // Jika gagal koneksi atau data tidak ada
+            if (error || !siteData || !siteData.data) {
+                showToast("❌", "Gagal terhubung ke database / Data admin kosong.");
+                console.error("Error Supabase:", error);
+                return;
+            }
+
+            // 3. Tentukan hash yang benar
+            const adminAuth = siteData.data.adminAuth || DEFAULT_DATA.adminAuth;
+            const storedUserHash = adminAuth.userHash;
+            const storedPassHash = adminAuth.passHash;
+
+            // 4. Cek kecocokan
+            if (uHash !== storedUserHash || pHash !== storedPassHash) {
+                showToast("❌", "Username atau Password salah!");
+                return;
+            }
+
+            // 5. Jika cocok, buat sesi login
+            setSession({ role: "admin", nama: "Administrator PILWE 012" });
+            showToast("✅", "Login Admin berhasil!");
+            go("admin");
+        }
+            e.preventDefault();
+            const u = document.getElementById("inUser").value.trim();
+            const p = document.getElementById("inPassA").value.trim();
+
             const uHash = await sha256(u);
             const pHash = await sha256(p);
 
