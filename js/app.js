@@ -12,7 +12,7 @@ function renderNav() {
         { r: "pengumuman", label: "Pengumuman", icon: "fa-bullhorn" },
         { r: "panitia", label: "Panitia", icon: "fa-users" },
         { r: "timeline", label: "Timeline", icon: "fa-calendar-days" },
-        { r: "tatib", label: "Tata Tertib", icon: "fa-file-pdf" },
+        { r: "dokumen", label: "Dokumen", icon: "fa-folder-open" },
         { r: "kontak", label: "Kontak", icon: "fa-address-book" }
     ];
 
@@ -38,7 +38,12 @@ function renderNav() {
 function render() {
     renderNav();
     const app = document.getElementById("app");
-    if (!app) return; // Pengaman jika elemen app tidak ketemu
+    if (!app) return; 
+
+    // Bersihkan interval countdown lama agar tidak memory leak
+    if (typeof cdInterval !== 'undefined' && cdInterval) {
+        clearInterval(cdInterval);
+    }
 
     let html = "";
     switch (route) {
@@ -46,7 +51,7 @@ function render() {
         case "pengumuman": html = viewPengumuman(); break;
         case "panitia": html = viewPanitia(); break;
         case "timeline": html = viewTimeline(); break;
-        case "tatib": html = viewTatib(); break;
+        case "dokumen": html = viewDokumen(); break;
         case "kontak": html = viewKontak(); break;
         case "loginAdmin": html = viewLoginAdmin(); break;
         case "admin": html = viewAdmin(); break;
@@ -57,6 +62,11 @@ function render() {
     if (typeof initReveal === 'function') initReveal();
     if (typeof syncDynamicTexts === 'function') syncDynamicTexts();
     if (route === "beranda" && typeof startCountdown === 'function') startCountdown();
+    
+    // Panggil drag and drop jika berada di halaman admin
+    if (route === "admin" && typeof initDragAndDropTimeline === 'function') {
+        initDragAndDropTimeline();
+    }
 }
 
 // Event Listener Menu Mobile (DENGAN PENGAMAN)

@@ -10,15 +10,23 @@ function setSession(s) { session = s; localStorage.setItem("pilwe012_session", J
 function clearSession() { session = null; localStorage.removeItem("pilwe012_session"); }
 
 function fmtTanggal(str) {
-    const d = new Date(str);
+    if (!str) return "-";
+    // Menambahkan T00:00:00 agar tidak terjadi pergeseran zona waktu (off-by-one)
+    const d = new Date(str.includes('T') ? str : str + 'T00:00:00');
     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function showToast(icon, msg) {
     const t = document.getElementById("toast");
-    document.getElementById("toastIcon").textContent = icon;
-    document.getElementById("toastMsg").textContent = msg;
+    const ti = document.getElementById("toastIcon");
+    const tm = document.getElementById("toastMsg");
+    
+    if (!t || !ti || !tm) return; // Guard
+
+    ti.textContent = icon;
+    tm.textContent = msg;
     t.classList.remove("hidden");
+    
     clearTimeout(window._tt);
     window._tt = setTimeout(() => t.classList.add("hidden"), 3000);
 }

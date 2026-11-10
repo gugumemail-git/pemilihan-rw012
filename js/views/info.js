@@ -76,59 +76,45 @@ function viewTimeline() {
     `;
 }
 
-function viewTatib() {
-    const pdf1Url = DB.tatibPdf1 || DEFAULT_DATA.tatibPdf1;
-    const pdf1Judul = DB.tatibJudul1 || "Dokumen Tata Tertib";
-    const pdf2Url = DB.tatibPdf2 || DEFAULT_DATA.tatibPdf2;
-    const pdf2Judul = DB.tatibJudul2 || "Dokumen Berita Acara";
-    const currentUrl = activeTatibTab === 1 ? pdf1Url : pdf2Url;
-    const currentJudul = activeTatibTab === 1 ? pdf1Judul : pdf2Judul;
+        function viewDokumen() {
+            return `
+            <section class="gradient-primary text-white py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
+                    <span class="text-xs font-extrabold uppercase tracking-widest text-amber-300">PUSAT UNDUHAN</span>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold mt-1">Dokumen & Tata Tertib</h1>
+                    <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Unduh dokumen resmi, tata tertib, dan berkas pendukung terkait Pemilihan Ketua RW 012 GMG.</p>
+                </div>
+            </section>
 
-    return `
-    <section class="gradient-primary text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
-            <span class="text-xs font-extrabold uppercase tracking-widest text-amber-300">PANDUAN & ATURAN RESMI</span>
-            <h1 class="text-3xl sm:text-4xl font-extrabold mt-1">Tata Tertib & Berita Acara</h1>
-            <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Dokumen resmi aturan, pedoman, serta berita acara pelaksanaan PILWE 012 GMG.</p>
-        </div>
-    </section>
-    <section class="py-12 max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button onclick="switchTatibTab(1)" class="p-4 sm:p-5 rounded-2xl border text-left transition-all flex items-center gap-4 ${activeTatibTab === 1 ? 'bg-white border-emerald-600 shadow-md ring-2 ring-emerald-500/30' : 'bg-slate-100/90 border-slate-200 hover:bg-white'}">
-                <div class="w-12 h-12 rounded-xl ${activeTatibTab === 1 ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-600'} flex items-center justify-center text-2xl shrink-0 font-black"><i class="fa-solid fa-file-pdf"></i></div>
-                <div class="overflow-hidden">
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider ${activeTatibTab === 1 ? 'text-emerald-700' : 'text-slate-500'}">DOKUMEN 1</span>
-                    <h3 class="font-extrabold text-slate-900 text-xs sm:text-sm truncate">${pdf1Judul}</h3>
+            <section class="py-12 max-w-5xl mx-auto px-4 sm:px-6">
+                <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    ${DB.dokumen && DB.dokumen.length ? DB.dokumen.map(doc => `
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm card-lift flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-lg shrink-0">
+                                        <i class="fa-solid fa-file-pdf"></i>
+                                    </div>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">${doc.kategori || 'Dokumen'}</span>
+                                </div>
+                                <h3 class="font-bold text-slate-900 text-sm mb-1 leading-snug">${doc.judul}</h3>
+                            </div>
+                            <div class="mt-4 pt-3 border-t border-slate-100">
+                                <a href="${doc.url}" target="_blank" class="w-full py-2 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-2 shadow">
+                                    <i class="fa-solid fa-download"></i> Lihat / Unduh
+                                </a>
+                            </div>
+                        </div>
+                    `).join("") : `
+                        <div class="col-span-full text-center py-10 bg-white rounded-2xl border border-slate-200">
+                            <div class="text-4xl mb-3 text-slate-300"><i class="fa-solid fa-folder-open"></i></div>
+                            <p class="text-slate-500">Belum ada dokumen yang diunggah.</p>
+                        </div>
+                    `}
                 </div>
-            </button>
-            <button onclick="switchTatibTab(2)" class="p-4 sm:p-5 rounded-2xl border text-left transition-all flex items-center gap-4 ${activeTatibTab === 2 ? 'bg-white border-emerald-600 shadow-md ring-2 ring-emerald-500/30' : 'bg-slate-100/90 border-slate-200 hover:bg-white'}">
-                <div class="w-12 h-12 rounded-xl ${activeTatibTab === 2 ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-600'} flex items-center justify-center text-2xl shrink-0 font-black"><i class="fa-solid fa-file-contract"></i></div>
-                <div class="overflow-hidden">
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider ${activeTatibTab === 2 ? 'text-emerald-700' : 'text-slate-500'}">DOKUMEN 2</span>
-                    <h3 class="font-extrabold text-slate-900 text-xs sm:text-sm truncate">${pdf2Judul}</h3>
-                </div>
-            </button>
-        </div>
-        <div class="bg-white rounded-3xl border border-slate-200 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-2xl shrink-0"><i class="fa-solid fa-file-pdf"></i></div>
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">DOKUMEN TAMPIL: DOKUMEN ${activeTatibTab}</span>
-                    <h3 class="font-bold text-slate-900 text-sm sm:text-base">${currentJudul}</h3>
-                </div>
-            </div>
-            <a href="${currentUrl}" target="_blank" download class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow">
-                <i class="fa-solid fa-download"></i> Unduh PDF
-            </a>
-        </div>
-        <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-md">
-            <iframe src="${currentUrl}" class="w-full h-[75vh] min-h-[500px]" frameborder="0">
-                <p class="p-6 text-center text-xs">Browser Anda tidak mendukung preview PDF. <a href="${currentUrl}" target="_blank" class="text-emerald-700 underline">Unduh di sini</a>.</p>
-            </iframe>
-        </div>
-    </section>
-    `;
-}
+            </section>
+            `;
+        }
 
 function switchTatibTab(tabNum) {
     activeTatibTab = tabNum;

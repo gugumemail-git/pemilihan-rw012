@@ -27,6 +27,25 @@
                 }
             }
         }
+
+        function confirmHapusDokumen(id) {
+            if(confirm("Apakah Anda yakin ingin menghapus dokumen ini?")) {
+                hapusDokumen(id);
+            }
+        }
+
+        async function hapusDokumen(id) {
+            const response = await supabaseClient.from('dokumen').delete().eq('id', id);
+            
+            if (response.error) {
+                showToast("❌", "Gagal menghapus: " + response.error.message);
+                return;
+            }
+
+            DB = await loadDB();
+            showToast("🗑️", "Dokumen berhasil dihapus.");
+            render();
+        }
     </script>
     
     <!-- Google Fonts & FontAwesome -->

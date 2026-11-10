@@ -9,9 +9,10 @@ async function doLoginAdmin(e) {
     const { data: siteData, error } = await supabaseClient
         .from('site_config').select('data').eq('id', 1).maybeSingle();
 
+    // Fallback hash yang valid
     const fallbackAuth = {
         userHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", // admin
-        passHash: "HASH_PASSWORD_CADANGAN_JIKA_DB_OFFLINE" 
+        passHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"  // admin123
     };
 
     let adminAuth = fallbackAuth;
@@ -50,26 +51,19 @@ async function simpanAgendaBar(e) {
     const currentProfil = DB.profil || {};
     const currentAuth = DB.adminAuth || {};
 
-    // Buat objek JSON khusus untuk site_config
+    // ... kode atasnya tetap sama ...
     const siteConfigData = {
         agendaBar: newAgendaBar,
         profil: currentProfil,
         adminAuth: currentAuth
     };
 
-    // Simpan HANYA siteConfigData ke Supabase
-    const { error } = await supabaseClient.from('site_config').update({ 
-        data: siteConfigData 
-    }).eq('id', 1);
+    // Gunakan Upsert
+    const { error } = await supabaseClient.from('site_config').upsert({ id: 1, data: siteConfigData });
+    if (error) { showToast("❌", "Gagal menyimpan: " + error.message); return; }
 
-    if (error) {
-        await supabaseClient.from('site_config').insert([{ id: 1, data: siteConfigData }]);
-    }
-
-    // Update memori aplikasi
     DB.agendaBar = newAgendaBar;
     saveDB();
-    
     showToast("✅", "Running Bar berhasil diperbarui!");
     render();
 }
@@ -89,23 +83,19 @@ async function simpanKontakProfil(e) {
     const currentAgenda = DB.agendaBar || {};
     const currentAuth = DB.adminAuth || {};
 
+    // ... kode atasnya tetap sama ...
     const siteConfigData = {
         agendaBar: currentAgenda,
         profil: updatedProfil,
         adminAuth: currentAuth
     };
 
-    // Simpan HANYA siteConfigData ke Supabase
-    const { error } = await supabaseClient.from('site_config').update({ 
-        data: siteConfigData 
-    }).eq('id', 1);
-    
-    if (error) await supabaseClient.from('site_config').insert([{ id: 1, data: siteConfigData }]);
+    // Gunakan Upsert
+    const { error } = await supabaseClient.from('site_config').upsert({ id: 1, data: siteConfigData });
+    if (error) { showToast("❌", "Gagal menyimpan: " + error.message); return; }
 
-    // Update memori aplikasi
     DB.profil = updatedProfil;
     saveDB();
-    
     showToast("✅", "Informasi Kontak berhasil diperbarui!");
     render();
 }
@@ -497,8 +487,13 @@ function restoreBackupJSON(event) {
                     });
                 }
 
+                // 7. Tambahan: Simpan Dokumen
+                if (DB.dokumen && DB.dokumen.length > 0) {
+                    await supabaseClient.from('dokumen').upsert(DB.dokumen);
+                }
+
                 // Selesai
-                saveDB(); 
+                saveDB();
                 showToast("✅", "Semua data berhasil masuk ke tabel Supabase masing-masing!");
                 render();
 
@@ -565,4 +560,83 @@ function initDragAndDropTimeline() {
             showToast("✅", "Urutan Timeline berhasil disimpan!");
         }
     });
+}
+// ================= KELOLA DOKUMEN =================
+function formDokumen(id) {
+    const isEdit = !!id;
+    const doc = isEdit ? DB.dokumen.find(x => x.id === id) : { judul: "", kategori: "Tata Tertib", url: "" };
+
+    openModal(`
+        <div class="gradient-primary text-white p-6 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-xl font-bold">${isEdit ? 'Edit Dokumen' : 'Tambah Dokumen Baru'}</h3>
+        </div>
+        <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div>
+                <label class="block text-xs font-bold mb-1">Judul Dokumen *</label>
+                <input id="docJudul" type="text" value="${doc.judul}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold">
+            </div>
+            <div>
+                <label class="block text-xs font-bold mb-1">Kategori *</label>
+                <select id="docKategori" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs">
+                    <option value="Tata Tertib" ${doc.kategori === 'Tata Tertib' ? 'selected' : ''}>Tata Tertib</option>
+                    <option value="Berita Acara" ${doc.kategori === 'Berita Acara' ? 'selected' : ''}>Berita Acara</option>
+                    <option value="Formulir" ${doc.kategori === 'Formulir' ? 'selected' : ''}>Formulir</option>
+                    <option value="Lainnya" ${doc.kategori === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold mb-1">URL File (Google Drive / PDF) *</label>
+                <input id="docUrl" type="url" value="${doc.url}" placeholder="https://..." class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs">
+            </div>
+        </div>
+        <div class="p-4 bg-slate-50 border-t flex justify-end gap-2">
+            <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+            <button onclick="simpanDokumen(${isEdit ? id : 'null'})" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs">Simpan</button>
+        </div>
+    `);
+}
+
+async function simpanDokumen(id) {
+    const judul = document.getElementById("docJudul").value.trim();
+    const kategori = document.getElementById("docKategori").value;
+    const url = document.getElementById("docUrl").value.trim();
+
+    if (!judul || !url) { showToast("⚠️", "Judul & URL wajib diisi!"); return; }
+
+    const data = { judul, kategori, url };
+    let response;
+
+    if (id) {
+        response = await supabaseClient.from('dokumen').update(data).eq('id', id);
+    } else {
+        data.id = Date.now();
+        response = await supabaseClient.from('dokumen').insert([data]);
+    }
+
+    if (response.error) { showToast("❌", "Gagal: " + response.error.message); return; }
+    
+    DB = await loadDB(); 
+    closeModal(); 
+    showToast("✅", "Dokumen disimpan!"); 
+    render();
+}
+
+function confirmHapusDokumen(id) {
+    openModal(`
+        <div class="p-6 text-center">
+            <div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-trash-can"></i></div>
+            <h3 class="text-lg font-bold text-slate-900 mb-1">Hapus Dokumen?</h3>
+            <div class="flex justify-center gap-3 mt-6">
+                <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                <button onclick="hapusDokumen(${id})" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Hapus</button>
+            </div>
+        </div>
+    `);
+}
+
+async function hapusDokumen(id) {
+    const response = await supabaseClient.from('dokumen').delete().eq('id', id);
+    if (response.error) { showToast("❌", "Gagal hapus: " + response.error.message); return; }
+    DB = await loadDB(); closeModal(); showToast("🗑️", "Dokumen dihapus."); render();
 }

@@ -311,7 +311,36 @@ function viewAdmin() {
                 `).join("")}
             </div>
         </div>
-
+        <!-- KELOLA DOKUMEN -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-lg"><i class="fa-solid fa-folder-open text-emerald-700 mr-2"></i>Kelola Dokumen PDF</h3>
+                </div>
+                <button onclick="formDokumen()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow hover:bg-emerald-800 transition"><i class="fa-solid fa-plus mr-1"></i> Tambah Dokumen</button>
+            </div>
+            <div class="grid md:grid-cols-2 gap-3">
+                ${DB.dokumen && DB.dokumen.length > 0 ? DB.dokumen.map(d => `
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col justify-between">
+                        <div class="mb-3">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider bg-emerald-100 text-emerald-800">${d.kategori || 'Dokumen'}</span>
+                                <span class="text-xs font-bold text-slate-900 line-clamp-1">${d.judul}</span>
+                            </div>
+                            <a href="${d.url}" target="_blank" class="text-[11px] text-emerald-700 hover:underline line-clamp-1"><i class="fa-solid fa-link"></i> ${d.url}</a>
+                        </div>
+                        <div class="flex gap-2 self-end">
+                            <button onclick="formDokumen(${d.id})" class="px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 font-bold text-xs hover:bg-emerald-200 transition"><i class="fa-solid fa-pen mr-1"></i> Edit</button>
+                            <button onclick="confirmHapusDokumen(${d.id})" class="px-3 py-1.5 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                `).join("") : `
+                    <div class="col-span-full text-center py-6 bg-slate-50 rounded-2xl border border-slate-200">
+                        <p class="text-xs text-slate-500">Belum ada dokumen yang ditambahkan.</p>
+                    </div>
+                `}
+            </div>
+        </div>
         <div class="bg-red-50 p-6 rounded-3xl border border-red-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
                 <div class="font-bold text-red-900 text-sm">Reset Data Ke Default</div>
