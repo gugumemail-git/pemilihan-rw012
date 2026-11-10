@@ -1,5 +1,14 @@
 function viewPanitia() {
     const p = DB.panitia;
+    
+    // Fungsi helper untuk render foto atau ikon
+    const renderAvatar = (fotoUrl, iconClass, bgClass) => {
+        if (fotoUrl) {
+            return `<img src="${fotoUrl}" alt="Foto" class="w-full h-full object-cover rounded-2xl mb-4 shadow">`;
+        }
+        return `<div class="w-14 h-14 mx-auto rounded-2xl ${bgClass} flex items-center justify-center text-xl mb-4 shadow"><i class="fa-solid ${iconClass}"></i></div>`;
+    };
+
     return `
     <section class="gradient-primary text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
@@ -11,14 +20,14 @@ function viewPanitia() {
     <section class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             ${[
-                { role: p.ketua.jabatan, nama: p.ketua.nama, icon: "fa-user-tie", bg: "gradient-primary text-white" },
-                { role: p.wakil.jabatan, nama: p.wakil.nama, icon: "fa-user-shield", bg: "bg-slate-900 text-white" },
-                { role: p.sekretaris.jabatan, nama: p.sekretaris.nama, icon: "fa-file-signature", bg: "bg-emerald-800 text-white" },
-                { role: p.bendahara.jabatan, nama: p.bendahara.nama, icon: "fa-wallet", bg: "bg-amber-500 text-emerald-950" }
+                { role: p.ketua.jabatan, nama: p.ketua.nama, foto: p.ketua.foto, icon: "fa-user-tie", bg: "gradient-primary text-white" },
+                { role: p.wakil.jabatan, nama: p.wakil.nama, foto: p.wakil.foto, icon: "fa-user-shield", bg: "bg-slate-900 text-white" },
+                { role: p.sekretaris.jabatan, nama: p.sekretaris.nama, foto: p.sekretaris.foto, icon: "fa-file-signature", bg: "bg-emerald-800 text-white" },
+                { role: p.bendahara.jabatan, nama: p.bendahara.nama, foto: p.bendahara.foto, icon: "fa-wallet", bg: "bg-amber-500 text-emerald-950" }
             ].map(x => `
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center card-lift">
-                    <div class="w-14 h-14 mx-auto rounded-2xl ${x.bg} flex items-center justify-center text-xl mb-4 shadow"><i class="fa-solid ${x.icon}"></i></div>
-                    <span class="text-[10px] font-extrabold text-emerald-700 uppercase tracking-widest">${x.role}</span>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center card-lift flex flex-col items-center">
+                    ${renderAvatar(x.foto, x.icon, x.bg)}
+                    <span class="text-[10px] font-extrabold text-emerald-700 uppercase tracking-widest mt-2">${x.role}</span>
                     <h3 class="font-extrabold text-slate-900 text-base mt-1">${x.nama}</h3>
                 </div>
             `).join("")}
@@ -27,8 +36,11 @@ function viewPanitia() {
             <h3 class="text-xl font-extrabold text-slate-900 mb-6 text-center sm:text-left"><i class="fa-solid fa-users text-emerald-700 mr-2"></i>Seksi & Anggota Panitia</h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 ${p.anggota.map(a => `
-                    <div class="bg-white p-4 rounded-xl border border-slate-200/80 text-center shadow-xs">
-                        <div class="w-10 h-10 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-600 mb-2 font-bold text-sm"><i class="fa-solid fa-user"></i></div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200/80 text-center shadow-xs flex flex-col items-center">
+                        ${a.foto 
+                            ? `<img src="${a.foto}" class="w-12 h-12 rounded-full object-cover mb-2 shadow-sm border border-slate-200">` 
+                            : `<div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 mb-2 font-bold text-sm"><i class="fa-solid fa-user"></i></div>`
+                        }
                         <div class="font-bold text-slate-900 text-xs">${a.nama}</div>
                         <div class="text-[10px] text-slate-500 mt-0.5">${a.jabatan}</div>
                     </div>
