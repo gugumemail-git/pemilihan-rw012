@@ -7,7 +7,7 @@ const DEFAULT_DATA = {
     },
     "profil": {
         "rw": "012", "perumahan": "Perum Grand Mutiara Gading", "desa": "Telajung",
-        "kecamatan": "Cikarang Barat", "kabupaten": "Bekasi", "periode": "2027–2029",
+        "kecamatan": "Cikarang Barat", "kabupaten": "Bekasi", "periode": "2027–2030",
         "tagline": "Bersama Membangun Lingkungan GMG yang Guyub, Aman, Transparan & Maju",
         "countdown": "2027-01-17T06:00:00+07:00",
         "lokasiTps": "Sekretariat RW 012 Perum GMG",
@@ -46,7 +46,7 @@ const DEFAULT_DATA = {
         }
     ],
     "pengumuman": [
-        { "id": 1, "tanggal": "2026-10-25", "kategori": "Informasi", "judul": "Penetapan Tata Tertib, Tahapan & Anggaran PILWE 012", "isi": "Panitia Pemilihan Ketua RW 012 Perum Grand Mutiara Gading telah merampungkan dan menetapkan Tata Tertib, alur tahapan, serta rencana anggaran pelaksanaan Pemilihan Ketua RW 012 Periode 2027–2029." },
+        { "id": 1, "tanggal": "2026-10-25", "kategori": "Informasi", "judul": "Penetapan Tata Tertib, Tahapan & Anggaran PILWE 012", "isi": "Panitia Pemilihan Ketua RW 012 Perum Grand Mutiara Gading telah merampungkan dan menetapkan Tata Tertib, alur tahapan, serta rencana anggaran pelaksanaan Pemilihan Ketua RW 012 Periode 2027–2030." },
         { "id": 2, "tanggal": "2026-10-31", "kategori": "Informasi", "judul": "Pendataan Daftar Pemilih Sementara (DPS)", "isi": "Proses pendataan pemilih sementara telah dilaksanakan bersama para Ketua RT di lingkungan RW 012 Perum GMG untuk memastikan seluruh warga terdata dengan akurat." },
         { "id": 3, "tanggal": "2026-11-01", "kategori": "Penting", "judul": "Pendaftaran Bakal Calon Ketua RW 012 Resmi Dibuka", "isi": "Pendaftaran Bakal Calon Ketua RW 012 Perum Grand Mutiara Gading dibuka mulai 1 hingga 15 November 2026. Berkas pendaftaran dapat diambil dan diserahkan di Kantor Sekretariat RW 012." }
     ],
