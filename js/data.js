@@ -88,7 +88,7 @@ async function loadDB() {
             supabaseClient.from('site_config').select('*').eq('id', 1).maybeSingle(),
             supabaseClient.from('kandidat').select('*').order('no', { ascending: true }),
             supabaseClient.from('timeline').select('*').order('urutan', { ascending: true }), // Diurutkan
-            supabaseClient.from('pengumuman').select('*').order('tanggal', { ascending: false }),
+            supabaseClient.from('pengumuman').select('*').order('tanggal', { descending: false }),
             supabaseClient.from('panitia').select('*').eq('id', 1).maybeSingle(),
             supabaseClient.from('tatib').select('*').eq('id', 1).maybeSingle(),
             supabaseClient.from('dokumen').select('*').order('created_at', { ascending: false })
