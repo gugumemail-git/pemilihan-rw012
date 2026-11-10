@@ -3,8 +3,8 @@ function viewPanitia() {
     
     // Fungsi helper untuk render foto atau ikon
     const renderAvatar = (fotoUrl, iconClass, bgClass) => {
-        if (fotoUrl) {
-            return `<img src="${fotoUrl}" alt="Foto" class="w-full h-full object-cover rounded-2xl mb-4 shadow">`;
+        if (fotoUrl && fotoUrl.trim() !== "") {
+            return `<img src="${fotoUrl}" alt="Foto Panitia" class="w-full h-full object-cover rounded-2xl mb-4 shadow" onerror="this.style.display='none';">`;
         }
         return `<div class="w-14 h-14 mx-auto rounded-2xl ${bgClass} flex items-center justify-center text-xl mb-4 shadow"><i class="fa-solid ${iconClass}"></i></div>`;
     };
@@ -26,7 +26,9 @@ function viewPanitia() {
                 { role: p.bendahara.jabatan, nama: p.bendahara.nama, foto: p.bendahara.foto, icon: "fa-wallet", bg: "bg-amber-500 text-emerald-950" }
             ].map(x => `
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm text-center card-lift flex flex-col items-center">
-                    ${renderAvatar(x.foto, x.icon, x.bg)}
+                    <div class="w-24 h-24 mb-2 shrink-0">
+                        ${renderAvatar(x.foto, x.icon, x.bg)}
+                    </div>
                     <span class="text-[10px] font-extrabold text-emerald-700 uppercase tracking-widest mt-2">${x.role}</span>
                     <h3 class="font-extrabold text-slate-900 text-base mt-1">${x.nama}</h3>
                 </div>
@@ -36,11 +38,13 @@ function viewPanitia() {
             <h3 class="text-xl font-extrabold text-slate-900 mb-6 text-center sm:text-left"><i class="fa-solid fa-users text-emerald-700 mr-2"></i>Seksi & Anggota Panitia</h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 ${p.anggota.map(a => `
-                    <div class="bg-white p-4 rounded-xl border border-slate-200/80 text-center shadow-xs flex flex-col items-center">
-                        ${a.foto 
-                            ? `<img src="${a.foto}" class="w-12 h-12 rounded-full object-cover mb-2 shadow-sm border border-slate-200">` 
-                            : `<div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 mb-2 font-bold text-sm"><i class="fa-solid fa-user"></i></div>`
-                        }
+                    <div class="bg-white p-4 rounded-xl border border-slate-200/80 text-center shadow-xs flex flex-col items-center card-lift">
+                        <div class="w-16 h-16 mb-2 shrink-0">
+                            ${a.foto && a.foto.trim() !== "" 
+                                ? `<img src="${a.foto}" alt="Foto" class="w-full h-full rounded-full object-cover shadow-sm border-2 border-emerald-100" onerror="this.style.display='none';">` 
+                                : `<div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-xl"><i class="fa-solid fa-user"></i></div>`
+                            }
+                        </div>
                         <div class="font-bold text-slate-900 text-xs">${a.nama}</div>
                         <div class="text-[10px] text-slate-500 mt-0.5">${a.jabatan}</div>
                     </div>
@@ -48,8 +52,13 @@ function viewPanitia() {
             </div>
         </div>
     </section>
+
+    <!-- ================= MODAL KANDIDAT ================= -->
+    <!-- (Bagian ini tidak diubah, tetap dipertahankan) -->
+
     `;
 }
+
 function viewKontak() {
     const p = DB.profil;
     const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
@@ -134,6 +143,7 @@ function handleSendWa(e) {
     window.open(`https://wa.me/${cleanWa}?text=${text}`, '_blank');
     showToast("✅", "Mengarahkan ke WhatsApp Panitia...");
 }
+
 function showKandidatModal(id) {
     const k = DB.kandidat.find(x => x.id === id);
     if (!k) return;
