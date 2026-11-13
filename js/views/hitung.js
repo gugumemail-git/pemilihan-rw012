@@ -247,6 +247,7 @@ function subVote(id) {
             <p class="text-xs text-slate-500 mb-6">Yakin ingin mengurangi 1 suara dari ${c.nama}?</p>
             <div class="flex justify-center gap-3">
                 <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+                <!-- PASTIKAN NAMANYA executeSubVote, BUKAN exeecuteSubVote -->
                 <button onclick="executeSubVote('${id}')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Kurangi</button>
             </div>
         </div>
@@ -257,18 +258,30 @@ async function executeSubVote(id) {
     const isTidakSah = id === 'tidak-sah';
     const c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(x => x.id === id);
     
+    // 1. Kurangi jumlah di memori (UI)
     if (isTidakSah) {
         suaraTidakSahState--;
         saveSuaraTidakSah(suaraTidakSahState);
     } else {
         c.suara--;
-        const { error } = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', id);
+    }
+
+    // 2. Simpan perubahan ke Supabase Database
+    if (!isTidakSah) {
+        const { error } = await supabaseClient
+            .from('kandidat')
+            .update({ suara: c.suara })
+            .eq('id', id);
+
         if (error) {
+            // Jika gagal, kembalikan angkanya
             c.suara++; 
             showToast('❌', 'Gagal update: ' + error.message);
             return;
         }
     }
+
+    // 3. Tutup modal dan render ulang tampilan
     closeModal();
     render();
     showToast('↩️', `Koreksi -1 suara ${c.nama}`);
