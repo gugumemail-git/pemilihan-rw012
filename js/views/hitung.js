@@ -5,6 +5,13 @@
 var isHitungUnlocked = false;
 var suaraTidakSahState = 0;
 var activeHitungTab = "input"; 
+var hitungLogs = []; // Array untuk menyimpan riwayat input suara
+var expandedLogs = {}; // State untuk buka-tutup riwayat
+
+// Sinkronisasi awal suara tidak sah dari DB
+if (DB.siteConfigRaw && DB.siteConfigRaw.suaraTidakSah !== undefined) {
+    suaraTidakSahState = DB.siteConfigRaw.suaraTidakSah;
+}
 
 supabaseClient.auth.getSession().then(function(res) {
     if (res.data && res.data.session) isHitungUnlocked = true;
@@ -12,6 +19,11 @@ supabaseClient.auth.getSession().then(function(res) {
 
 function switchHitungTab(tab) {
     activeHitungTab = tab;
+    render();
+}
+
+function toggleLog(id) {
+    expandedLogs[id] = !expandedLogs[id];
     render();
 }
 
@@ -115,7 +127,26 @@ function viewHitungSuara() {
     DB.kandidat.forEach(function(c) {
         var p = total ? ((c.suara||0)/total)*100 : 0;
         var fotoHtml = (c.emoji && (c.emoji.indexOf('http') === 0 || c.emoji.indexOf('data:') === 0)) ? '<img src="' + c.emoji + '" class="w-full h-full object-cover">' : (c.emoji || c.no);
+        var isExpanded = expandedLogs[c.id];
         
+        // Render log riwayat
+        var logHtml = '<div class="text-[10px] text-slate-400 italic py-1">Belum ada riwayat.</div>';
+        var filteredLogs = hitungLogs.filter(function(l) { return l.target == c.id; });
+        if (filteredLogs.length > 0) {
+            logHtml = filteredLogs.slice(0, 10).map(function(l) {
+                var color = l.delta > 0 ? 'text-green-600' : 'text-red-600';
+                var sign = l.delta > 0 ? '+' : '';
+                var timeStr = new Date(l.time).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+                return '<div class="flex items-center justify-between py-1 border-b border-slate-100 last:border-0">' +
+                    '<div class="flex items-center gap-2">' +
+                        '<span class="font-black text-[10px] ' + color + '">' + sign + l.delta + '</span>' +
+                        '<span class="text-[10px] text-slate-600">' + l.text + '</span>' +
+                    '</div>' +
+                    '<span class="text-[9px] text-slate-400 tabular-nums">' + timeStr + '</span>' +
+                '</div>';
+            }).join('');
+        }
+
         html += '<div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200 hover:shadow-xl transition-all flex flex-col">' +
             '<div class="flex items-center gap-3 mb-2">' +
                 '<div class="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-xl font-black shadow-lg overflow-hidden shrink-0">' + fotoHtml + '</div>' +
@@ -134,6 +165,14 @@ function viewHitungSuara() {
             '<div class="flex gap-2 mb-3">' +
                 '<button onclick="addVote(' + c.id + ')" ' + (isFull?'disabled':'') + ' class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-black text-sm shadow-lg transition-all">+1</button>' +
                 '<button onclick="subVote(' + c.id + ')" ' + ((c.suara||0)===0?'disabled':'') + ' class="px-3.5 py-2.5 rounded-xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 disabled:opacity-30 transition">−1</button>' +
+            '</div>' +
+            // TOMBOL RIWAYAT INPUT
+            '<div class="border-t border-slate-100 pt-2">' +
+                '<button onclick="toggleLog(' + c.id + ')" class="w-full flex items-center justify-between text-[10px] font-bold text-slate-400 hover:text-emerald-600 transition">' +
+                    '<span><i class="fa-solid fa-clock-rotate-left mr-1"></i> Riwayat Input</span>' +
+                    '<i class="fa-solid fa-chevron-' + (isExpanded ? 'up' : 'down') + ' transition-transform"></i>' +
+                '</button>' +
+                '<div class="mt-2 ' + (isExpanded ? 'block' : 'hidden') + '">' + logHtml + '</div>' +
             '</div>' +
         '</div>';
     });
@@ -364,7 +403,7 @@ async function saveSettings() {
 }
 
 async function addVote(id) {
-    var isTidakSah = id === 'tidak-sah';
+    var isTidakSah = (id === 'tidak-sah');
     var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id == id; });
     if (!c) return;
 
@@ -377,26 +416,29 @@ async function addVote(id) {
         saveSuaraTidakSah(suaraTidakSahState);
     } else {
         c.suara = (c.suara || 0) + 1;
+        
         var sessionRes = await supabaseClient.auth.getSession();
         if (!sessionRes.data.session) {
             c.suara--;
             showToast("❌", "Sesi login habis. Harap login ulang.");
             isHitungUnlocked = false; render(); return;
         }
-        // Gunakan == agar tipe data integer dari database cocok
         var errRes = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', c.id);
         if (errRes.error) {
             c.suara--; 
             showToast("❌", 'Gagal menyimpan: ' + errRes.error.message); return;
         }
     }
+    
+    // Tambahkan ke log riwayat
+    hitungLogs.unshift({ time: new Date().toISOString(), delta: 1, target: id, text: '+1 untuk ' + c.nama });
+    
     render();
     showToast("✅", '+1 suara ' + c.nama);
 }
 
 function subVote(id) {
-    var isTidakSah = id === 'tidak-sah';
-    // Gunakan == agar tipe data integer dari database cocok
+    var isTidakSah = (id === 'tidak-sah');
     var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id == id; });
     if (!c) return;
     if (isTidakSah && (!suaraTidakSahState || suaraTidakSahState <= 0)) return;
@@ -409,14 +451,14 @@ function subVote(id) {
             '<p class="text-xs text-slate-500 mb-6">Yakin ingin mengurangi 1 suara dari ' + c.nama + '?</p>' +
             '<div class="flex justify-center gap-3">' +
                 '<button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>' +
-                '<button onclick="executeSubVote(\'' + c.id + '\')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Kurangi</button>' +
+                '<button onclick="executeSubVote(\'' + id + '\')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Kurangi</button>' +
             '</div>' +
         '</div>'
     );
 }
 
 async function executeSubVote(id) {
-    var isTidakSah = id === 'tidak-sah';
+    var isTidakSah = (id === 'tidak-sah');
     var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id == id; });
     
     if (isTidakSah) {
@@ -437,6 +479,10 @@ async function executeSubVote(id) {
             showToast("❌", 'Gagal update: ' + errRes.error.message); return;
         }
     }
+    
+    // Tambahkan ke log riwayat
+    hitungLogs.unshift({ time: new Date().toISOString(), delta: -1, target: id, text: '-1 dari ' + c.nama });
+    
     closeModal();
     render();
     showToast("↩️", 'Koreksi -1 suara ' + c.nama);
@@ -527,6 +573,8 @@ async function executeResetVotes() {
     }
     suaraTidakSahState = 0;
     saveSuaraTidakSah(0);
+    hitungLogs = []; // Bersihkan log riwayat
+    
     DB = await loadDB();
     closeModal();
     showToast('🗑️','Semua suara direset');
