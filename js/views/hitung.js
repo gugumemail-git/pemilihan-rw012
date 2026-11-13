@@ -93,26 +93,26 @@ function viewHitungSuara() {
     const top = sorted[0];
     const tie = sorted.length > 1 && (sorted[1].suara || 0) === (top.suara || 0) && (top.suara || 0) > 0;
 
-    // Helper Navigasi Tab
-    const renderTabs = () => `
-        <div class="flex bg-white rounded-xl p-1 shadow-sm border border-slate-200 mb-6 max-w-md mx-auto">
-            <button onclick="switchHitungTab('input')" class="flex-1 py-2 text-xs font-bold rounded-lg transition ${activeHitungTab === 'input' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-500 hover:bg-slate-50'}">Input Suara</button>
-            <button onclick="switchHitungTab('kandidat')" class="flex-1 py-2 text-xs font-bold rounded-lg transition ${activeHitungTab === 'kandidat' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-500 hover:bg-slate-50'}">Data Kandidat</button>
-            <button onclick="switchHitungTab('rekap')" class="flex-1 py-2 text-xs font-bold rounded-lg transition ${activeHitungTab === 'rekap' ? 'bg-emerald-100 text-emerald-800' : 'text-slate-500 hover:bg-slate-50'}">Rekap & Hasil</button>
-        </div>
-    `;
-
     // 3. TAMPILAN UTAMA (DASHBOARD PANITIA)
     return `
     <section class="relative overflow-hidden gradient-primary text-white pb-8 pt-6 md:pt-10">
         <div class="absolute inset-0 pattern-dots opacity-20"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <div class="text-xs font-bold text-amber-300"><i class="fa-solid fa-shield-halved mr-1"></i> Mode Panitia</div>
+                
+                <!-- MENU TAB (Samping Tombol Logout) -->
+                <div class="flex items-center gap-2 bg-white/10 p-1.5 rounded-xl border border-white/20">
+                    <button onclick="switchHitungTab('input')" class="px-4 py-2 rounded-lg text-xs font-bold transition ${activeHitungTab === 'input' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10'}">Input Suara</button>
+                    <button onclick="switchHitungTab('kandidat')" class="px-4 py-2 rounded-lg text-xs font-bold transition ${activeHitungTab === 'kandidat' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10'}">Kandidat</button>
+                    <button onclick="switchHitungTab('rekap')" class="px-4 py-2 rounded-lg text-xs font-bold transition ${activeHitungTab === 'rekap' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10'}">Rekap</button>
+                </div>
+
                 <button onclick="logoutPanitia()" class="px-4 py-2 rounded-xl bg-red-500/80 hover:bg-red-600 text-white text-xs font-bold shadow transition flex items-center gap-2">
                     <i class="fa-solid fa-right-from-bracket"></i> Logout
                 </button>
             </div>
+
             <div class="grid lg:grid-cols-12 gap-6 items-center">
                 <div class="lg:col-span-5">
                     <h1 class="text-3xl md:text-4xl font-black leading-tight tracking-tight">
@@ -135,14 +135,14 @@ function viewHitungSuara() {
                 </div>
                 <div class="lg:col-span-7">
                     ${isFull ? `
-                        <div class="rounded-2xl p-5 text-center relative overflow-visible bg-gradient-to-br from-emerald-500 to-emerald-700 border-2 border-white/40 shadow-xl">
+                        <div id="winnerBanner" class="rounded-2xl p-5 text-center relative overflow-visible bg-gradient-to-br from-emerald-500 to-emerald-700 border-2 border-white/40 shadow-xl animate-pop">
                             <div class="relative text-white">
                                 <div class="text-[10px] uppercase tracking-widest font-black text-amber-300">🎉 Pemungutan Suara Selesai 🎉</div>
                                 <div class="text-2xl md:text-3xl font-black mt-1 drop-shadow-md">Partisipasi 100%</div>
                             </div>
                         </div>
                     ` : total>0 ? `
-                        <div class="rounded-2xl p-4 md:p-5 text-center relative overflow-visible bg-gradient-to-br from-amber-300 to-amber-400 border-2 border-amber-500 shadow-lg">
+                        <div id="winnerBanner" class="rounded-2xl p-4 md:p-5 text-center relative overflow-visible bg-gradient-to-br from-amber-300 to-amber-400 border-2 border-amber-500 shadow-lg animate-pop">
                             <div class="relative">
                                 <div class="text-[10px] uppercase tracking-widest font-black text-emerald-950">${tie?'⚠️ Hasil Sementara Seri':'🏆 Perolehan Tertinggi Sementara'}</div>
                                 <div class="text-2xl md:text-3xl font-black mt-1 text-emerald-950">${tie?sorted.filter(c=>(c.suara||0)===top.suara).map(c=>c.nama).join(' & '):top.nama}</div>
@@ -160,18 +160,20 @@ function viewHitungSuara() {
     </section>
 
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10 pb-16">
-        ${renderTabs()}
         
         <!-- TAB 1: INPUT SUARA -->
         <div class="${activeHitungTab === 'input' ? 'block' : 'hidden'}">
             <div class="grid md:grid-cols-3 gap-4 items-start">
                 ${DB.kandidat.map(c => {
                     const p = total ? ((c.suara||0)/total)*100 : 0;
+                    const isExpanded = expandedLogs[c.id]; // Gunakan expandedLogs dari app.js/utils.js
                     return `
                     <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200 hover:shadow-xl transition-all flex flex-col">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-xl font-black shadow-lg overflow-hidden shrink-0">
-                                ${c.emoji || c.no}
+                                ${(c.foto && c.foto.startsWith('http')) || (c.foto && c.foto.startsWith('data:')) 
+                                    ? `<img src="${c.foto}" class="w-full h-full object-cover" alt="${esc(c.nama)}">` 
+                                    : (c.emoji || c.no)}
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="font-bold text-sm truncate">${c.nama}</div>
@@ -221,33 +223,108 @@ function viewHitungSuara() {
             </div>
         </div>
 
-        <!-- TAB 2: DATA KANDIDAT -->
+        <!-- TAB 2: DATA KANDIDAT (SAMA PERSIS DENGAN SPA) -->
         <div class="${activeHitungTab === 'kandidat' ? 'block' : 'hidden'}">
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">
+                <h3 class="font-black text-sm mb-4"><i class="fa-solid fa-user-plus text-emerald-600 mr-2"></i>Tambah Kandidat</h3>
+                <div class="grid sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-600 mb-1.5 block">Nomor Urut</label>
+                        <input id="newNo" type="number" min="1" placeholder="Contoh: 4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-600 mb-1.5 block">Nama Lengkap</label>
+                        <input id="newNama" type="text" placeholder="Nama kandidat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-4">
+                    <label class="text-xs font-bold text-slate-600 mb-2 block">Foto Kandidat (Pilih salah satu)</label>
+                    <div class="mb-3">
+                        <label class="text-[11px] text-slate-500 font-bold mb-1 block">Opsi 1: Tempel Link URL Foto</label>
+                        <input id="newFotoUrl" type="text" placeholder="https://link-foto.com/gambar.jpg" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">
+                    </div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="h-px bg-slate-200 flex-1"></div>
+                        <span class="text-[10px] text-slate-400 font-bold uppercase">Atau</span>
+                        <div class="h-px bg-slate-200 flex-1"></div>
+                    </div>
+                    <div>
+                        <label class="text-[11px] text-slate-500 font-bold mb-1 block">Opsi 2: Upload File (Maks 2MB)</label>
+                        <input id="newFotoFile" type="file" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 transition-all cursor-pointer border border-slate-300 rounded-xl bg-white">
+                    </div>
+                </div>
+                <button onclick="addKandidat()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm transition">
+                    <i class="fa-solid fa-plus mr-1"></i>Tambah Kandidat
+                </button>
+            </div>
+
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-users text-emerald-600 mr-2"></i>Daftar Kandidat (${DB.kandidat.length})</h3>
+                <button onclick="resetVotes()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">
+                    <i class="fa-solid fa-rotate-left mr-1"></i>Reset Suara
+                </button>
+            </div>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 ${DB.kandidat.map(c => `
                     <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-16 h-16 rounded-2xl bg-emerald-100 text-4xl flex items-center justify-center shrink-0">${c.emoji || '👤'}</div>
-                            <div>
-                                <div class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">No. Urut 0${c.no}</div>
-                                <div class="font-black text-slate-900 text-lg">${c.nama}</div>
-                                <div class="text-xs text-slate-500">${c.pekerjaan || '-'}</div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-4xl flex items-center justify-center overflow-hidden shrink-0">
+                                ${(c.foto && c.foto.startsWith('http')) || (c.foto && c.foto.startsWith('data:')) 
+                                    ? `<img src="${c.foto}" class="w-full h-full object-cover" alt="${esc(c.nama)}">` 
+                                    : (c.foto || '👤')}
                             </div>
-                        </div>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Visi:</div>
-                            <p class="text-xs text-slate-700 line-clamp-3 leading-relaxed">${c.visi || 'Belum ada visi'}</p>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold truncate">${esc(c.nama)}</div>
+                                <div class="text-xs text-slate-500">No. ${c.no} · ${c.suara || 0} suara</div>
+                            </div>
+                            <button onclick="confirmHapus('${c.id}')" class="w-9 h-9 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition" title="Hapus">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
                         </div>
                     </div>
                 `).join('')}
             </div>
         </div>
 
-        <!-- TAB 3: REKAP & HASIL -->
+        <!-- TAB 3: REKAP & HASIL (SAMA PERSIS DENGAN SPA) -->
         <div class="${activeHitungTab === 'rekap' ? 'block' : 'hidden'}">
+            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-chart-simple text-emerald-600 mr-2"></i>Ekspor & Cetak</h3>
+                        <p class="text-xs text-slate-500 mt-1">Unduh hasil rekapitulasi untuk keperluan berita acara.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="exportJSON()" class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition shadow">
+                            <i class="fa-solid fa-file-code mr-1.5"></i>Backup JSON
+                        </button>
+                        <button onclick="exportCSV()" class="px-4 py-2.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition shadow">
+                            <i class="fa-solid fa-download mr-1.5"></i>CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                ${[
+                    {l:'Total Masuk', v:total, i:'fa-check-to-slot', c:'emerald'},
+                    {l:'Target DPT', v:dptTarget, i:'fa-users', c:'slate'},
+                    {l:'Suara Tidak Sah', v:suaraTidakSahState||0, i:'fa-ban', c:'red'},
+                    {l:'Partisipasi', v:pct.toFixed(1)+'%', i:'fa-chart-pie', c:'blue'},
+                ].map(s=>`
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">${s.l}</span>
+                            <i class="fa-solid ${s.i} text-${s.c}-500 text-sm"></i>
+                        </div>
+                        <div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">${s.v}</div>
+                    </div>
+                `).join('')}
+            </div>
+
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-5 border-b border-slate-100">
-                    <h3 class="font-black text-sm"><i class="fa-solid fa-table-list text-emerald-600 mr-2"></i>Tabel Rekapitulasi Sementara</h3>
+                    <h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-table-list text-emerald-600 mr-2"></i>Tabel Rekapitulasi</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
@@ -266,7 +343,7 @@ function viewHitungSuara() {
                                 return `
                                     <tr class="${isTop?'bg-amber-50':''}">
                                         <td class="px-4 py-3 font-black text-emerald-700">${c.no}</td>
-                                        <td class="px-4 py-3 font-bold">${c.nama} ${isTop?'<span class="text-[9px] bg-amber-400 px-1.5 py-0.5 rounded ml-1 text-emerald-950">TOP</span>':''}</td>
+                                        <td class="px-4 py-3 font-bold">${esc(c.nama)} ${isTop?'<span class="text-[9px] bg-amber-400 px-1.5 py-0.5 rounded ml-1 text-emerald-950">TOP</span>':''}</td>
                                         <td class="px-4 py-3 text-right font-black tabular-nums text-emerald-700">${c.suara || 0}</td>
                                         <td class="px-4 py-3 text-right tabular-nums text-slate-600">${p.toFixed(1)}%</td>
                                     </tr>
@@ -303,7 +380,6 @@ async function addVote(id) {
     } else {
         c.suara = (c.suara || 0) + 1;
         
-        // Pengecekan Login Supabase sebelum kirim data
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) {
             c.suara--;
@@ -354,7 +430,6 @@ async function executeSubVote(id) {
     } else {
         c.suara--;
 
-        // Pengecekan Login Supabase sebelum kirim data
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) {
             c.suara++; 
