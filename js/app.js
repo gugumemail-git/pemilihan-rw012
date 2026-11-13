@@ -7,13 +7,14 @@ function go(r) {
 }
 
 function renderNav() {
-    const menus = [
+        const menus = [
         { r: "beranda", label: "Beranda", icon: "fa-house" },
         { r: "pengumuman", label: "Pengumuman", icon: "fa-bullhorn" },
         { r: "panitia", label: "Panitia", icon: "fa-users" },
         { r: "timeline", label: "Timeline", icon: "fa-calendar-days" },
         { r: "dokumen", label: "Dokumen", icon: "fa-folder-open" },
-        { r: "kontak", label: "Kontak", icon: "fa-address-book" }
+        { r: "kontak", label: "Kontak", icon: "fa-address-book" },
+        { r: "hitung", label: "Hitung Suara", icon: "fa-calculator" } // TAMBAHKAN INI
     ];
 
     const navDesktop = document.getElementById("navDesktop");
@@ -46,13 +47,14 @@ function render() {
     }
 
     let html = "";
-    switch (route) {
+        switch (route) {
         case "beranda": html = viewBeranda(); break;
         case "pengumuman": html = viewPengumuman(); break;
         case "panitia": html = viewPanitia(); break;
         case "timeline": html = viewTimeline(); break;
         case "dokumen": html = viewDokumen(); break;
         case "kontak": html = viewKontak(); break;
+        case "hitung": html = viewHitungSuara(); break; // TAMBAHKAN INI
         case "loginAdmin": html = viewLoginAdmin(); break;
         case "admin": html = viewAdmin(); break;
         default: html = viewBeranda();

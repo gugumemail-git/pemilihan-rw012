@@ -277,10 +277,14 @@ function viewAdmin() {
                                 <div class="text-[10px] text-slate-500">${k.alamat}</div>
                             </div>
                         </div>
-                        <div class="flex gap-2">
-                            <button onclick="formKandidat(${k.id})" class="p-2 text-xs text-emerald-700 bg-emerald-100 rounded-lg hover:bg-emerald-200"><i class="fa-solid fa-pen"></i> Edit</button>
-                            <button onclick="confirmHapusKandidat(${k.id})" class="p-2 text-xs text-red-600 bg-red-100 rounded-lg hover:bg-red-200"><i class="fa-solid fa-trash"></i></button>
-                        </div>
+                    <div class="flex gap-2">
+                <button onclick="go('hitung')" class="px-4 py-2 rounded-xl bg-amber-400 text-emerald-950 font-bold text-xs shadow">
+                    <i class="fa-solid fa-calculator mr-1"></i> Buka Penghitung Suara
+                </button>
+                <button onclick="doLogout()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold border border-white/20">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar Admin
+                </button>
+            </div>
                     </div>
                 `).join("")}
             </div>

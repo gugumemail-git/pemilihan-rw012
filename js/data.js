@@ -5,10 +5,12 @@ const DEFAULT_DATA = {
         "jamText": "06:00 – 11:00 WIB",
         "lokasiText": "GOR Perum GMG"
     },
-    "profil": {
+        "profil": {
         "rw": "012", "perumahan": "Perum Grand Mutiara Gading", "desa": "Telajung",
         "kecamatan": "Cikarang Barat", "kabupaten": "Bekasi", "periode": "2027–2030",
+        "dpt": 150, // TAMBAHKAN INI (Sesuaikan jumlah KK)
         "tagline": "Bersama Membangun Lingkungan GMG yang Guyub, Aman, Transparan & Maju",
+        // ... sisa kode ...
         "countdown": "2027-01-17T06:00:00+07:00",
         "lokasiTps": "Sekretariat RW 012 Perum GMG",
         "alamatSekretariat": "Kantor Sekretariat RW 012 Perum Grand Mutiara Gading, Desa Telajung, Kec. Cikarang Barat, Kab. Bekasi",
