@@ -1,29 +1,88 @@
 // js/views/hitung.js
 
-// State lokal khusus untuk hitung suara (bisa juga disimpan ke Supabase nanti)
-let hitungState = {
-    suaraTidakSah: 0,
-    logs: []
-};
+// State lokal
+let isHitungUnlocked = false;
+let suaraTidakSahState = 0;
 
-// Inisialisasi dari LocalStorage jika ada
-const savedHitung = localStorage.getItem("pilwe012_hitung");
-if (savedHitung) {
-    try { hitungState = JSON.parse(savedHitung); } catch(e) {}
+function saveSuaraTidakSah(val) {
+    supabaseClient.from('site_config').upsert({ 
+        id: 1, 
+        data: { 
+            ...DB.siteConfigRaw, 
+            suaraTidakSah: val 
+        } 
+    });
 }
 
-function saveHitungState() {
-    localStorage.setItem("pilwe012_hitung", JSON.stringify(hitungState));
+// Fungsi Unlock via Password
+// Fungsi Unlock via Password (Aman dengan Hash SHA-256)
+// Ganti fungsi unlockHitung lama dengan ini
+async function loginPanitia(e) {
+    e.preventDefault();
+    const email = document.getElementById("emailPanitia").value;
+    const password = document.getElementById("passPanitia").value;
+
+    // Login ke Supabase Auth
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+    });
+
+    if (error) {
+        showToast("❌", "Login Gagal: " + error.message);
+        return;
+    }
+
+    // Jika berhasil
+    isHitungUnlocked = true;
+    showToast("🔓", "Selamat datang, Panitia!");
+    render();
 }
 
-function totalSuaraMasuk() {
-    const totalKandidat = DB.kandidat.reduce((s,c) => s + (c.suara || 0), 0);
-    return totalKandidat + (hitungState.suaraTidakSah || 0);
+// Fungsi Logout
+async function logoutPanitia() {
+    await supabaseClient.auth.signOut();
+    isHitungUnlocked = false;
+    showToast("🔒", "Anda telah keluar.");
+    render();
 }
+
+
 
 function viewHitungSuara() {
-    const total = totalSuaraMasuk();
-    // Kita gunakan DPT default atau ambil dari DB
+    // Ambil angka suara tidak sah dari Supabase (jika ada), jika tidak ada pakai 0
+        // --- TAMPILAN JIKA TERKUNCI ---
+    if (!isHitungUnlocked) {
+        return `
+        <section class="min-h-[70vh] flex items-center justify-center px-4 py-12">
+            <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-slate-200 text-center">
+                <div class="w-16 h-16 mx-auto gradient-primary text-white rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-lg">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Login Panitia</h2>
+                <p class="text-xs text-slate-500 mb-6">Silakan masuk dengan akun panitia yang sudah terdaftar.</p>
+                
+                <form onsubmit="loginPanitia(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Email Panitia</label>
+                        <input id="emailPanitia" type="email" required placeholder="panitia@gmg012.com" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Password</label>
+                        <input id="passPanitia" type="password" required placeholder="••••••" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:outline-none focus:border-emerald-600">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 rounded-xl gradient-primary text-white font-bold text-sm shadow transition-all hover:-translate-y-0.5">
+                        Masuk ke Penghitungan
+                    </button>
+                </form>
+            </div>
+        </section>
+        `;
+    }
+
+    // --- TAMPILAN JIKA SUDAH MASUK PASSWORD (HITUNG SUARA) ---
+    const totalKandidat = DB.kandidat.reduce((s,c) => s + (c.suara || 0), 0);
+    const total = totalKandidat + (suaraTidakSahState || 0);
     const dptTarget = DB.profil.dpt || 100; 
     const pct = dptTarget ? Math.min(100, (total / dptTarget) * 100) : 0;
     const isFull = total >= dptTarget;
@@ -36,14 +95,16 @@ function viewHitungSuara() {
     <section class="relative overflow-hidden gradient-primary text-white pb-8 pt-6 md:pt-10">
         <div class="absolute inset-0 pattern-dots opacity-20"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-end mb-4">
+                <button onclick="logoutPanitia()" class="px-4 py-2 rounded-xl bg-red-500/80 hover:bg-red-600 text-white text-xs font-bold shadow transition flex items-center gap-2">
+    <i class="fa-solid fa-right-from-bracket"></i> Logout Panitia
+</button>
+            </div>
             <div class="grid lg:grid-cols-12 gap-6 items-center">
                 <div class="lg:col-span-5">
                     <h1 class="text-3xl md:text-4xl font-black leading-tight tracking-tight">
                         Input <span class="italic text-amber-300" style="font-family:'Instrument Serif',serif;">Suara</span>
                     </h1>
-                    <p class="mt-2 text-emerald-50/80 text-xs md:text-sm leading-relaxed max-w-sm">
-                        Tekan <b class="text-amber-300">+1</b> setiap surat sah masuk. Tombol <b>−1</b> akan meminta konfirmasi.
-                    </p>
                     <div class="mt-5 grid grid-cols-3 gap-2 max-w-sm">
                         <div class="glass rounded-xl p-2.5 text-center">
                             <div class="text-xl font-black tabular-nums text-amber-300">${total}</div>
@@ -61,14 +122,14 @@ function viewHitungSuara() {
                 </div>
                 <div class="lg:col-span-7">
                     ${isFull ? `
-                        <div id="winnerBanner" class="rounded-2xl p-5 text-center relative overflow-visible bg-gradient-to-br from-emerald-500 to-emerald-700 border-2 border-white/40 shadow-xl animate-pop">
+                        <div class="rounded-2xl p-5 text-center relative overflow-visible bg-gradient-to-br from-emerald-500 to-emerald-700 border-2 border-white/40 shadow-xl">
                             <div class="relative text-white">
                                 <div class="text-[10px] uppercase tracking-widest font-black text-amber-300">🎉 Pemungutan Suara Selesai 🎉</div>
                                 <div class="text-2xl md:text-3xl font-black mt-1 drop-shadow-md">Partisipasi 100%</div>
                             </div>
                         </div>
                     ` : total>0 ? `
-                        <div id="winnerBanner" class="rounded-2xl p-4 md:p-5 text-center relative overflow-visible bg-gradient-to-br from-amber-300 to-amber-400 border-2 border-amber-500 shadow-lg animate-pop">
+                        <div class="rounded-2xl p-4 md:p-5 text-center relative overflow-visible bg-gradient-to-br from-amber-300 to-amber-400 border-2 border-amber-500 shadow-lg">
                             <div class="relative">
                                 <div class="text-[10px] uppercase tracking-widest font-black text-emerald-950">${tie?'⚠️ Hasil Sementara Seri':'🏆 Perolehan Tertinggi Sementara'}</div>
                                 <div class="text-2xl md:text-3xl font-black mt-1 text-emerald-950">${tie?sorted.filter(c=>(c.suara||0)===top.suara).map(c=>c.nama).join(' & '):top.nama}</div>
@@ -77,7 +138,6 @@ function viewHitungSuara() {
                         </div>
                     ` : `
                         <div class="rounded-2xl p-6 text-center border-2 border-dashed border-white/20 glass">
-                            <div class="text-3xl mb-1">🗳️</div>
                             <div class="text-sm font-bold text-white">Belum ada suara masuk</div>
                         </div>
                     `}
@@ -132,12 +192,12 @@ function viewHitungSuara() {
                 </div>
                 <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
                     <div class="text-center pr-4 border-r border-red-200">
-                        <div class="text-3xl font-black text-red-700">${hitungState.suaraTidakSah || 0}</div>
+                        <div class="text-3xl font-black text-red-700">${suaraTidakSahState || 0}</div>
                         <div class="text-[9px] uppercase tracking-wider text-red-500 font-bold">Suara</div>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="addVote('tidak-sah')" ${isFull?'disabled':''} class="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white font-black text-sm shadow-lg transition-all">+1</button>
-                        <button onclick="subVote('tidak-sah')" ${(!hitungState.suaraTidakSah)?'disabled':''} class="px-3.5 py-2.5 rounded-xl bg-white border border-red-200 text-red-600 font-bold text-sm hover:bg-red-100 disabled:opacity-30 transition">−1</button>
+                        <button onclick="subVote('tidak-sah')" ${(!suaraTidakSahState)?'disabled':''} class="px-3.5 py-2.5 rounded-xl bg-white border border-red-200 text-red-600 font-bold text-sm hover:bg-red-100 disabled:opacity-30 transition">−1</button>
                     </div>
                 </div>
             </div>
@@ -146,37 +206,29 @@ function viewHitungSuara() {
     `;
 }
 
-// Fungsi Tambah/Kurang Suara
 async function addVote(id) {
     const isTidakSah = id === 'tidak-sah';
     const c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(x => x.id === id);
     if (!c) return;
 
+    const totalKandidat = DB.kandidat.reduce((s,c) => s + (c.suara || 0), 0);
+    const total = totalKandidat + (suaraTidakSahState || 0);
     const dptTarget = DB.profil.dpt || 100;
-    if (totalSuaraMasuk() >= dptTarget) return showToast('⚠️', 'Target DPT sudah tercapai!');
+    if (total >= dptTarget) return showToast('⚠️', 'Target DPT sudah tercapai!');
 
     if (isTidakSah) {
-        hitungState.suaraTidakSah = (hitungState.suaraTidakSah || 0) + 1;
-        saveHitungState(); // Hanya simpan lokal untuk tidak sah
+        suaraTidakSahState = (suaraTidakSahState || 0) + 1;
+        saveSuaraTidakSah(suaraTidakSahState); // Simpan ke Supabase
     } else {
-        // 1. Update memori lokal dulu agar UI responsif
         c.suara = (c.suara || 0) + 1;
-        
-        // 2. Kirim update ke Supabase (Ganti 'id' dengan ID kandidat)
-        const { error } = await supabaseClient
-            .from('kandidat')
-            .update({ suara: c.suara })
-            .eq('id', id);
-
+        const { error } = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', id);
         if (error) {
-            // Jika gagal, kembalikan angka dan beri tahu panitia
             c.suara--; 
-            showToast('❌', 'Gagal menyimpan ke database: ' + error.message);
+            showToast('❌', 'Gagal menyimpan: ' + error.message);
             return;
         }
     }
-    
-    render(); // Render ulang tampilan
+    render();
     showToast('✅', `+1 suara ${c.nama}`);
 }
 
@@ -185,7 +237,7 @@ function subVote(id) {
     const c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(x => x.id === id);
     if (!c) return;
 
-    if (isTidakSah && (!hitungState.suaraTidakSah || hitungState.suaraTidakSah <= 0)) return;
+    if (isTidakSah && (!suaraTidakSahState || suaraTidakSahState <= 0)) return;
     if (!isTidakSah && (!c.suara || c.suara <= 0)) return;
 
     openModal(`
@@ -206,25 +258,17 @@ async function executeSubVote(id) {
     const c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(x => x.id === id);
     
     if (isTidakSah) {
-        hitungState.suaraTidakSah--;
-        saveHitungState();
+        suaraTidakSahState--;
+        saveSuaraTidakSah(suaraTidakSahState);
     } else {
-        // 1. Update memori lokal
         c.suara--;
-        
-        // 2. Kirim update ke Supabase
-        const { error } = await supabaseClient
-            .from('kandidat')
-            .update({ suara: c.suara })
-            .eq('id', id);
-
+        const { error } = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', id);
         if (error) {
-            c.suara++; // Batalkan jika error
-            showToast('❌', 'Gagal update database: ' + error.message);
+            c.suara++; 
+            showToast('❌', 'Gagal update: ' + error.message);
             return;
         }
     }
-
     closeModal();
     render();
     showToast('↩️', `Koreksi -1 suara ${c.nama}`);

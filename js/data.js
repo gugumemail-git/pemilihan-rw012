@@ -96,10 +96,12 @@ async function loadDB() {
             supabaseClient.from('dokumen').select('*').order('created_at', { ascending: false })
         ]);
 
-        return {
+                return {
+            siteConfigRaw: siteConfig?.data || {}, // TAMBAHKAN BARIS INI
             profil: siteConfig?.data?.profil || DEFAULT_DATA.profil,
             agendaBar: siteConfig?.data?.agendaBar || DEFAULT_DATA.agendaBar,
             adminAuth: siteConfig?.data?.adminAuth || DEFAULT_DATA.adminAuth,
+            // ... sisa kode ...
             kandidat: kandidat?.length ? kandidat : DEFAULT_DATA.kandidat,
             timeline: timeline?.length ? timeline : DEFAULT_DATA.timeline,
             pengumuman: pengumuman?.length ? pengumuman : DEFAULT_DATA.pengumuman,
