@@ -199,7 +199,8 @@ function viewHitungSuara() {
             '</div>' +
         '</div>' +
     '</div>'; // End Tab Input
-        // TAB PENGATURAN DPT (MENGGANTIKAN TAB KANDIDAT)
+
+    // TAB PENGATURAN DPT (MENGGANTIKAN TAB KANDIDAT)
     html += '<div class="' + (activeHitungTab === 'dpt' ? 'block' : 'hidden') + '">' +
         
         '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
@@ -228,7 +229,7 @@ function viewHitungSuara() {
             '</div>' +
         '</div>' +
         
-        // DAFTAR KANDIDAT (Hanya Read-Only)
+        // DAFTAR KANDIDAT (Read-Only)
         '<div class="flex items-center justify-between mb-3">' +
             '<h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-users text-emerald-600 mr-2"></i>Kandidat Terdaftar (' + DB.kandidat.length + ')</h3>' +
             '<button onclick="resetVotes()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">' +
@@ -252,7 +253,7 @@ function viewHitungSuara() {
 
     html += '</div></div>'; // End Tab DPT
 
-    // TAB REKAP (TIDAK DIRUBAH)
+    // TAB REKAP (DIPERBAIKI)
     html += '<div class="' + (activeHitungTab === 'rekap' ? 'block' : 'hidden') + '">' +
         '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
             '<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">' +
@@ -288,8 +289,20 @@ function viewHitungSuara() {
                 '<div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Partisipasi</span><i class="fa-solid fa-chart-pie text-blue-500 text-sm"></i></div>' +
                 '<div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + pct.toFixed(1) + '%</div>' +
             '</div>' +
-        '</div>' +
-        '<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">' +
+        '</div>';
+
+    // --- BANNER SUARA TERTINGGI ---
+    if (total > 0) {
+        html += '<div class="rounded-3xl p-6 md:p-8 text-center relative overflow-hidden mb-6 ' + (tie ? 'bg-amber-50 border-2 border-amber-300' : 'bg-gradient-to-br from-amber-300 to-amber-400 border-2 border-amber-500') + '">' +
+            '<div class="relative">' +
+                '<div class="text-[10px] uppercase tracking-widest font-black ' + (tie ? 'text-amber-800' : 'text-emerald-950') + '">' + (tie ? '⚠️ Hasil Seri' : '🏆 Perolehan Suara Tertinggi') + '</div>' +
+                '<div class="text-3xl md:text-5xl font-black mt-2 ' + (tie ? 'text-amber-900' : 'text-emerald-950') + '">' + (tie ? sorted.filter(function(c){ return (c.suara||0)===top.suara; }).map(function(c){ return c.nama; }).join(' & ') : top.nama) + '</div>' +
+                '<div class="text-sm font-bold mt-1 ' + (tie ? 'text-amber-800' : 'text-emerald-900') + '">' + (top.suara || 0) + ' suara · ' + (top.suara ? ((top.suara / totalKandidat) * 100).toFixed(1) : 0) + '% dari suara sah</div>' +
+            '</div>' +
+        '</div>';
+    }
+
+    html += '<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">' +
             '<div class="p-5 border-b border-slate-100">' +
                 '<h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-table-list text-emerald-600 mr-2"></i>Tabel Rekapitulasi</h3>' +
             '</div>' +
@@ -306,7 +319,7 @@ function viewHitungSuara() {
                     '<tbody class="divide-y divide-slate-100">';
 
     sorted.forEach(function(c, i) {
-        var p = total ? ((c.suara||0)/total)*100 : 0;
+        var p = totalKandidat ? ((c.suara||0)/totalKandidat)*100 : 0;
         var isTop = i===0 && (c.suara||0)>0 && (sorted.length===1 || (sorted[1].suara||0)<(c.suara||0));
         html += '<tr class="' + (isTop?'bg-amber-50':'') + '">' +
             '<td class="px-4 py-3 font-black text-emerald-700">' + c.no + '</td>' +
@@ -320,13 +333,14 @@ function viewHitungSuara() {
             '<td class="px-4 py-3 font-black text-red-500">-</td>' +
             '<td class="px-4 py-3 font-bold text-red-700">Suara Tidak Sah</td>' +
             '<td class="px-4 py-3 text-right font-black tabular-nums text-red-700">' + (suaraTidakSahState || 0) + '</td>' +
-            '<td class="px-4 py-3 text-right tabular-nums text-red-500">' + (total ? (((suaraTidakSahState || 0)/total)*100).toFixed(1) : 0) + '%</td>' +
+            '<td class="px-4 py-3 text-right tabular-nums text-red-500">' + (totalKandidat ? (((suaraTidakSahState || 0)/totalKandidat)*100).toFixed(1) : 0) + '%</td>' +
         '</tr>' +
         '</tbody></table></div></div></div>' + // End Tab Rekap
     '</section>';
 
     return html;
 }
+
 // ==========================================
 // BAGIAN 3: FUNGSI AKSI & DATABASE
 // ==========================================
