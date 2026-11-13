@@ -5,10 +5,9 @@
 var isHitungUnlocked = false;
 var suaraTidakSahState = 0;
 var activeHitungTab = "input"; 
-var hitungLogs = []; // Array untuk menyimpan riwayat input suara
-var expandedLogs = {}; // State untuk buka-tutup riwayat
+var hitungLogs = []; 
+var expandedLogs = {}; 
 
-// Sinkronisasi awal suara tidak sah dari DB
 if (DB.siteConfigRaw && DB.siteConfigRaw.suaraTidakSah !== undefined) {
     suaraTidakSahState = DB.siteConfigRaw.suaraTidakSah;
 }
@@ -70,7 +69,8 @@ function viewHitungSuara() {
                 '<div class="text-xs font-bold text-amber-300"><i class="fa-solid fa-shield-halved mr-1"></i> Mode Panitia</div>' +
                 '<div class="flex items-center gap-2 bg-white/10 p-1.5 rounded-xl border border-white/20">' +
                     '<button onclick="switchHitungTab(\'input\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'input' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Input Suara</button>' +
-                    '<button onclick="switchHitungTab(\'kandidat\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'kandidat' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Kandidat</button>' +
+                    // TAB KANDIDAT DIGANTI MENJADI TAB DPT
+                    '<button onclick="switchHitungTab(\'dpt\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'dpt' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Pengaturan DPT</button>' +
                     '<button onclick="switchHitungTab(\'rekap\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'rekap' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Rekap</button>' +
                     '<div class="w-px h-6 bg-white/20 mx-1"></div>' +
                     '<button onclick="logoutPanitia()" class="px-4 py-2 rounded-lg bg-red-500/80 hover:bg-red-600 text-white text-xs font-bold transition flex items-center gap-1.5"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>' +
@@ -129,7 +129,6 @@ function viewHitungSuara() {
         var fotoHtml = (c.emoji && (c.emoji.indexOf('http') === 0 || c.emoji.indexOf('data:') === 0)) ? '<img src="' + c.emoji + '" class="w-full h-full object-cover">' : (c.emoji || c.no);
         var isExpanded = expandedLogs[c.id];
         
-        // Render log riwayat
         var logHtml = '<div class="text-[10px] text-slate-400 italic py-1">Belum ada riwayat.</div>';
         var filteredLogs = hitungLogs.filter(function(l) { return l.target == c.id; });
         if (filteredLogs.length > 0) {
@@ -166,7 +165,6 @@ function viewHitungSuara() {
                 '<button onclick="addVote(' + c.id + ')" ' + (isFull?'disabled':'') + ' class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-black text-sm shadow-lg transition-all">+1</button>' +
                 '<button onclick="subVote(' + c.id + ')" ' + ((c.suara||0)===0?'disabled':'') + ' class="px-3.5 py-2.5 rounded-xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 disabled:opacity-30 transition">−1</button>' +
             '</div>' +
-            // TOMBOL RIWAYAT INPUT
             '<div class="border-t border-slate-100 pt-2">' +
                 '<button onclick="toggleLog(' + c.id + ')" class="w-full flex items-center justify-between text-[10px] font-bold text-slate-400 hover:text-emerald-600 transition">' +
                     '<span><i class="fa-solid fa-clock-rotate-left mr-1"></i> Riwayat Input</span>' +
@@ -201,64 +199,38 @@ function viewHitungSuara() {
             '</div>' +
         '</div>' +
     '</div>'; // End Tab Input
-        // TAB KANDIDAT
-    html += '<div class="' + (activeHitungTab === 'kandidat' ? 'block' : 'hidden') + '">' +
+        // TAB PENGATURAN DPT (MENGGANTIKAN TAB KANDIDAT)
+    html += '<div class="' + (activeHitungTab === 'dpt' ? 'block' : 'hidden') + '">' +
         
-        // FORM PENGATURAN PEMILIHAN
         '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
-            '<h3 class="font-black text-sm mb-4"><i class="fa-solid fa-sliders text-emerald-600 mr-2"></i>Pengaturan Pemilihan</h3>' +
+            '<h3 class="font-black text-sm mb-4"><i class="fa-solid fa-sliders text-emerald-600 mr-2"></i>Pengaturan Target DPT</h3>' +
             '<div class="grid sm:grid-cols-2 gap-4 mb-4">' +
                 '<div>' +
-                    '<label class="text-xs font-bold text-slate-600 mb-1.5 block">Nama Pemilihan</label>' +
-                    '<input id="setTitle" type="text" value="' + (DB.title || 'Pemilihan Ketua RW 012') + '" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">' +
-                '</div>' +
-                '<div>' +
-                    '<label class="text-xs font-bold text-slate-600 mb-1.5 block">Target DPT</label>' +
+                    '<label class="text-xs font-bold text-slate-600 mb-1.5 block">Target DPT (Maksimal Suara Masuk)</label>' +
                     '<input id="setDpt" type="number" min="0" value="' + (DB.profil.dpt || 100) + '" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">' +
+                    '<p class="text-[11px] text-slate-400 mt-1">Angka ini menentukan batas maksimal partisipasi 100%.</p>' +
                 '</div>' +
             '</div>' +
             '<button onclick="saveSettings()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm transition">' +
-                '<i class="fa-solid fa-floppy-disk mr-1.5"></i>Simpan Pengaturan' +
+                '<i class="fa-solid fa-floppy-disk mr-1.5"></i>Simpan Target DPT' +
             '</button>' +
         '</div>' +
 
-        // FORM TAMBAH KANDIDAT
-        '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
-            '<h3 class="font-black text-sm mb-4"><i class="fa-solid fa-user-plus text-emerald-600 mr-2"></i>Tambah Kandidat</h3>' +
-            '<div class="grid sm:grid-cols-2 gap-4 mb-4">' +
-                '<div>' +
-                    '<label class="text-xs font-bold text-slate-600 mb-1.5 block">Nomor Urut</label>' +
-                    '<input id="newNo" type="number" min="1" placeholder="Contoh: 4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">' +
+        '<div class="bg-emerald-50 border border-emerald-200 rounded-3xl p-5 mb-6">' +
+            '<div class="flex items-start gap-3">' +
+                '<div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">' +
+                    '<i class="fa-solid fa-circle-info"></i>' +
                 '</div>' +
                 '<div>' +
-                    '<label class="text-xs font-bold text-slate-600 mb-1.5 block">Nama Lengkap</label>' +
-                    '<input id="newNama" type="text" placeholder="Nama kandidat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">' +
+                    '<h4 class="font-bold text-sm text-emerald-900">Informasi Kandidat</h4>' +
+                    '<p class="text-xs text-emerald-800/80 mt-1 leading-relaxed">Daftar kandidat diambil secara otomatis dari halaman web utama (Database Supabase). Jika ingin mengubah nama atau foto kandidat, silakan ubah melalui menu Admin di web utama.</p>' +
                 '</div>' +
             '</div>' +
-            '<div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-4">' +
-                '<label class="text-xs font-bold text-slate-600 mb-2 block">Foto Kandidat (Pilih salah satu)</label>' +
-                '<div class="mb-3">' +
-                    '<label class="text-[11px] text-slate-500 font-bold mb-1 block">Opsi 1: Tempel Link URL Foto</label>' +
-                    '<input id="newFotoUrl" type="text" placeholder="https://link-foto.com/gambar.jpg" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm">' +
-                '</div>' +
-                '<div class="flex items-center gap-2 mb-3">' +
-                    '<div class="h-px bg-slate-200 flex-1"></div>' +
-                    '<span class="text-[10px] text-slate-400 font-bold uppercase">Atau</span>' +
-                    '<div class="h-px bg-slate-200 flex-1"></div>' +
-                '</div>' +
-                '<div>' +
-                    '<label class="text-[11px] text-slate-500 font-bold mb-1 block">Opsi 2: Upload File (Maks 2MB)</label>' +
-                    '<input id="newFotoFile" type="file" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 transition-all cursor-pointer border border-slate-300 rounded-xl bg-white">' +
-                '</div>' +
-            '</div>' +
-            '<button onclick="addKandidat()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm transition">' +
-                '<i class="fa-solid fa-plus mr-1"></i>Tambah Kandidat' +
-            '</button>' +
         '</div>' +
         
-        // DAFTAR KANDIDAT
+        // DAFTAR KANDIDAT (Hanya Read-Only)
         '<div class="flex items-center justify-between mb-3">' +
-            '<h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-users text-emerald-600 mr-2"></i>Daftar Kandidat (' + DB.kandidat.length + ')</h3>' +
+            '<h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-users text-emerald-600 mr-2"></i>Kandidat Terdaftar (' + DB.kandidat.length + ')</h3>' +
             '<button onclick="resetVotes()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">' +
                 '<i class="fa-solid fa-rotate-left mr-1"></i>Reset Suara' +
             '</button>' +
@@ -274,16 +246,13 @@ function viewHitungSuara() {
                     '<div class="font-bold truncate">' + c.nama + '</div>' +
                     '<div class="text-xs text-slate-500">No. ' + c.no + ' · ' + (c.suara || 0) + ' suara</div>' +
                 '</div>' +
-                '<button onclick="confirmHapus(' + c.id + ')" class="w-9 h-9 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition" title="Hapus">' +
-                    '<i class="fa-solid fa-trash text-xs"></i>' +
-                '</button>' +
             '</div>' +
         '</div>';
     });
 
-    html += '</div></div>'; // End Tab Kandidat
+    html += '</div></div>'; // End Tab DPT
 
-    // TAB REKAP
+    // TAB REKAP (TIDAK DIRUBAH)
     html += '<div class="' + (activeHitungTab === 'rekap' ? 'block' : 'hidden') + '">' +
         '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
             '<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">' +
