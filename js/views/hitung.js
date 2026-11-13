@@ -1,5 +1,5 @@
 // ==========================================
-// BAGIAN 1: STATE, LOGIN, & TAB INPUT SUARA
+// BAGIAN 1: STATE, VARIABEL & FUNGSI LOGIN
 // ==========================================
 
 var isHitungUnlocked = false;
@@ -8,12 +8,17 @@ var activeHitungTab = "input";
 var hitungLogs = []; 
 var expandedLogs = {}; 
 
-if (DB.siteConfigRaw && DB.siteConfigRaw.suaraTidakSah !== undefined) {
+// Sinkronisasi awal suara tidak sah dari database
+if (DB && DB.siteConfigRaw && DB.siteConfigRaw.suaraTidakSah !== undefined) {
     suaraTidakSahState = DB.siteConfigRaw.suaraTidakSah;
 }
 
+// Cek apakah panitia sudah login
 supabaseClient.auth.getSession().then(function(res) {
-    if (res.data && res.data.session) isHitungUnlocked = true;
+    if (res.data && res.data.session) {
+        isHitungUnlocked = true;
+        if (typeof render === 'function') render();
+    }
 });
 
 function switchHitungTab(tab) {
@@ -26,7 +31,34 @@ function toggleLog(id) {
     render();
 }
 
+async function loginPanitia(e) {
+    e.preventDefault();
+    var email = document.getElementById("emailPanitia").value;
+    var password = document.getElementById("passPanitia").value;
+
+    var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+    if (res.error) { 
+        showToast("❌", "Login Gagal: " + res.error.message); 
+        return; 
+    }
+    
+    isHitungUnlocked = true;
+    showToast("🔓", "Selamat datang, Panitia!");
+    render();
+}
+
+async function logoutPanitia() {
+    await supabaseClient.auth.signOut();
+    isHitungUnlocked = false;
+    showToast("🔒", "Anda telah keluar.");
+    render();
+}
+// ==========================================
+// BAGIAN 2: TAMPILAN LOGIN & HERO DASHBOARD
+// ==========================================
+
 function viewHitungSuara() {
+    // Jika belum login, tampilkan form
     if (!isHitungUnlocked) {
         return '<section class="min-h-[70vh] flex items-center justify-center px-4 py-12">' +
             '<div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-slate-200 text-center">' +
@@ -52,6 +84,7 @@ function viewHitungSuara() {
         '</section>';
     }
 
+    // Hitung data
     var totalKandidat = DB.kandidat.reduce(function(s,c) { return s + (c.suara || 0); }, 0);
     var total = totalKandidat + (suaraTidakSahState || 0);
     var dptTarget = DB.profil.dpt || 100; 
@@ -62,9 +95,11 @@ function viewHitungSuara() {
     var top = sorted[0] || { nama: '-', suara: 0 };
     var tie = sorted.length > 1 && (sorted[1].suara || 0) === (top.suara || 0) && (top.suara || 0) > 0;
 
+    // Mulai render HTML
     var html = '<section class="relative overflow-hidden gradient-primary text-white pb-8 pt-6 md:pt-10">' +
         '<div class="absolute inset-0 pattern-dots opacity-20"></div>' +
         '<div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">' +
+            // Menu Navigasi Tab
             '<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">' +
                 '<div class="text-xs font-bold text-amber-300"><i class="fa-solid fa-shield-halved mr-1"></i> Mode Panitia</div>' +
                 '<div class="flex items-center gap-2 bg-white/10 p-1.5 rounded-xl border border-white/20">' +
@@ -75,6 +110,8 @@ function viewHitungSuara() {
                     '<button onclick="logoutPanitia()" class="px-4 py-2 rounded-lg bg-red-500/80 hover:bg-red-600 text-white text-xs font-bold transition flex items-center gap-1.5"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>' +
                 '</div>' +
             '</div>' +
+            
+            // Statistik Hero
             '<div class="grid lg:grid-cols-12 gap-6 items-center">' +
                 '<div class="lg:col-span-5">' +
                     '<h1 class="text-3xl md:text-4xl font-black leading-tight tracking-tight">Hitung <span class="italic text-amber-300">Suara</span></h1>' +
@@ -93,6 +130,8 @@ function viewHitungSuara() {
                         '</div>' +
                     '</div>' +
                 '</div>' +
+                
+                // Banner Pemenang Sementara
                 '<div class="lg:col-span-7">';
 
     if (isFull) {
@@ -118,11 +157,14 @@ function viewHitungSuara() {
 
     html += '</div></div></div></section>' +
     '<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10 pb-16">';
+    // ==========================================
+// BAGIAN 3: TAMPILAN TAB INPUT, DPT & REKAP
+// ==========================================
 
-    // TAB INPUT
+    // --- TAB INPUT SUARA ---
     html += '<div class="' + (activeHitungTab === 'input' ? 'block' : 'hidden') + '">';
 
-    // --- KOTAK PERINGATAN TARGET DPT TERCAPAI ---
+    // Peringatan jika DPT penuh
     if (isFull) {
         html += '<div class="mb-4 p-3 rounded-xl bg-green-100 border border-green-300 text-green-800 text-xs font-bold flex items-center justify-center gap-2 animate-fade">' +
                     '<i class="fa-solid fa-check-circle text-lg"></i> Target DPT (' + dptTarget + ' suara) tercapai. Input suara ditutup.' +
@@ -183,6 +225,7 @@ function viewHitungSuara() {
     });
 
     html += '</div>' +
+        // Suara Tidak Sah
         '<div class="mt-6">' +
             '<h2 class="text-base font-black mb-3 text-slate-800"><i class="fa-solid fa-ban text-red-500 mr-2"></i>Surat Rusak / Tidak Sah</h2>' +
             '<div class="bg-red-50 rounded-3xl p-4 shadow-sm border border-red-200 flex flex-col md:flex-row items-center justify-between gap-4">' +
@@ -206,14 +249,10 @@ function viewHitungSuara() {
             '</div>' +
         '</div>' +
     '</div>'; // End Tab Input
-}
 
-// ==========================================
-// BAGIAN 2: TAB PENGATURAN DPT (MENGGANTIKAN TAB KANDIDAT)
-// ==========================================
 
+    // --- TAB PENGATURAN DPT ---
     html += '<div class="' + (activeHitungTab === 'dpt' ? 'block' : 'hidden') + '">' +
-        
         '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
             '<h3 class="font-black text-sm mb-4"><i class="fa-solid fa-sliders text-emerald-600 mr-2"></i>Pengaturan Target DPT</h3>' +
             '<div class="grid sm:grid-cols-2 gap-4 mb-4">' +
@@ -227,25 +266,18 @@ function viewHitungSuara() {
                 '<i class="fa-solid fa-floppy-disk mr-1.5"></i>Simpan Target DPT' +
             '</button>' +
         '</div>' +
-
         '<div class="bg-emerald-50 border border-emerald-200 rounded-3xl p-5 mb-6">' +
             '<div class="flex items-start gap-3">' +
-                '<div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">' +
-                    '<i class="fa-solid fa-circle-info"></i>' +
-                '</div>' +
+                '<div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-circle-info"></i></div>' +
                 '<div>' +
                     '<h4 class="font-bold text-sm text-emerald-900">Informasi Kandidat</h4>' +
-                    '<p class="text-xs text-emerald-800/80 mt-1 leading-relaxed">Daftar kandidat diambil secara otomatis dari halaman web utama (Database Supabase). Jika ingin mengubah nama atau foto kandidat, silakan ubah melalui menu Admin di web utama.</p>' +
+                    '<p class="text-xs text-emerald-800/80 mt-1 leading-relaxed">Daftar kandidat diambil secara otomatis dari web utama. Jika ingin mengubah nama atau foto kandidat, silakan ubah melalui menu Admin di web utama.</p>' +
                 '</div>' +
             '</div>' +
         '</div>' +
-        
-        // DAFTAR KANDIDAT (Read-Only)
         '<div class="flex items-center justify-between mb-3">' +
             '<h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-users text-emerald-600 mr-2"></i>Kandidat Terdaftar (' + DB.kandidat.length + ')</h3>' +
-            '<button onclick="resetVotes()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">' +
-                '<i class="fa-solid fa-rotate-left mr-1"></i>Reset Suara' +
-            '</button>' +
+            '<button onclick="resetVotes()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100"><i class="fa-solid fa-rotate-left mr-1"></i>Reset Suara</button>' +
         '</div>' +
         '<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">';
 
@@ -261,10 +293,10 @@ function viewHitungSuara() {
             '</div>' +
         '</div>';
     });
-
     html += '</div></div>'; // End Tab DPT
 
-    // TAB REKAP (DIPERBAIKI)
+
+    // --- TAB REKAP & HASIL ---
     html += '<div class="' + (activeHitungTab === 'rekap' ? 'block' : 'hidden') + '">' +
         '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
             '<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">' +
@@ -273,36 +305,18 @@ function viewHitungSuara() {
                     '<p class="text-xs text-slate-500 mt-1">Unduh hasil rekapitulasi atau pulihkan data dari file backup.</p>' +
                 '</div>' +
                 '<div class="flex flex-wrap gap-2">' +
-                    '<button onclick="exportJSON()" class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition shadow">' +
-                        '<i class="fa-solid fa-file-export mr-1.5"></i>Download Backup' +
-                    '</button>' +
-                    '<label class="px-4 py-2.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition shadow cursor-pointer flex items-center gap-1.5">' +
-                        '<i class="fa-solid fa-upload"></i> Upload Backup (JSON)' +
-                        '<input type="file" accept=".json" onchange="restoreBackupJSON(event)" class="hidden">' +
-                    '</label>' +
+                    '<button onclick="exportJSON()" class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition shadow"><i class="fa-solid fa-file-export mr-1.5"></i>Download Backup</button>' +
+                    '<label class="px-4 py-2.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition shadow cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-upload"></i> Upload Backup (JSON)<input type="file" accept=".json" onchange="restoreBackupJSON(event)" class="hidden"></label>' +
                 '</div>' +
             '</div>' +
         '</div>' +
         '<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">' +
-            '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">' +
-                '<div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Total Masuk</span><i class="fa-solid fa-check-to-slot text-emerald-500 text-sm"></i></div>' +
-                '<div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + total + '</div>' +
-            '</div>' +
-            '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">' +
-                '<div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Target DPT</span><i class="fa-solid fa-users text-slate-500 text-sm"></i></div>' +
-                '<div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + dptTarget + '</div>' +
-            '</div>' +
-            '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">' +
-                '<div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Suara Tidak Sah</span><i class="fa-solid fa-ban text-red-500 text-sm"></i></div>' +
-                '<div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + (suaraTidakSahState || 0) + '</div>' +
-            '</div>' +
-            '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">' +
-                '<div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Partisipasi</span><i class="fa-solid fa-chart-pie text-blue-500 text-sm"></i></div>' +
-                '<div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + pct.toFixed(1) + '%</div>' +
-            '</div>' +
+            '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200"><div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Total Masuk</span><i class="fa-solid fa-check-to-slot text-emerald-500 text-sm"></i></div><div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + total + '</div></div>' +
+            '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200"><div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Target DPT</span><i class="fa-solid fa-users text-slate-500 text-sm"></i></div><div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + dptTarget + '</div></div>' +
+            '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200"><div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Suara Tidak Sah</span><i class="fa-solid fa-ban text-red-500 text-sm"></i></div><div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + (suaraTidakSahState || 0) + '</div></div>' +
+            '<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200"><div class="flex items-center justify-between mb-1.5"><span class="text-[10px] uppercase font-bold tracking-wider text-slate-500">Partisipasi</span><i class="fa-solid fa-chart-pie text-blue-500 text-sm"></i></div><div class="text-2xl md:text-3xl font-black tabular-nums text-slate-900">' + pct.toFixed(1) + '%</div></div>' +
         '</div>';
 
-    // --- BANNER SUARA TERTINGGI ---
     if (total > 0) {
         html += '<div class="rounded-3xl p-6 md:p-8 text-center relative overflow-hidden mb-6 ' + (tie ? 'bg-amber-50 border-2 border-amber-300' : 'bg-gradient-to-br from-amber-300 to-amber-400 border-2 border-amber-500') + '">' +
             '<div class="relative">' +
@@ -314,90 +328,41 @@ function viewHitungSuara() {
     }
 
     html += '<div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">' +
-            '<div class="p-5 border-b border-slate-100">' +
-                '<h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-table-list text-emerald-600 mr-2"></i>Tabel Rekapitulasi</h3>' +
-            '</div>' +
-            '<div class="overflow-x-auto">' +
-                '<table class="w-full text-sm">' +
-                    '<thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 font-black">' +
-                        '<tr>' +
-                            '<th class="text-left px-4 py-3">No</th>' +
-                            '<th class="text-left px-4 py-3">Kandidat</th>' +
-                            '<th class="text-right px-4 py-3">Suara</th>' +
-                            '<th class="text-right px-4 py-3">%</th>' +
-                        '</tr>' +
-                    '</thead>' +
-                    '<tbody class="divide-y divide-slate-100">';
+            '<div class="p-5 border-b border-slate-100"><h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-table-list text-emerald-600 mr-2"></i>Tabel Rekapitulasi</h3></div>' +
+            '<div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-500 font-black"><tr><th class="text-left px-4 py-3">No</th><th class="text-left px-4 py-3">Kandidat</th><th class="text-right px-4 py-3">Suara</th><th class="text-right px-4 py-3">%</th></tr></thead><tbody class="divide-y divide-slate-100">';
 
     sorted.forEach(function(c, i) {
         var p = totalKandidat ? ((c.suara||0)/totalKandidat)*100 : 0;
         var isTop = i===0 && (c.suara||0)>0 && (sorted.length===1 || (sorted[1].suara||0)<(c.suara||0));
-        html += '<tr class="' + (isTop?'bg-amber-50':'') + '">' +
-            '<td class="px-4 py-3 font-black text-emerald-700">' + c.no + '</td>' +
-            '<td class="px-4 py-3 font-bold">' + c.nama + (isTop?' <span class="text-[9px] bg-amber-400 px-1.5 py-0.5 rounded ml-1 text-emerald-950">TOP</span>':'') + '</td>' +
-            '<td class="px-4 py-3 text-right font-black tabular-nums text-emerald-700">' + (c.suara || 0) + '</td>' +
-            '<td class="px-4 py-3 text-right tabular-nums text-slate-600">' + p.toFixed(1) + '%</td>' +
-        '</tr>';
+        html += '<tr class="' + (isTop?'bg-amber-50':'') + '"><td class="px-4 py-3 font-black text-emerald-700">' + c.no + '</td><td class="px-4 py-3 font-bold">' + c.nama + (isTop?' <span class="text-[9px] bg-amber-400 px-1.5 py-0.5 rounded ml-1 text-emerald-950">TOP</span>':'') + '</td><td class="px-4 py-3 text-right font-black tabular-nums text-emerald-700">' + (c.suara || 0) + '</td><td class="px-4 py-3 text-right tabular-nums text-slate-600">' + p.toFixed(1) + '%</td></tr>';
     });
 
-    html += '<tr class="bg-red-50/50">' +
-            '<td class="px-4 py-3 font-black text-red-500">-</td>' +
-            '<td class="px-4 py-3 font-bold text-red-700">Suara Tidak Sah</td>' +
-            '<td class="px-4 py-3 text-right font-black tabular-nums text-red-700">' + (suaraTidakSahState || 0) + '</td>' +
-            '<td class="px-4 py-3 text-right tabular-nums text-red-500">' + (totalKandidat ? (((suaraTidakSahState || 0)/totalKandidat)*100).toFixed(1) : 0) + '%</td>' +
-        '</tr>' +
+    html += '<tr class="bg-red-50/50"><td class="px-4 py-3 font-black text-red-500">-</td><td class="px-4 py-3 font-bold text-red-700">Suara Tidak Sah</td><td class="px-4 py-3 text-right font-black tabular-nums text-red-700">' + (suaraTidakSahState || 0) + '</td><td class="px-4 py-3 text-right tabular-nums text-red-500">' + (totalKandidat ? (((suaraTidakSahState || 0)/totalKandidat)*100).toFixed(1) : 0) + '%</td></tr>' +
         '</tbody></table></div></div></div>' + // End Tab Rekap
     '</section>';
 
     return html;
 }
-
 // ==========================================
-// BAGIAN 3: FUNGSI AKSI & DATABASE
+// BAGIAN 4: FUNGSI AKSI DATABASE
 // ==========================================
-
-async function loginPanitia(e) {
-    e.preventDefault();
-    var email = document.getElementById("emailPanitia").value;
-    var password = document.getElementById("passPanitia").value;
-    var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
-    if (res.error) { showToast("❌", "Login Gagal: " + res.error.message); return; }
-    isHitungUnlocked = true;
-    showToast("🔓", "Selamat datang, Panitia!");
-    render();
-}
-
-async function logoutPanitia() {
-    await supabaseClient.auth.signOut();
-    isHitungUnlocked = false;
-    showToast("🔒", "Anda telah keluar.");
-    render();
-}
 
 function saveSuaraTidakSah(val) {
     supabaseClient.from('site_config').upsert({ id: 1, data: Object.assign({}, DB.siteConfigRaw, { suaraTidakSah: val }) });
 }
 
 async function saveSettings() {
-    // Hanya mengambil nilai DPT, karena input nama pemilihan sudah dihapus
     var newDpt = parseInt(document.getElementById('setDpt').value) || 100;
-    
     DB.profil.dpt = newDpt;
 
-    // Ambil data site_config yang ada
     var updatedData = Object.assign({}, DB.siteConfigRaw);
     updatedData.profil = Object.assign({}, DB.siteConfigRaw.profil, { dpt: newDpt });
 
-    // Kirim ke Supabase
     var res = await supabaseClient.from('site_config').upsert({ id: 1, data: updatedData });
-    
-    if (res.error) {
-        showToast('❌', 'Gagal menyimpan: ' + res.error.message);
-        return;
-    }
+    if (res.error) return showToast('❌', 'Gagal menyimpan: ' + res.error.message);
     
     showToast('✅', 'Target DPT berhasil disimpan!');
-    render(); // Render ulang agar angka batas maksimal langsung berubah
+    render();
 }
 
 async function addVote(id) {
@@ -414,7 +379,6 @@ async function addVote(id) {
         saveSuaraTidakSah(suaraTidakSahState);
     } else {
         c.suara = (c.suara || 0) + 1;
-        
         var sessionRes = await supabaseClient.auth.getSession();
         if (!sessionRes.data.session) {
             c.suara--;
@@ -428,9 +392,7 @@ async function addVote(id) {
         }
     }
     
-    // Tambahkan ke log riwayat
     hitungLogs.unshift({ time: new Date().toISOString(), delta: 1, target: id, text: '+1 untuk ' + c.nama });
-    
     render();
     showToast("✅", '+1 suara ' + c.nama);
 }
@@ -478,77 +440,10 @@ async function executeSubVote(id) {
         }
     }
     
-    // Tambahkan ke log riwayat
     hitungLogs.unshift({ time: new Date().toISOString(), delta: -1, target: id, text: '-1 dari ' + c.nama });
-    
     closeModal();
     render();
     showToast("↩️", 'Koreksi -1 suara ' + c.nama);
-}
-
-async function addKandidat(){
-  var no = parseInt(document.getElementById('newNo').value);
-  var nama = document.getElementById('newNama').value.trim();
-  var fotoUrl = document.getElementById('newFotoUrl').value.trim();
-  var fileInput = document.getElementById('newFotoFile');
-  
-  if(!no || !nama) return showToast('⚠️','Nomor & nama wajib diisi');
-  if(DB.kandidat.some(function(c) { return c.no === no; })) return showToast('⚠️','Nomor urut sudah dipakai');
-  
-  var foto = '👤'; 
-  if (fileInput.files && fileInput.files[0]) {
-    var file = fileInput.files[0];
-    if (file.size > 2 * 1024 * 1024) return showToast('⚠️', 'Ukuran foto maksimal 2MB');
-    foto = await new Promise(function(resolve) {
-      var reader = new FileReader();
-      reader.onload = function(e) { resolve(e.target.result); };
-      reader.readAsDataURL(file);
-    });
-  } else if (fotoUrl) {
-    foto = fotoUrl;
-  }
-
-  // TIPS: Karena tabel 'kandidat' tidak punya kolom 'foto', kita simpan di 'emoji'
-  var newData = { 
-      id: Date.now(), 
-      no: no, 
-      nama: nama, 
-      emoji: foto, 
-      warna: "from-emerald-600 to-emerald-800",
-      suara: 0 
-  };
-
-  var res = await supabaseClient.from('kandidat').insert([newData]);
-  if (res.error) return showToast("❌", "Gagal menambah kandidat: " + res.error.message);
-
-  DB = await loadDB(); 
-  showToast('✅','Kandidat ditambahkan');
-  render();
-}
-
-function confirmHapus(id){
-  var c = DB.kandidat.find(function(x) { return x.id == id; });
-  if(!c) return;
-  openModal(
-    '<div class="p-6 text-center">' +
-        '<div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-trash-can"></i></div>' +
-        '<h3 class="text-lg font-bold text-slate-900 mb-1">Hapus ' + c.nama + '?</h3>' +
-        '<p class="text-xs text-slate-500 mb-6">Suara kandidat ini (' + c.suara + ') akan hilang permanen.</p>' +
-        '<div class="flex justify-center gap-3">' +
-            '<button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>' +
-            '<button onclick="executeHapus(\'' + c.id + '\')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Hapus</button>' +
-        '</div>' +
-    '</div>'
-  );
-}
-
-async function executeHapus(id) {
-    var res = await supabaseClient.from('kandidat').delete().eq('id', id);
-    if (res.error) return showToast("❌", "Gagal menghapus: " + res.error.message);
-    DB = await loadDB();
-    closeModal();
-    showToast('🗑️','Kandidat dihapus');
-    render();
 }
 
 function resetVotes(){
@@ -571,7 +466,7 @@ async function executeResetVotes() {
     }
     suaraTidakSahState = 0;
     saveSuaraTidakSah(0);
-    hitungLogs = []; // Bersihkan log riwayat
+    hitungLogs = []; 
     
     DB = await loadDB();
     closeModal();
