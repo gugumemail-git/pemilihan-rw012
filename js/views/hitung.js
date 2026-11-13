@@ -1,4 +1,6 @@
-// js/views/hitung.js
+// ==========================================
+// BAGIAN 1: STATE, LOGIN, & TAB INPUT SUARA
+// ==========================================
 
 var isHitungUnlocked = false;
 var suaraTidakSahState = 0;
@@ -58,10 +60,9 @@ function viewHitungSuara() {
                     '<button onclick="switchHitungTab(\'input\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'input' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Input Suara</button>' +
                     '<button onclick="switchHitungTab(\'kandidat\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'kandidat' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Kandidat</button>' +
                     '<button onclick="switchHitungTab(\'rekap\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'rekap' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Rekap</button>' +
+                    '<div class="w-px h-6 bg-white/20 mx-1"></div>' +
+                    '<button onclick="logoutPanitia()" class="px-4 py-2 rounded-lg bg-red-500/80 hover:bg-red-600 text-white text-xs font-bold transition flex items-center gap-1.5"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>' +
                 '</div>' +
-                '<button onclick="logoutPanitia()" class="px-4 py-2 rounded-xl bg-red-500/80 hover:bg-red-600 text-white text-xs font-bold shadow transition flex items-center gap-2">' +
-                    '<i class="fa-solid fa-right-from-bracket"></i> Logout' +
-                '</button>' +
             '</div>' +
             '<div class="grid lg:grid-cols-12 gap-6 items-center">' +
                 '<div class="lg:col-span-5">' +
@@ -161,9 +162,28 @@ function viewHitungSuara() {
             '</div>' +
         '</div>' +
     '</div>'; // End Tab Input
-
-    // TAB KANDIDAT
+        // TAB KANDIDAT
     html += '<div class="' + (activeHitungTab === 'kandidat' ? 'block' : 'hidden') + '">' +
+        
+        // FORM PENGATURAN PEMILIHAN
+        '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
+            '<h3 class="font-black text-sm mb-4"><i class="fa-solid fa-sliders text-emerald-600 mr-2"></i>Pengaturan Pemilihan</h3>' +
+            '<div class="grid sm:grid-cols-2 gap-4 mb-4">' +
+                '<div>' +
+                    '<label class="text-xs font-bold text-slate-600 mb-1.5 block">Nama Pemilihan</label>' +
+                    '<input id="setTitle" type="text" value="' + (DB.title || 'Pemilihan Ketua RW 012') + '" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">' +
+                '</div>' +
+                '<div>' +
+                    '<label class="text-xs font-bold text-slate-600 mb-1.5 block">Target DPT</label>' +
+                    '<input id="setDpt" type="number" min="0" value="' + (DB.profil.dpt || 100) + '" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">' +
+                '</div>' +
+            '</div>' +
+            '<button onclick="saveSettings()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm transition">' +
+                '<i class="fa-solid fa-floppy-disk mr-1.5"></i>Simpan Pengaturan' +
+            '</button>' +
+        '</div>' +
+
+        // FORM TAMBAH KANDIDAT
         '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
             '<h3 class="font-black text-sm mb-4"><i class="fa-solid fa-user-plus text-emerald-600 mr-2"></i>Tambah Kandidat</h3>' +
             '<div class="grid sm:grid-cols-2 gap-4 mb-4">' +
@@ -196,6 +216,8 @@ function viewHitungSuara() {
                 '<i class="fa-solid fa-plus mr-1"></i>Tambah Kandidat' +
             '</button>' +
         '</div>' +
+        
+        // DAFTAR KANDIDAT
         '<div class="flex items-center justify-between mb-3">' +
             '<h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-users text-emerald-600 mr-2"></i>Daftar Kandidat (' + DB.kandidat.length + ')</h3>' +
             '<button onclick="resetVotes()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 px-3 py-1.5 rounded-lg border border-red-100">' +
@@ -228,15 +250,16 @@ function viewHitungSuara() {
             '<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">' +
                 '<div>' +
                     '<h3 class="font-black text-sm text-slate-800"><i class="fa-solid fa-chart-simple text-emerald-600 mr-2"></i>Ekspor & Cetak</h3>' +
-                    '<p class="text-xs text-slate-500 mt-1">Unduh hasil rekapitulasi untuk keperluan berita acara.</p>' +
+                    '<p class="text-xs text-slate-500 mt-1">Unduh hasil rekapitulasi atau pulihkan data dari file backup.</p>' +
                 '</div>' +
                 '<div class="flex flex-wrap gap-2">' +
                     '<button onclick="exportJSON()" class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition shadow">' +
-                        '<i class="fa-solid fa-file-code mr-1.5"></i>Backup JSON' +
+                        '<i class="fa-solid fa-file-export mr-1.5"></i>Download Backup' +
                     '</button>' +
-                    '<button onclick="exportCSV()" class="px-4 py-2.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition shadow">' +
-                        '<i class="fa-solid fa-download mr-1.5"></i>CSV' +
-                    '</button>' +
+                    '<label class="px-4 py-2.5 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 transition shadow cursor-pointer flex items-center gap-1.5">' +
+                        '<i class="fa-solid fa-upload"></i> Upload Backup (JSON)' +
+                        '<input type="file" accept=".json" onchange="restoreBackupJSON(event)" class="hidden">' +
+                    '</label>' +
                 '</div>' +
             '</div>' +
         '</div>' +
@@ -296,19 +319,16 @@ function viewHitungSuara() {
 
     return html;
 }
+// ==========================================
+// BAGIAN 3: FUNGSI AKSI & DATABASE
+// ==========================================
 
 async function loginPanitia(e) {
     e.preventDefault();
     var email = document.getElementById("emailPanitia").value;
     var password = document.getElementById("passPanitia").value;
-
     var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
-
-    if (res.error) {
-        showToast("❌", "Login Gagal: " + res.error.message);
-        return;
-    }
-
+    if (res.error) { showToast("❌", "Login Gagal: " + res.error.message); return; }
     isHitungUnlocked = true;
     showToast("🔓", "Selamat datang, Panitia!");
     render();
@@ -322,10 +342,25 @@ async function logoutPanitia() {
 }
 
 function saveSuaraTidakSah(val) {
-    supabaseClient.from('site_config').upsert({ 
-        id: 1, 
-        data: Object.assign({}, DB.siteConfigRaw, { suaraTidakSah: val })
-    });
+    supabaseClient.from('site_config').upsert({ id: 1, data: Object.assign({}, DB.siteConfigRaw, { suaraTidakSah: val }) });
+}
+
+async function saveSettings() {
+    var newTitle = document.getElementById('setTitle').value.trim();
+    var newDpt = parseInt(document.getElementById('setDpt').value) || 100;
+    if (!newTitle) return showToast('⚠️', 'Nama pemilihan tidak boleh kosong');
+    
+    DB.title = newTitle;
+    DB.profil.dpt = newDpt;
+
+    var updatedData = Object.assign({}, DB.siteConfigRaw);
+    updatedData.profil = Object.assign({}, DB.siteConfigRaw.profil, { dpt: newDpt });
+
+    var res = await supabaseClient.from('site_config').upsert({ id: 1, data: updatedData });
+    if (res.error) return showToast('❌', 'Gagal menyimpan: ' + res.error.message);
+    
+    showToast('✅', 'Pengaturan berhasil disimpan!');
+    render();
 }
 
 async function addVote(id) {
@@ -335,28 +370,23 @@ async function addVote(id) {
 
     var totalKandidat = DB.kandidat.reduce(function(s,x) { return s + (x.suara || 0); }, 0);
     var total = totalKandidat + (suaraTidakSahState || 0);
-    var dptTarget = DB.profil.dpt || 100;
-    if (total >= dptTarget) return showToast('⚠️', 'Target DPT sudah tercapai!');
+    if (total >= (DB.profil.dpt || 100)) return showToast('⚠️', 'Target DPT sudah tercapai!');
 
     if (isTidakSah) {
         suaraTidakSahState = (suaraTidakSahState || 0) + 1;
         saveSuaraTidakSah(suaraTidakSahState);
     } else {
         c.suara = (c.suara || 0) + 1;
-        
         var sessionRes = await supabaseClient.auth.getSession();
         if (!sessionRes.data.session) {
             c.suara--;
             showToast("❌", "Sesi login habis. Harap login ulang.");
-            isHitungUnlocked = false; render();
-            return;
+            isHitungUnlocked = false; render(); return;
         }
-
         var errRes = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', id);
         if (errRes.error) {
             c.suara--; 
-            showToast("❌", 'Gagal menyimpan: ' + errRes.error.message);
-            return;
+            showToast("❌", 'Gagal menyimpan: ' + errRes.error.message); return;
         }
     }
     render();
@@ -367,7 +397,6 @@ function subVote(id) {
     var isTidakSah = id === 'tidak-sah';
     var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id === id; });
     if (!c) return;
-
     if (isTidakSah && (!suaraTidakSahState || suaraTidakSahState <= 0)) return;
     if (!isTidakSah && (!c.suara || c.suara <= 0)) return;
 
@@ -393,24 +422,19 @@ async function executeSubVote(id) {
         saveSuaraTidakSah(suaraTidakSahState);
     } else {
         c.suara--;
-
         var sessionRes = await supabaseClient.auth.getSession();
         if (!sessionRes.data.session) {
             c.suara++; 
             closeModal();
             showToast("❌", "Sesi login habis. Harap login ulang.");
-            isHitungUnlocked = false; render();
-            return;
+            isHitungUnlocked = false; render(); return;
         }
-
         var errRes = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', id);
         if (errRes.error) {
             c.suara++; 
-            showToast("❌", 'Gagal update: ' + errRes.error.message);
-            return;
+            showToast("❌", 'Gagal update: ' + errRes.error.message); return;
         }
     }
-
     closeModal();
     render();
     showToast("↩️", 'Koreksi -1 suara ' + c.nama);
@@ -426,11 +450,9 @@ async function addKandidat(){
   if(DB.kandidat.some(function(c) { return c.no === no; })) return showToast('⚠️','Nomor urut sudah dipakai');
   
   var foto = '👤'; 
-
   if (fileInput.files && fileInput.files[0]) {
     var file = fileInput.files[0];
     if (file.size > 2 * 1024 * 1024) return showToast('⚠️', 'Ukuran foto maksimal 2MB');
-    
     foto = await new Promise(function(resolve) {
       var reader = new FileReader();
       reader.onload = function(e) { resolve(e.target.result); };
@@ -440,15 +462,7 @@ async function addKandidat(){
     foto = fotoUrl;
   }
 
-  var newData = { 
-      id: Date.now(), 
-      no: no, 
-      nama: nama, 
-      foto: foto, 
-      suara: 0,
-      emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800"
-  };
-
+  var newData = { id: Date.now(), no: no, nama: nama, foto: foto, suara: 0, emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800" };
   var res = await supabaseClient.from('kandidat').insert([newData]);
   if (res.error) return showToast("❌", "Gagal menambah kandidat: " + res.error.message);
 
@@ -502,7 +516,6 @@ async function executeResetVotes() {
     }
     suaraTidakSahState = 0;
     saveSuaraTidakSah(0);
-    
     DB = await loadDB();
     closeModal();
     showToast('🗑️','Semua suara direset');
@@ -513,7 +526,6 @@ function exportJSON(){
   var dataStr = JSON.stringify(DB, null, 2);
   var blob = new Blob([dataStr], {type: "application/json"});
   var url = URL.createObjectURL(blob);
-  
   var now = new Date();
   var pad = function(n) { return String(n).padStart(2, '0'); };
   var dateStr = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
@@ -526,22 +538,37 @@ function exportJSON(){
   showToast('📥','Backup JSON berhasil diunduh');
 }
 
-function exportCSV(){
-  var csv = 'No,Nama Kandidat,Suara,Persentase\n';
-  var totalSah = DB.kandidat.reduce(function(s,c) { return s + (c.suara||0); }, 0);
-  
-  DB.kandidat.slice().sort(function(a,b) { return (b.suara||0)-(a.suara||0); }).forEach(function(c) {
-    var p = totalSah ? (((c.suara||0)/totalSah)*100).toFixed(2) : '0.00';
-    csv += c.no + ',"' + c.nama.replace(/"/g,'""') + '",' + (c.suara||0) + ',' + p + '%\n';
-  });
-  
-  csv += '-,"Suara Tidak Sah",' + (suaraTidakSahState||0) + ',-\n';
-  csv += '\nTotal Sah,' + totalSah + '\nDPT,' + (DB.profil.dpt || 100) + '\n';
-  
-  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'rekap-pilwe012-' + Date.now() + '.csv';
-  a.click();
-  showToast('📥','CSV diunduh');
+// FUNGSI BARU UNTUK RESTORE JSON
+async function restoreBackupJSON(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+
+    var reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            var parsed = JSON.parse(e.target.result);
+            if (!parsed.kandidat) return showToast('❌', 'Format file JSON tidak valid!');
+            
+            showToast('⏳', 'Sedang memulihkan data ke database...');
+
+            // 1. Pulihkan data suara kandidat
+            for (var i = 0; i < parsed.kandidat.length; i++) {
+                var k = parsed.kandidat[i];
+                await supabaseClient.from('kandidat').update({ suara: k.suara || 0 }).eq('id', k.id);
+            }
+
+            // 2. Pulihkan suara tidak sah
+            if (parsed.suaraTidakSah !== undefined) {
+                suaraTidakSahState = parsed.suaraTidakSah;
+                saveSuaraTidakSah(suaraTidakSahState);
+            }
+
+            DB = await loadDB();
+            showToast('✅', 'Data berhasil dipulihkan dari Backup!');
+            render();
+        } catch (err) {
+            showToast('❌', 'Gagal membaca file JSON.');
+        }
+    };
+    reader.readAsText(file);
 }
