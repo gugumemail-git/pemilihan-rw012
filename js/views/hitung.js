@@ -69,7 +69,6 @@ function viewHitungSuara() {
                 '<div class="text-xs font-bold text-amber-300"><i class="fa-solid fa-shield-halved mr-1"></i> Mode Panitia</div>' +
                 '<div class="flex items-center gap-2 bg-white/10 p-1.5 rounded-xl border border-white/20">' +
                     '<button onclick="switchHitungTab(\'input\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'input' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Input Suara</button>' +
-                    // TAB KANDIDAT DIGANTI MENJADI TAB DPT
                     '<button onclick="switchHitungTab(\'dpt\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'dpt' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Pengaturan DPT</button>' +
                     '<button onclick="switchHitungTab(\'rekap\')" class="px-4 py-2 rounded-lg text-xs font-bold transition ' + (activeHitungTab === 'rekap' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10') + '">Rekap</button>' +
                     '<div class="w-px h-6 bg-white/20 mx-1"></div>' +
@@ -99,7 +98,7 @@ function viewHitungSuara() {
     if (isFull) {
         html += '<div id="winnerBanner" class="rounded-2xl p-5 text-center relative overflow-visible bg-gradient-to-br from-emerald-500 to-emerald-700 border-2 border-white/40 shadow-xl animate-pop">' +
                     '<div class="relative text-white">' +
-                        '<div class="text-[10px] uppercase tracking-widest font-black text-amber-300">Pemungutan Suara Selesai</div>' +
+                        '<div class="text-[10px] uppercase tracking-widest font-black text-amber-300">🎉 Pemungutan Suara Selesai 🎉</div>' +
                         '<div class="text-2xl md:text-3xl font-black mt-1 drop-shadow-md">Partisipasi 100%</div>' +
                     '</div>' +
                 '</div>';
@@ -121,8 +120,16 @@ function viewHitungSuara() {
     '<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-10 pb-16">';
 
     // TAB INPUT
-    html += '<div class="' + (activeHitungTab === 'input' ? 'block' : 'hidden') + '">' +
-        '<div class="grid md:grid-cols-3 gap-4 items-start">';
+    html += '<div class="' + (activeHitungTab === 'input' ? 'block' : 'hidden') + '">';
+
+    // --- KOTAK PERINGATAN TARGET DPT TERCAPAI ---
+    if (isFull) {
+        html += '<div class="mb-4 p-3 rounded-xl bg-green-100 border border-green-300 text-green-800 text-xs font-bold flex items-center justify-center gap-2 animate-fade">' +
+                    '<i class="fa-solid fa-check-circle text-lg"></i> Target DPT (' + dptTarget + ' suara) tercapai. Input suara ditutup.' +
+                '</div>';
+    }
+    
+    html += '<div class="grid md:grid-cols-3 gap-4 items-start">';
     
     DB.kandidat.forEach(function(c) {
         var p = total ? ((c.suara||0)/total)*100 : 0;
@@ -199,8 +206,12 @@ function viewHitungSuara() {
             '</div>' +
         '</div>' +
     '</div>'; // End Tab Input
+}
 
-    // TAB PENGATURAN DPT (MENGGANTIKAN TAB KANDIDAT)
+// ==========================================
+// BAGIAN 2: TAB PENGATURAN DPT (MENGGANTIKAN TAB KANDIDAT)
+// ==========================================
+
     html += '<div class="' + (activeHitungTab === 'dpt' ? 'block' : 'hidden') + '">' +
         
         '<div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">' +
