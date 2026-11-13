@@ -1,51 +1,16 @@
-// js/views/hitung.js
+// =========================================================
+// BAGIAN 1: STATE & TAMPILAN (UI)
+// =========================================================
 
-// State lokal
 let isHitungUnlocked = false;
 let suaraTidakSahState = 0;
-let activeHitungTab = "input"; // Tab default: input | kandidat | rekap
+let activeHitungTab = "input"; 
+let expandedLogs = {}; // State untuk buka-tutup riwayat
 
-// Cek Sesi Login Supabase saat pertama kali dimuat
+// Cek Sesi Login Supabase
 supabaseClient.auth.getSession().then(({ data: { session } }) => {
     if (session) isHitungUnlocked = true;
 });
-
-function saveSuaraTidakSah(val) {
-    supabaseClient.from('site_config').upsert({ 
-        id: 1, 
-        data: { 
-            ...DB.siteConfigRaw, 
-            suaraTidakSah: val 
-        } 
-    });
-}
-
-async function loginPanitia(e) {
-    e.preventDefault();
-    const email = document.getElementById("emailPanitia").value;
-    const password = document.getElementById("passPanitia").value;
-
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password,
-    });
-
-    if (error) {
-        showToast("❌", "Login Gagal: " + error.message);
-        return;
-    }
-
-    isHitungUnlocked = true;
-    showToast("🔓", "Selamat datang, Panitia!");
-    render();
-}
-
-async function logoutPanitia() {
-    await supabaseClient.auth.signOut();
-    isHitungUnlocked = false;
-    showToast("🔒", "Anda telah keluar.");
-    render();
-}
 
 function switchHitungTab(tab) {
     activeHitungTab = tab;
@@ -53,7 +18,7 @@ function switchHitungTab(tab) {
 }
 
 function viewHitungSuara() {
-    // 1. TAMPILAN JIKA BELUM LOGIN
+    // 1. JIKA BELUM LOGIN
     if (!isHitungUnlocked) {
         return `
         <section class="min-h-[70vh] flex items-center justify-center px-4 py-12">
@@ -62,8 +27,7 @@ function viewHitungSuara() {
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
                 <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Login Panitia</h2>
-                <p class="text-xs text-slate-500 mb-6">Silakan masuk dengan akun panitia yang sudah terdaftar di Supabase.</p>
-                
+                <p class="text-xs text-slate-500 mb-6">Silakan masuk dengan akun panitia yang terdaftar.</p>
                 <form onsubmit="loginPanitia(event)" class="space-y-4 text-left">
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Email Panitia</label>
@@ -93,7 +57,7 @@ function viewHitungSuara() {
     const top = sorted[0];
     const tie = sorted.length > 1 && (sorted[1].suara || 0) === (top.suara || 0) && (top.suara || 0) > 0;
 
-    // 3. TAMPILAN UTAMA (DASHBOARD PANITIA)
+    // 3. TAMPILAN UTAMA
     return `
     <section class="relative overflow-hidden gradient-primary text-white pb-8 pt-6 md:pt-10">
         <div class="absolute inset-0 pattern-dots opacity-20"></div>
@@ -101,7 +65,7 @@ function viewHitungSuara() {
             <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <div class="text-xs font-bold text-amber-300"><i class="fa-solid fa-shield-halved mr-1"></i> Mode Panitia</div>
                 
-                <!-- MENU TAB (Samping Tombol Logout) -->
+                <!-- MENU TAB SEJAJAR LOGOUT -->
                 <div class="flex items-center gap-2 bg-white/10 p-1.5 rounded-xl border border-white/20">
                     <button onclick="switchHitungTab('input')" class="px-4 py-2 rounded-lg text-xs font-bold transition ${activeHitungTab === 'input' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10'}">Input Suara</button>
                     <button onclick="switchHitungTab('kandidat')" class="px-4 py-2 rounded-lg text-xs font-bold transition ${activeHitungTab === 'kandidat' ? 'bg-amber-400 text-emerald-950 shadow-sm' : 'text-white hover:bg-white/10'}">Kandidat</button>
@@ -166,14 +130,11 @@ function viewHitungSuara() {
             <div class="grid md:grid-cols-3 gap-4 items-start">
                 ${DB.kandidat.map(c => {
                     const p = total ? ((c.suara||0)/total)*100 : 0;
-                    const isExpanded = expandedLogs[c.id]; // Gunakan expandedLogs dari app.js/utils.js
                     return `
                     <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200 hover:shadow-xl transition-all flex flex-col">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="w-12 h-12 rounded-2xl bg-emerald-700 text-white flex items-center justify-center text-xl font-black shadow-lg overflow-hidden shrink-0">
-                                ${(c.foto && c.foto.startsWith('http')) || (c.foto && c.foto.startsWith('data:')) 
-                                    ? `<img src="${c.foto}" class="w-full h-full object-cover" alt="${esc(c.nama)}">` 
-                                    : (c.emoji || c.no)}
+                                ${(c.foto && c.foto.startsWith('http')) || (c.foto && c.foto.startsWith('data:')) ? `<img src="${c.foto}" class="w-full h-full object-cover">` : (c.emoji || c.no)}
                             </div>
                             <div class="min-w-0 flex-1">
                                 <div class="font-bold text-sm truncate">${c.nama}</div>
@@ -189,14 +150,13 @@ function viewHitungSuara() {
                         </div>
                         <div class="flex gap-2 mb-3">
                             <button onclick="addVote(${c.id})" ${isFull?'disabled':''} class="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-black text-sm shadow-lg transition-all">+1</button>
-                            <button onclick="subVote(${c.id})" ${(c.suara||0)===0?'disabled':''} class="px-3.5 py-2.5 rounded-xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 disabled:opacity-30 disabled:cursor-not-allowed transition">−1</button>
+                            <button onclick="subVote(${c.id})" ${(c.suara||0)===0?'disabled':''} class="px-3.5 py-2.5 rounded-xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 disabled:opacity-30 transition">−1</button>
                         </div>
                     </div>
                     `;
                 }).join('')}
             </div>
 
-            <!-- Suara Tidak Sah -->
             <div class="mt-6">
                 <h2 class="text-base font-black mb-3 text-slate-800"><i class="fa-solid fa-ban text-red-500 mr-2"></i>Surat Rusak / Tidak Sah</h2>
                 <div class="bg-red-50 rounded-3xl p-4 shadow-sm border border-red-200 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -223,7 +183,7 @@ function viewHitungSuara() {
             </div>
         </div>
 
-        <!-- TAB 2: DATA KANDIDAT (SAMA PERSIS DENGAN SPA) -->
+        <!-- TAB 2: DATA KANDIDAT -->
         <div class="${activeHitungTab === 'kandidat' ? 'block' : 'hidden'}">
             <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">
                 <h3 class="font-black text-sm mb-4"><i class="fa-solid fa-user-plus text-emerald-600 mr-2"></i>Tambah Kandidat</h3>
@@ -269,12 +229,10 @@ function viewHitungSuara() {
                     <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">
                         <div class="flex items-center gap-3">
                             <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-4xl flex items-center justify-center overflow-hidden shrink-0">
-                                ${(c.foto && c.foto.startsWith('http')) || (c.foto && c.foto.startsWith('data:')) 
-                                    ? `<img src="${c.foto}" class="w-full h-full object-cover" alt="${esc(c.nama)}">` 
-                                    : (c.foto || '👤')}
+                                ${(c.foto && c.foto.startsWith('http')) || (c.foto && c.foto.startsWith('data:')) ? `<img src="${c.foto}" class="w-full h-full object-cover">` : (c.foto || '👤')}
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="font-bold truncate">${esc(c.nama)}</div>
+                                <div class="font-bold truncate">${c.nama}</div>
                                 <div class="text-xs text-slate-500">No. ${c.no} · ${c.suara || 0} suara</div>
                             </div>
                             <button onclick="confirmHapus('${c.id}')" class="w-9 h-9 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition" title="Hapus">
@@ -286,7 +244,7 @@ function viewHitungSuara() {
             </div>
         </div>
 
-        <!-- TAB 3: REKAP & HASIL (SAMA PERSIS DENGAN SPA) -->
+        <!-- TAB 3: REKAP & HASIL -->
         <div class="${activeHitungTab === 'rekap' ? 'block' : 'hidden'}">
             <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -362,6 +320,47 @@ function viewHitungSuara() {
         </div>
     </section>
     `;
+}
+
+// =========================================================
+// BAGIAN 2: LOGIKA & FUNGSI AKSI
+// =========================================================
+
+async function loginPanitia(e) {
+    e.preventDefault();
+    const email = document.getElementById("emailPanitia").value;
+    const password = document.getElementById("passPanitia").value;
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+    });
+
+    if (error) {
+        showToast("❌", "Login Gagal: " + error.message);
+        return;
+    }
+
+    isHitungUnlocked = true;
+    showToast("🔓", "Selamat datang, Panitia!");
+    render();
+}
+
+async function logoutPanitia() {
+    await supabaseClient.auth.signOut();
+    isHitungUnlocked = false;
+    showToast("🔒", "Anda telah keluar.");
+    render();
+}
+
+function saveSuaraTidakSah(val) {
+    supabaseClient.from('site_config').upsert({ 
+        id: 1, 
+        data: { 
+            ...DB.siteConfigRaw, 
+            suaraTidakSah: val 
+        } 
+    });
 }
 
 async function addVote(id) {
@@ -454,4 +453,136 @@ async function executeSubVote(id) {
     closeModal();
     render();
     showToast("↩️", `Koreksi -1 suara ${c.nama}`);
+}
+
+async function addKandidat(){
+  const no = parseInt(document.getElementById('newNo').value);
+  const nama = document.getElementById('newNama').value.trim();
+  const fotoUrl = document.getElementById('newFotoUrl').value.trim();
+  const fileInput = document.getElementById('newFotoFile');
+  
+  if(!no || !nama) return showToast('⚠️','Nomor & nama wajib diisi');
+  if(DB.kandidat.some(c=>c.no===no)) return showToast('⚠️','Nomor urut sudah dipakai');
+  
+  let foto = '👤'; 
+
+  if (fileInput.files && fileInput.files[0]) {
+    const file = fileInput.files[0];
+    if (file.size > 2 * 1024 * 1024) return showToast('⚠️', 'Ukuran foto maksimal 2MB');
+    
+    foto = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    });
+  } else if (fotoUrl) {
+    foto = fotoUrl;
+  }
+
+  const newData = { 
+      id: Date.now(), 
+      no, 
+      nama, 
+      foto, 
+      suara: 0,
+      emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800"
+  };
+
+  const { error } = await supabaseClient.from('kandidat').insert([newData]);
+  if (error) return showToast("❌", "Gagal menambah kandidat: " + error.message);
+
+  DB = await loadDB(); 
+  showToast('✅','Kandidat ditambahkan');
+  render();
+}
+
+function confirmHapus(id){
+  const c = DB.kandidat.find(x=>x.id===id);
+  if(!c) return;
+  openModal(`
+    <div class="p-6 text-center">
+        <div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-trash-can"></i></div>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Hapus ${c.nama}?</h3>
+        <p class="text-xs text-slate-500 mb-6">Suara kandidat ini (${c.suara}) akan hilang permanen.</p>
+        <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+            <button onclick="executeHapus('${id}')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Hapus</button>
+        </div>
+    </div>
+  `);
+}
+
+async function executeHapus(id) {
+    const { error } = await supabaseClient.from('kandidat').delete().eq('id', id);
+    if (error) return showToast("❌", "Gagal menghapus: " + error.message);
+    DB = await loadDB();
+    closeModal();
+    showToast('🗑️','Kandidat dihapus');
+    render();
+}
+
+function resetVotes(){
+  openModal(`
+    <div class="p-6 text-center">
+        <div class="w-14 h-14 mx-auto rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-rotate-left"></i></div>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Reset semua suara?</h3>
+        <p class="text-xs text-slate-500 mb-6">Semua perolehan suara kandidat dan tidak sah akan menjadi 0.</p>
+        <div class="flex justify-center gap-3">
+            <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
+            <button onclick="executeResetVotes()" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Reset</button>
+        </div>
+    </div>
+  `);
+}
+
+async function executeResetVotes() {
+    // Reset kandidat suara ke 0
+    for (const c of DB.kandidat) {
+        await supabaseClient.from('kandidat').update({ suara: 0 }).eq('id', c.id);
+    }
+    // Reset suara tidak sah
+    suaraTidakSahState = 0;
+    saveSuaraTidakSah(0);
+    
+    DB = await loadDB();
+    closeModal();
+    showToast('🗑️','Semua suara direset');
+    render();
+}
+
+function exportJSON(){
+  const dataStr = JSON.stringify(DB, null, 2);
+  const blob = new Blob([dataStr], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `backup_pilwe012_${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥','Backup JSON berhasil diunduh');
+}
+
+function exportCSV(){
+  let csv = 'No,Nama Kandidat,Suara,Persentase\n';
+  const totalSah = DB.kandidat.reduce((s,c)=>s+(c.suara||0),0);
+  
+  [...DB.kandidat].sort((a,b)=>(b.suara||0)-(a.suara||0)).forEach(c=>{
+    const p = totalSah ? (((c.suara||0)/totalSah)*100).toFixed(2) : '0.00';
+    csv += `${c.no},"${c.nama.replace(/"/g,'""')}",${c.suara||0},${p}%\n`;
+  });
+  
+  csv += `-,"Suara Tidak Sah",${suaraTidakSahState||0},-\n`;
+  csv += `\nTotal Sah,${totalSah}\nDPT,${DB.profil.dpt || 100}\n`;
+  
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rekap-pilwe012-${Date.now()}.csv`;
+  a.click();
+  showToast('📥','CSV diunduh');
 }
