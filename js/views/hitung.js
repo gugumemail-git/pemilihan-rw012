@@ -354,21 +354,25 @@ function saveSuaraTidakSah(val) {
 }
 
 async function saveSettings() {
-    var newTitle = document.getElementById('setTitle').value.trim();
+    // Hanya mengambil nilai DPT, karena input nama pemilihan sudah dihapus
     var newDpt = parseInt(document.getElementById('setDpt').value) || 100;
-    if (!newTitle) return showToast('⚠️', 'Nama pemilihan tidak boleh kosong');
     
-    DB.title = newTitle;
     DB.profil.dpt = newDpt;
 
+    // Ambil data site_config yang ada
     var updatedData = Object.assign({}, DB.siteConfigRaw);
     updatedData.profil = Object.assign({}, DB.siteConfigRaw.profil, { dpt: newDpt });
 
+    // Kirim ke Supabase
     var res = await supabaseClient.from('site_config').upsert({ id: 1, data: updatedData });
-    if (res.error) return showToast('❌', 'Gagal menyimpan: ' + res.error.message);
     
-    showToast('✅', 'Pengaturan berhasil disimpan!');
-    render();
+    if (res.error) {
+        showToast('❌', 'Gagal menyimpan: ' + res.error.message);
+        return;
+    }
+    
+    showToast('✅', 'Target DPT berhasil disimpan!');
+    render(); // Render ulang agar angka batas maksimal langsung berubah
 }
 
 async function addVote(id) {
