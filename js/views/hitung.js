@@ -114,7 +114,7 @@ function viewHitungSuara() {
     
     DB.kandidat.forEach(function(c) {
         var p = total ? ((c.suara||0)/total)*100 : 0;
-        var fotoHtml = (c.foto && (c.foto.indexOf('http') === 0 || c.foto.indexOf('data:') === 0)) ? '<img src="' + c.foto + '" class="w-full h-full object-cover">' : (c.emoji || c.no);
+        var fotoHtml = (c.emoji && (c.emoji.indexOf('http') === 0 || c.emoji.indexOf('data:') === 0)) ? '<img src="' + c.emoji + '" class="w-full h-full object-cover">' : (c.emoji || c.no);
         
         html += '<div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-200 hover:shadow-xl transition-all flex flex-col">' +
             '<div class="flex items-center gap-3 mb-2">' +
@@ -227,7 +227,7 @@ function viewHitungSuara() {
         '<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">';
 
     DB.kandidat.forEach(function(c) {
-        var fotoHtml = (c.foto && (c.foto.indexOf('http') === 0 || c.foto.indexOf('data:') === 0)) ? '<img src="' + c.foto + '" class="w-full h-full object-cover">' : (c.foto || '👤');
+        var fotoHtml = (c.emoji && (c.emoji.indexOf('http') === 0 || c.emoji.indexOf('data:') === 0)) ? '<img src="' + c.emoji + '" class="w-full h-full object-cover">' : (c.emoji || '👤');
         html += '<div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm">' +
             '<div class="flex items-center gap-3">' +
                 '<div class="w-14 h-14 rounded-2xl bg-emerald-100 text-4xl flex items-center justify-center overflow-hidden shrink-0">' + fotoHtml + '</div>' +
@@ -365,7 +365,7 @@ async function saveSettings() {
 
 async function addVote(id) {
     var isTidakSah = id === 'tidak-sah';
-    var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id === id; });
+    var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id == id; });
     if (!c) return;
 
     var totalKandidat = DB.kandidat.reduce(function(s,x) { return s + (x.suara || 0); }, 0);
@@ -383,7 +383,8 @@ async function addVote(id) {
             showToast("❌", "Sesi login habis. Harap login ulang.");
             isHitungUnlocked = false; render(); return;
         }
-        var errRes = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', id);
+        // Gunakan == agar tipe data integer dari database cocok
+        var errRes = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', c.id);
         if (errRes.error) {
             c.suara--; 
             showToast("❌", 'Gagal menyimpan: ' + errRes.error.message); return;
@@ -395,7 +396,8 @@ async function addVote(id) {
 
 function subVote(id) {
     var isTidakSah = id === 'tidak-sah';
-    var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id === id; });
+    // Gunakan == agar tipe data integer dari database cocok
+    var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id == id; });
     if (!c) return;
     if (isTidakSah && (!suaraTidakSahState || suaraTidakSahState <= 0)) return;
     if (!isTidakSah && (!c.suara || c.suara <= 0)) return;
@@ -407,7 +409,7 @@ function subVote(id) {
             '<p class="text-xs text-slate-500 mb-6">Yakin ingin mengurangi 1 suara dari ' + c.nama + '?</p>' +
             '<div class="flex justify-center gap-3">' +
                 '<button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>' +
-                '<button onclick="executeSubVote(\'' + id + '\')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Kurangi</button>' +
+                '<button onclick="executeSubVote(\'' + c.id + '\')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Ya, Kurangi</button>' +
             '</div>' +
         '</div>'
     );
@@ -415,7 +417,7 @@ function subVote(id) {
 
 async function executeSubVote(id) {
     var isTidakSah = id === 'tidak-sah';
-    var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id === id; });
+    var c = isTidakSah ? { nama: 'Suara Tidak Sah' } : DB.kandidat.find(function(x) { return x.id == id; });
     
     if (isTidakSah) {
         suaraTidakSahState--;
@@ -429,7 +431,7 @@ async function executeSubVote(id) {
             showToast("❌", "Sesi login habis. Harap login ulang.");
             isHitungUnlocked = false; render(); return;
         }
-        var errRes = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', id);
+        var errRes = await supabaseClient.from('kandidat').update({ suara: c.suara }).eq('id', c.id);
         if (errRes.error) {
             c.suara++; 
             showToast("❌", 'Gagal update: ' + errRes.error.message); return;
@@ -462,7 +464,16 @@ async function addKandidat(){
     foto = fotoUrl;
   }
 
-  var newData = { id: Date.now(), no: no, nama: nama, foto: foto, suara: 0, emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800" };
+  // TIPS: Karena tabel 'kandidat' tidak punya kolom 'foto', kita simpan di 'emoji'
+  var newData = { 
+      id: Date.now(), 
+      no: no, 
+      nama: nama, 
+      emoji: foto, 
+      warna: "from-emerald-600 to-emerald-800",
+      suara: 0 
+  };
+
   var res = await supabaseClient.from('kandidat').insert([newData]);
   if (res.error) return showToast("❌", "Gagal menambah kandidat: " + res.error.message);
 
@@ -472,7 +483,7 @@ async function addKandidat(){
 }
 
 function confirmHapus(id){
-  var c = DB.kandidat.find(function(x) { return x.id === id; });
+  var c = DB.kandidat.find(function(x) { return x.id == id; });
   if(!c) return;
   openModal(
     '<div class="p-6 text-center">' +
@@ -481,7 +492,7 @@ function confirmHapus(id){
         '<p class="text-xs text-slate-500 mb-6">Suara kandidat ini (' + c.suara + ') akan hilang permanen.</p>' +
         '<div class="flex justify-center gap-3">' +
             '<button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>' +
-            '<button onclick="executeHapus(\'' + id + '\')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Hapus</button>' +
+            '<button onclick="executeHapus(\'' + c.id + '\')" class="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-bold">Hapus</button>' +
         '</div>' +
     '</div>'
   );
@@ -538,7 +549,6 @@ function exportJSON(){
   showToast('📥','Backup JSON berhasil diunduh');
 }
 
-// FUNGSI BARU UNTUK RESTORE JSON
 async function restoreBackupJSON(event) {
     var file = event.target.files[0];
     if (!file) return;
@@ -551,13 +561,11 @@ async function restoreBackupJSON(event) {
             
             showToast('⏳', 'Sedang memulihkan data ke database...');
 
-            // 1. Pulihkan data suara kandidat
             for (var i = 0; i < parsed.kandidat.length; i++) {
                 var k = parsed.kandidat[i];
                 await supabaseClient.from('kandidat').update({ suara: k.suara || 0 }).eq('id', k.id);
             }
 
-            // 2. Pulihkan suara tidak sah
             if (parsed.suaraTidakSah !== undefined) {
                 suaraTidakSahState = parsed.suaraTidakSah;
                 saveSuaraTidakSah(suaraTidakSahState);
