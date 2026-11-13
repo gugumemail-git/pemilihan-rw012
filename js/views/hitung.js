@@ -207,6 +207,7 @@ function viewHitungSuara() {
         '</div>' +
     '</div>'; // End Tab Input
 }
+
 // ==========================================
 // BAGIAN 2: TAB PENGATURAN DPT (MENGGANTIKAN TAB KANDIDAT)
 // ==========================================
