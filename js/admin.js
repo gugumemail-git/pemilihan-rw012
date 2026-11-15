@@ -349,12 +349,11 @@ async function simpanKandidat(id) {
 
     if (!no || !nama) { showToast("⚠️", "Nomor & Nama wajib diisi!"); return; }
 
-    let emoji = "👤"; // Default
+    let emoji = "👤";
 
-    // Cek jika upload file baru
     if (fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
-        if (file.size > 2 * 1024 * 1024) return showToast("⚠️", "Ukuran foto maksimal 2MB");
+        if (file.size > 1 * 1024 * 1024) return showToast("⚠️", "Ukuran foto maksimal 1MB"); // Batasi 1MB
         
         emoji = await new Promise((resolve) => {
             const reader = new FileReader();
@@ -362,11 +361,9 @@ async function simpanKandidat(id) {
             reader.readAsDataURL(file);
         });
     } 
-    // Jika isinya URL, atau masih menggunakan emoji lama
     else if (fotoUrl) {
         emoji = fotoUrl;
     } else if (id) {
-        // Jika edit tapi tidak ganti foto, ambil foto lama
         const oldData = DB.kandidat.find(x => x.id === id);
         if (oldData) emoji = oldData.emoji;
     }
@@ -376,7 +373,7 @@ async function simpanKandidat(id) {
         alamat: document.getElementById("fAlamat").value.trim(),
         pekerjaan: document.getElementById("fPekerjaan").value.trim(),
         umur: 40, 
-        emoji: emoji, // Simpan URL/Base64 ke kolom emoji
+        emoji: emoji, 
         warna: "from-emerald-600 to-emerald-800",
         visi: document.getElementById("fVisi").value.trim(),
         misi: document.getElementById("fMisi").value.split("\n").filter(s => s.trim()),

@@ -94,7 +94,11 @@ function viewBeranda() {
                             <p class="text-emerald-100 text-xs mt-1">Calon Ketua RW 012 GMG</p>
                         </div>
                         <div class="pt-6 px-6 text-center">
-                            <div class="w-28 h-28 mx-auto rounded-2xl bg-emerald-50 border-4 border-white shadow-lg flex items-center justify-center text-6xl">${k.emoji}</div>
+                            <div class="w-28 h-28 mx-auto rounded-2xl bg-emerald-50 border-4 border-white shadow-lg flex items-center justify-center text-6xl overflow-hidden">
+    ${(k.emoji && k.emoji.startsWith('data:image')) || (k.emoji && k.emoji.startsWith('http')) 
+        ? `<img src="${k.emoji}" class="w-full h-full object-cover">` 
+        : (k.emoji || '👤')}
+</div>
                             <div class="mt-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">📍 ${k.alamat} • 💼 ${k.pekerjaan}</div>
                         </div>
                         <div class="p-6">

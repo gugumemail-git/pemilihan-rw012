@@ -1,12 +1,14 @@
+// js/views/profil.js
+
 function viewPanitia() {
     const p = DB.panitia;
     
-    // Fungsi helper untuk render foto atau ikon
+    // Perbaikan Helper: Jika foto kosong, tampilkan ikon. Jika diisi link/base64, tampilkan gambar.
     const renderAvatar = (fotoUrl, iconClass, bgClass) => {
         if (fotoUrl && fotoUrl.trim() !== "") {
-            return `<img src="${fotoUrl}" alt="Foto Panitia" class="w-full h-full object-cover rounded-2xl mb-4 shadow" onerror="this.style.display='none';">`;
+            return `<img src="${fotoUrl}" alt="Foto Panitia" class="w-full h-full object-cover rounded-2xl shadow" onerror="this.style.display='none';">`;
         }
-        return `<div class="w-14 h-14 mx-auto rounded-2xl ${bgClass} flex items-center justify-center text-xl mb-4 shadow"><i class="fa-solid ${iconClass}"></i></div>`;
+        return `<div class="w-14 h-14 mx-auto rounded-2xl ${bgClass} flex items-center justify-center text-xl shadow"><i class="fa-solid ${iconClass}"></i></div>`;
     };
 
     return `
@@ -52,10 +54,6 @@ function viewPanitia() {
             </div>
         </div>
     </section>
-
-    <!-- ================= MODAL KANDIDAT ================= -->
-    <!-- (Bagian ini tidak diubah, tetap dipertahankan) -->
-
     `;
 }
 
@@ -148,15 +146,23 @@ function showKandidatModal(id) {
     const k = DB.kandidat.find(x => x.id === id);
     if (!k) return;
 
+    // PERBAIKAN: Pengecekan ketat apakah emoji berisi gambar (URL/Base64) atau teks biasa
+    const isFoto = (k.emoji && k.emoji.startsWith('data:image')) || (k.emoji && k.emoji.startsWith('http'));
+
     const html = `
         <div class="bg-gradient-to-r ${k.warna} text-white p-6 sm:p-8 relative overflow-hidden">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur flex items-center justify-center text-white z-10 transition">
                 <i class="fa-solid fa-xmark"></i>
             </button>
             <div class="relative flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
-                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-5xl sm:text-6xl border border-white/30 shrink-0">
-                    ${k.emoji}
+                
+                <!-- BAGIAN GAMBAR YANG DIPERBAIKI -->
+                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-5xl sm:text-6xl border border-white/30 shrink-0 overflow-hidden">
+                    ${isFoto 
+                        ? `<img src="${k.emoji}" class="w-full h-full object-cover">` 
+                        : (k.emoji || '👤')}
                 </div>
+
                 <div>
                     <span class="inline-block px-3 py-1 rounded-full bg-amber-400 text-emerald-950 text-[10px] font-black uppercase mb-2">NOMOR URUT 0${k.no}</span>
                     <h2 class="text-2xl sm:text-3xl font-extrabold">${k.nama}</h2>
@@ -190,8 +196,6 @@ function showKandidatModal(id) {
                     `).join("")}
                 </ul>
             </div>
-
-
         </div>
 
         <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end">
