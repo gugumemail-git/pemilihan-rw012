@@ -191,22 +191,7 @@ function showKandidatModal(id) {
                 </ul>
             </div>
 
-            ${k.program && k.program.length ? `
-            <div>
-                <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-2">
-                    <i class="fa-solid fa-star"></i> PROGRAM UNGGULAN
-                </div>
-                <div class="grid sm:grid-cols-3 gap-3">
-                    ${k.program.map(p => `
-                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center sm:text-left">
-                            <div class="text-2xl mb-1">${p.icon}</div>
-                            <div class="font-bold text-slate-900 text-xs">${p.judul}</div>
-                            <div class="text-[11px] text-slate-500 mt-0.5">${p.desc}</div>
-                        </div>
-                    `).join("")}
-                </div>
-            </div>
-            ` : ''}
+
         </div>
 
         <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end">

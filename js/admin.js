@@ -328,15 +328,21 @@ async function simpanKandidat(id) {
         no, nama,
         alamat: document.getElementById("fAlamat").value.trim(),
         pekerjaan: document.getElementById("fPekerjaan").value.trim(),
-        umur: 40, emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800",
+        umur: 40, 
+        emoji: "👨‍💼", 
+        warna: "from-emerald-600 to-emerald-800",
         visi: document.getElementById("fVisi").value.trim(),
         misi: document.getElementById("fMisi").value.split("\n").filter(s => s.trim()),
-        program: [{ icon: "⭐", judul: "Program Kerja Utama", desc: "Optimalisasi kebersihan & keamanan RW 012." }]
+        // Program unggulan dihapus dari sini agar tidak error
+        program: [] 
     };
 
     let response;
     if (id) response = await supabaseClient.from('kandidat').update(data).eq('id', id);
-    else { data.id = Date.now(); response = await supabaseClient.from('kandidat').insert([data]); }
+    else { 
+        data.id = Date.now(); 
+        response = await supabaseClient.from('kandidat').insert([data]); 
+    }
 
     if (response.error) { showToast("❌", "Gagal: " + response.error.message); return; }
     DB = await loadDB(); closeModal(); showToast("✅", "Kandidat disimpan!"); render();

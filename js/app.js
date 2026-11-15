@@ -66,9 +66,7 @@ function render() {
     if (route === "beranda" && typeof startCountdown === 'function') startCountdown();
     
     // Panggil drag and drop jika berada di halaman admin
-    if (route === "admin" && typeof initDragAndDropTimeline === 'function') {
-        initDragAndDropTimeline();
-    }
+    
 }
 
 // Event Listener Menu Mobile (DENGAN PENGAMAN)
