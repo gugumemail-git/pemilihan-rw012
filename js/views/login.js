@@ -106,7 +106,7 @@ function viewAdmin() {
             </div>
         </div>
 
-        <!-- FITUR KELOLA KANDIDAT (DITAMBAHKAN KEMBALI) -->
+        <!-- FITUR KELOLA KANDIDAT -->
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-4">
                 <div>
@@ -117,7 +117,6 @@ function viewAdmin() {
             </div>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 ${DB.kandidat.map(k => {
-                    // Deteksi apakah emoji berisi link gambar atau emoji biasa
                     const isFoto = k.emoji && (k.emoji.startsWith('http') || k.emoji.startsWith('data:'));
                     return `
                     <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
@@ -136,11 +135,11 @@ function viewAdmin() {
                         </div>
                     </div>
                     `;
-                }).join('")}
+                }).join('')}
             </div>
         </div>
 
-        <!-- BAGIAN LAINNYA (Running Bar, Kontak, Timeline, dll tetap sama) -->
+        <!-- BAGIAN LAINNYA -->
         <div class="bg-amber-500/10 border border-amber-400/40 p-6 sm:p-8 rounded-3xl shadow-sm">
             <div class="flex items-center gap-3 mb-2">
                 <span class="px-3 py-1 bg-amber-400 text-emerald-950 text-xs font-black rounded-full uppercase">BAGIAN 1</span>
