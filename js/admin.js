@@ -292,8 +292,11 @@ function formKandidat(id) {
     const k = isEdit ? DB.kandidat.find(x => x.id === id) : {
         no: (DB.kandidat.length ? Math.max(...DB.kandidat.map(x => x.no)) + 1 : 1),
         nama: "", umur: 40, pekerjaan: "Wiraswasta", alamat: "Blok GMG",
-        emoji: "👨‍💼", warna: "from-emerald-600 to-emerald-800", visi: "", misi: ["Meningkatkan keamanan dan kebersihan."]
+        emoji: "👤", warna: "from-emerald-600 to-emerald-800", visi: "", misi: ["Meningkatkan keamanan dan kebersihan."]
     };
+
+    const isFoto = k.emoji && (k.emoji.startsWith('http') || k.emoji.startsWith('data:'));
+    const fotoPreview = isFoto ? k.emoji : '';
 
     openModal(`
         <div class="gradient-primary text-white p-6 relative">
@@ -309,6 +312,25 @@ function formKandidat(id) {
                 <div><label class="block text-xs font-bold mb-1">Alamat Blok *</label><input id="fAlamat" type="text" value="${k.alamat}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"></div>
                 <div><label class="block text-xs font-bold mb-1">Pekerjaan</label><input id="fPekerjaan" type="text" value="${k.pekerjaan}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"></div>
             </div>
+            
+            <!-- INPUT FOTO BARU -->
+            <div class="bg-slate-50 p-4 border border-slate-200 rounded-xl space-y-3">
+                <label class="block text-xs font-bold text-emerald-700">Foto Kandidat</label>
+                <div class="mb-2">
+                    <label class="block text-[11px] text-slate-500 font-bold mb-1">Opsi 1: Link URL Foto</label>
+                    <input id="fFotoUrl" type="text" value="${fotoPreview}" placeholder="https://link-foto.com/gambar.jpg" class="w-full px-3 py-2 bg-white border rounded-xl text-xs">
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="h-px bg-slate-300 flex-1"></div>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase">Atau</span>
+                    <div class="h-px bg-slate-300 flex-1"></div>
+                </div>
+                <div>
+                    <label class="block text-[11px] text-slate-500 font-bold mb-1">Opsi 2: Upload Foto Baru (Maks 2MB)</label>
+                    <input id="fFotoFile" type="file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 cursor-pointer border border-slate-300 rounded-lg bg-white">
+                </div>
+            </div>
+
             <div><label class="block text-xs font-bold mb-1">Visi</label><textarea id="fVisi" rows="3" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs">${k.visi}</textarea></div>
             <div><label class="block text-xs font-bold mb-1">Misi (Satu per baris)</label><textarea id="fMisi" rows="4" class="w-full px-3 py-2 bg-slate-50 border text-xs">${k.misi.join("\n")}</textarea></div>
         </div>
@@ -322,18 +344,42 @@ function formKandidat(id) {
 async function simpanKandidat(id) {
     const no = parseInt(document.getElementById("fNo").value);
     const nama = document.getElementById("fNama").value.trim();
+    const fotoUrl = document.getElementById("fFotoUrl").value.trim();
+    const fileInput = document.getElementById("fFotoFile");
+
     if (!no || !nama) { showToast("⚠️", "Nomor & Nama wajib diisi!"); return; }
+
+    let emoji = "👤"; // Default
+
+    // Cek jika upload file baru
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        if (file.size > 2 * 1024 * 1024) return showToast("⚠️", "Ukuran foto maksimal 2MB");
+        
+        emoji = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(file);
+        });
+    } 
+    // Jika isinya URL, atau masih menggunakan emoji lama
+    else if (fotoUrl) {
+        emoji = fotoUrl;
+    } else if (id) {
+        // Jika edit tapi tidak ganti foto, ambil foto lama
+        const oldData = DB.kandidat.find(x => x.id === id);
+        if (oldData) emoji = oldData.emoji;
+    }
 
     const data = {
         no, nama,
         alamat: document.getElementById("fAlamat").value.trim(),
         pekerjaan: document.getElementById("fPekerjaan").value.trim(),
         umur: 40, 
-        emoji: "👨‍💼", 
+        emoji: emoji, // Simpan URL/Base64 ke kolom emoji
         warna: "from-emerald-600 to-emerald-800",
         visi: document.getElementById("fVisi").value.trim(),
         misi: document.getElementById("fMisi").value.split("\n").filter(s => s.trim()),
-        // Program unggulan dihapus dari sini agar tidak error
         program: [] 
     };
 
@@ -535,38 +581,7 @@ function doResetData() {
 }
 // ================= FITUR DRAG & DROP TIMELINE =================
 // Panggil fungsi ini setelah render() selesai di app.js
-function initDragAndDropTimeline() {
-    const el = document.getElementById('sortableTimeline');
-    if (!el) return;
 
-    // Hapus listener lama jika ada (mencegah duplikasi saat re-render)
-    if (el.sortableInstance) {
-        el.sortableInstance.destroy();
-    }
-
-    el.sortableInstance = new Sortable(el, {
-        animation: 150,
-        ghostClass: 'bg-emerald-100', // Warna saat di-drag
-        onEnd: async function (evt) {
-            // Ambil semua ID berdasarkan urutan baru setelah di-drag
-            const items = el.querySelectorAll('[data-id]');
-            const newOrderIds = Array.from(items).map(item => parseInt(item.getAttribute('data-id')));
-
-            showToast("⏳", "Menyimpan urutan baru...");
-
-            // Update urutan di Supabase satu per satu
-            for (let i = 0; i < newOrderIds.length; i++) {
-                const id = newOrderIds[i];
-                await supabaseClient.from('timeline').update({ urutan: i + 1 }).eq('id', id);
-            }
-
-            // Reload data agar sinkron
-            DB = await loadDB();
-            render();
-            showToast("✅", "Urutan Timeline berhasil disimpan!");
-        }
-    });
-}
 // ================= KELOLA DOKUMEN =================
 function formDokumen(id) {
     const isEdit = !!id;
