@@ -1,3 +1,5 @@
+// js/views/login.js
+
 function viewLoginAdmin() {
     return `
     <section class="min-h-[60vh] flex items-center justify-center px-4 py-12">
@@ -104,6 +106,41 @@ function viewAdmin() {
             </div>
         </div>
 
+        <!-- FITUR KELOLA KANDIDAT (DITAMBAHKAN KEMBALI) -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-lg"><i class="fa-solid fa-users text-emerald-700 mr-2"></i>Kelola Kandidat</h3>
+                    <p class="text-[11px] text-slate-500 mt-1">Tambah, edit, atau hapus data kandidat ketua RW.</p>
+                </div>
+                <button onclick="formKandidat()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow hover:bg-emerald-800 transition"><i class="fa-solid fa-plus mr-1"></i> Tambah Kandidat</button>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                ${DB.kandidat.map(k => {
+                    // Deteksi apakah emoji berisi link gambar atau emoji biasa
+                    const isFoto = k.emoji && (k.emoji.startsWith('http') || k.emoji.startsWith('data:'));
+                    return `
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-700 text-white font-bold text-sm flex items-center justify-center shrink-0 overflow-hidden">
+                                ${isFoto ? `<img src="${k.emoji}" class="w-full h-full object-cover">` : (k.emoji || '0'+k.no)}
+                            </div>
+                            <div>
+                                <div class="font-bold text-xs text-slate-900">${k.nama}</div>
+                                <div class="text-[10px] text-slate-500">No. ${k.no} · ${k.suara || 0} suara</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="formKandidat(${k.id})" class="p-2 text-xs text-emerald-700 bg-emerald-100 rounded-lg hover:bg-emerald-200"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button onclick="confirmHapusKandidat(${k.id})" class="p-2 text-xs text-red-600 bg-red-100 rounded-lg hover:bg-red-200"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    `;
+                }).join('")}
+            </div>
+        </div>
+
+        <!-- BAGIAN LAINNYA (Running Bar, Kontak, Timeline, dll tetap sama) -->
         <div class="bg-amber-500/10 border border-amber-400/40 p-6 sm:p-8 rounded-3xl shadow-sm">
             <div class="flex items-center gap-3 mb-2">
                 <span class="px-3 py-1 bg-amber-400 text-emerald-950 text-xs font-black rounded-full uppercase">BAGIAN 1</span>
@@ -201,10 +238,6 @@ function viewAdmin() {
                         <label class="block text-xs font-bold uppercase text-slate-600 mb-1">URL File PDF 1 *</label>
                         <input id="inTatibPdfUrl1" type="url" required value="${DB.tatibPdf1 || ''}" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs">
                     </div>
-                    <div class="pt-2">
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Atau Upload PDF 1:</label>
-                        <input type="file" id="inTatibPdfFile1" accept="application/pdf" onchange="handleUploadTatibPdf(event, 1)" class="text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                    </div>
                 </div>
                 <div class="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
                     <div class="font-extrabold text-xs text-emerald-800 uppercase tracking-wider">DOKUMEN 2 (BERITA ACARA)</div>
@@ -216,10 +249,6 @@ function viewAdmin() {
                         <label class="block text-xs font-bold uppercase text-slate-600 mb-1">URL File PDF 2 *</label>
                         <input id="inTatibPdfUrl2" type="url" required value="${DB.tatibPdf2 || ''}" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs">
                     </div>
-                    <div class="pt-2">
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">Atau Upload PDF 2:</label>
-                        <input type="file" id="inTatibPdfFile2" accept="application/pdf" onchange="handleUploadTatibPdf(event, 2)" class="text-xs text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                    </div>
                 </div>
                 <button type="submit" class="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow">
                     Simpan Kedua Dokumen PDF
@@ -227,7 +256,6 @@ function viewAdmin() {
             </form>
         </div>
 
-        <!-- KELOLA TIMELINE DENGAN DRAG & DROP -->
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-4">
                 <div>
@@ -263,36 +291,6 @@ function viewAdmin() {
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h3 class="font-extrabold text-slate-900 text-lg"><i class="fa-solid fa-users text-emerald-700 mr-2"></i>Kelola Kandidat</h3>
-                </div>
-                <button onclick="formKandidat()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow hover:bg-emerald-800 transition"><i class="fa-solid fa-plus mr-1"></i> Tambah Kandidat</button>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                ${DB.kandidat.map(k => `
-                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white font-bold text-sm flex items-center justify-center shrink-0">0${k.no}</div>
-                            <div>
-                                <div class="font-bold text-xs text-slate-900">${k.nama}</div>
-                                <div class="text-[10px] text-slate-500">${k.alamat}</div>
-                            </div>
-                        </div>
-                    <div class="flex gap-2">
-                <button onclick="go('hitung')" class="px-4 py-2 rounded-xl bg-amber-400 text-emerald-950 font-bold text-xs shadow">
-                    <i class="fa-solid fa-calculator mr-1"></i> Buka Penghitung Suara
-                </button>
-                <button onclick="doLogout()" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold border border-white/20">
-                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar Admin
-                </button>
-            </div>
-                    </div>
-                `).join("")}
-            </div>
-        </div>
-
-        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-                <div>
                     <h3 class="font-extrabold text-slate-900 text-lg"><i class="fa-solid fa-bullhorn text-emerald-700 mr-2"></i>Kelola Pengumuman</h3>
                 </div>
                 <button onclick="formPengumuman()" class="px-4 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow hover:bg-emerald-800 transition"><i class="fa-solid fa-plus mr-1"></i> Tambah Pengumuman</button>
@@ -315,7 +313,7 @@ function viewAdmin() {
                 `).join("")}
             </div>
         </div>
-        <!-- KELOLA DOKUMEN -->
+        
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-4">
                 <div>
