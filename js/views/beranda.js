@@ -83,8 +83,9 @@ function viewBeranda() {
             <p class="text-slate-600 mt-3 text-sm sm:text-base">Klik tombol detail untuk membaca rincian Visi, Misi, serta Program Kerja Unggulan dari masing-masing calon.</p>
         </div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="flex flex-wrap justify-center gap-8 max-w-5xl mx-auto">
             ${DB.kandidat.map(k => `
+                <div class="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)]">
                 <div class="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-md card-lift flex flex-col justify-between reveal">
                     <div>
                         <div class="bg-gradient-to-r ${k.warna} p-6 text-white text-center relative overflow-hidden">
@@ -112,6 +113,7 @@ function viewBeranda() {
                         <button onclick="showKandidatModal(${k.id})" class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow">
                             <i class="fa-solid fa-circle-info"></i> Lihat Visi Misi & Program
                         </button>
+                    </div>
                     </div>
                 </div>
             `).join("")}
