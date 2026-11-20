@@ -414,7 +414,8 @@ async function hapusKandidat(id) {
 function formPengumuman(id) {
     const isEdit = !!id;
     const a = isEdit ? DB.pengumuman.find(x => x.id === id) : {
-        kategori: "Informasi", judul: "", isi: "", tanggal: new Date().toISOString().slice(0, 10)
+        kategori: "Informasi", judul: "", isi: "", tanggal: new Date().toISOString().slice(0, 10),
+        tampilDiBeranda: false
     };
 
     openModal(`
@@ -435,6 +436,17 @@ function formPengumuman(id) {
             </div>
             <div><label class="block text-xs font-bold mb-1">Judul *</label><input id="fJudulPengumuman" type="text" value="${a.judul}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold"></div>
             <div><label class="block text-xs font-bold mb-1">Isi Pengumuman *</label><textarea id="fIsiPengumuman" rows="5" class="w-full px-3 py-2 bg-slate-50 border text-xs resize-none">${a.isi}</textarea></div>
+            
+            <!-- CHECKBOX TAMPIL DI BERANDA -->
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input id="fTampilBeranda" type="checkbox" ${a.tampilDiBeranda ? 'checked' : ''} class="mt-0.5 w-4 h-4 rounded border-emerald-300 text-emerald-700 focus:ring-emerald-500">
+                    <div>
+                        <div class="text-xs font-bold text-emerald-900">Tampilkan di Beranda</div>
+                        <div class="text-[11px] text-emerald-700 mt-0.5">Centang agar pengumuman ini muncul di section "Pengumuman Panitia" pada halaman beranda.</div>
+                    </div>
+                </label>
+            </div>
         </div>
         <div class="p-4 bg-slate-50 border-t flex justify-end gap-2">
             <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold">Batal</button>
@@ -448,10 +460,11 @@ async function simpanPengumuman(id) {
     const tgl = document.getElementById("fTglPengumuman").value || new Date().toISOString().slice(0, 10);
     const judul = document.getElementById("fJudulPengumuman").value.trim();
     const isi = document.getElementById("fIsiPengumuman").value.trim();
+    const tampilDiBeranda = document.getElementById("fTampilBeranda").checked;
 
     if (!judul || !isi) { showToast("⚠️", "Judul & Isi wajib diisi!"); return; }
 
-    const data = { kategori: kat, tanggal: tgl, judul, isi };
+    const data = { kategori: kat, tanggal: tgl, judul, isi, tampilDiBeranda };
     let response;
     if (id) response = await supabaseClient.from('pengumuman').update(data).eq('id', id);
     else { data.id = Date.now(); response = await supabaseClient.from('pengumuman').insert([data]); }
@@ -477,6 +490,20 @@ async function hapusPengumuman(id) {
     const response = await supabaseClient.from('pengumuman').delete().eq('id', id);
     if (response.error) { showToast("❌", "Gagal hapus: " + response.error.message); return; }
     DB = await loadDB(); closeModal(); showToast("🗑️", "Pengumuman dihapus."); render();
+}
+
+async function toggleTampilBeranda(id) {
+    const a = DB.pengumuman.find(x => x.id === id);
+    if (!a) return;
+    const newVal = !a.tampilDiBeranda;
+
+    const { error } = await supabaseClient.from('pengumuman')
+        .update({ tampilDiBeranda: newVal }).eq('id', id);
+
+    if (error) { showToast("❌", "Gagal: " + error.message); return; }
+    DB = await loadDB();
+    showToast(newVal ? "👁️" : "🙈", newVal ? "Ditampilkan di beranda" : "Disembunyikan dari beranda");
+    render();
 }
 
 // ================= BACKUP & RESET =================

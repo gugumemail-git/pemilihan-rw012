@@ -1,6 +1,13 @@
 function viewBeranda() {
     const p = DB.profil;
     const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
+
+    // Filter pengumuman: hanya yang tampilDiBeranda, fallback ke 3 terbaru jika kosong
+    const pengumumanBeranda = DB.pengumuman.filter(a => a.tampilDiBeranda === true);
+    const pengumumanTampil = pengumumanBeranda.length > 0
+        ? pengumumanBeranda.slice(0, 3)
+        : DB.pengumuman.slice(-3).reverse();
+
     return `
     <section class="relative gradient-primary text-white overflow-hidden pt-8 pb-16 lg:pt-16 lg:pb-24">
         <div class="absolute inset-0 pattern-dots opacity-30 pointer-events-none"></div>
@@ -146,7 +153,12 @@ function viewBeranda() {
                 <button onclick="go('pengumuman')" class="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">Lihat Semua Pengumuman <i class="fa-solid fa-arrow-right"></i></button>
             </div>
             <div class="grid md:grid-cols-3 gap-6">
-                ${DB.pengumuman.slice(0, 3).map(a => `
+                ${pengumumanTampil.length === 0 ? `
+                    <div class="col-span-full text-center text-xs text-slate-400 py-10 bg-white rounded-2xl border border-dashed border-slate-300">
+                        <i class="fa-regular fa-bell-slash text-2xl mb-2 block"></i>
+                        Belum ada pengumuman yang ditampilkan di beranda.
+                    </div>
+                ` : pengumumanTampil.map(a => `
                     <div onclick="showPengumumanModal(${a.id})" class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm card-lift cursor-pointer flex flex-col justify-between reveal">
                         <div>
                             <div class="flex items-center justify-between text-xs mb-3">
