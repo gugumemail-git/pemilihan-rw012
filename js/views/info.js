@@ -1,7 +1,7 @@
 // js/views/info.js
 
 // Helper merender Grid Galeri Dokumentasi
-function renderGaleriPengumuman(a, maxPreview = 4) {
+function renderGaleriPengumuman(a, maxPreview = 12) {
     const fotos = Array.isArray(a.fotoUrls) ? a.fotoUrls.filter(Boolean) : [];
     if (fotos.length === 0) return "";
 
@@ -9,7 +9,6 @@ function renderGaleriPengumuman(a, maxPreview = 4) {
     const tampil = fotos.slice(0, maxPreview);
     const sisa = total - maxPreview;
 
-    // Layout grid menyesuaikan jumlah foto (1 foto = lebar penuh, 2 = 2 kolom, 3+ = 3 atau 4 kolom)
     let gridClass = "grid-cols-2 sm:grid-cols-4";
     let aspectClass = "aspect-square";
     if (total === 1) {
@@ -24,17 +23,11 @@ function renderGaleriPengumuman(a, maxPreview = 4) {
     }
 
     return `
-        <div class="mt-4 pt-4 border-t border-slate-100" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between mb-2.5">
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+        <div class="mt-6 pt-5 border-t border-slate-200" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
                     <i class="fa-regular fa-images text-emerald-600"></i> Dokumentasi Kegiatan (${total} Foto)
                 </span>
-                ${a.albumUrl ? `
-                    <a href="${a.albumUrl}" target="_blank" rel="noopener noreferrer"
-                       class="text-[11px] font-bold text-emerald-700 hover:underline flex items-center gap-1">
-                        <i class="fa-brands fa-google-drive"></i> Album Google Drive
-                    </a>
-                ` : ""}
             </div>
 
             <div class="grid ${gridClass} gap-2.5">
@@ -67,7 +60,7 @@ function renderGaleriPengumuman(a, maxPreview = 4) {
     `;
 }
 
-// ================= PENGUMUMAN =================
+// ================= PENGUMUMAN (DAFTAR RINGKAS TANPA FOTO) =================
 function viewPengumuman() {
     const list = DB.pengumuman.slice().sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
@@ -90,21 +83,19 @@ function viewPengumuman() {
             <div class="space-y-5">
                 ${list.map(a => {
                     const jmlFoto = Array.isArray(a.fotoUrls) ? a.fotoUrls.filter(Boolean).length : 0;
+                    const adaAlbum = !!(a.albumUrl && a.albumUrl.trim());
                     return `
                     <div onclick="showPengumumanModal(${a.id})" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm card-lift cursor-pointer">
                         <div class="flex items-center justify-between text-xs mb-3 flex-wrap gap-2">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <span class="px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px] ${a.kategori === 'Penting' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${a.kategori}</span>
                                 ${a.tampilDiBeranda ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-eye mr-1"></i>Di Beranda</span>` : ''}
-                                ${jmlFoto > 0 ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700"><i class="fa-regular fa-images mr-1"></i>${jmlFoto} Foto</span>` : ''}
+                                ${(jmlFoto > 0 || adaAlbum) ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700"><i class="fa-regular fa-images mr-1"></i>${jmlFoto > 0 ? jmlFoto + ' Foto Dokumentasi' : 'Album Dokumentasi'}</span>` : ''}
                             </div>
                             <span class="text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${fmtTanggal(a.tanggal)}</span>
                         </div>
                         <h3 class="font-bold text-slate-900 text-base sm:text-lg mb-2">${a.judul}</h3>
                         <p class="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed">${a.isi}</p>
-                        
-                        ${renderGaleriPengumuman(a, 4)}
-
                         <div class="mt-4 text-xs font-bold text-emerald-700 flex items-center gap-1">Baca Selengkapnya <i class="fa-solid fa-chevron-right text-[10px]"></i></div>
                     </div>
                 `;}).join("")}
@@ -114,11 +105,13 @@ function viewPengumuman() {
     `;
 }
 
+// ================= MODAL BACA SELENGKAPNYA (FOTO MUNCUL DI SINI) =================
 function showPengumumanModal(id) {
     const a = DB.pengumuman.find(x => x.id === id);
     if (!a) return;
 
     const fotos = Array.isArray(a.fotoUrls) ? a.fotoUrls.filter(Boolean) : [];
+    const adaAlbum = !!(a.albumUrl && a.albumUrl.trim());
 
     openModal(`
         <div class="gradient-primary text-white p-6 relative">
@@ -131,14 +124,17 @@ function showPengumumanModal(id) {
             <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">${a.isi}</p>
             ${fotos.length > 0 ? renderGaleriPengumuman(a, 12) : ""}
         </div>
-        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
-            ${a.albumUrl ? `
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center ${adaAlbum ? 'sm:justify-between' : 'sm:justify-end'} gap-2.5">
+            ${adaAlbum ? `
                 <a href="${a.albumUrl}" target="_blank" rel="noopener noreferrer"
-                   class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition">
-                    <i class="fa-brands fa-google-drive"></i> Buka Folder Google Drive
+                   class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm transition">
+                    <i class="fa-brands fa-google-drive text-sm"></i>
+                    <span>Buka Album Google Drive</span>
                 </a>
-            ` : `<div></div>`}
-            <button onclick="closeModal()" class="px-5 py-2 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition ml-auto">Tutup</button>
+            ` : ''}
+            <button onclick="closeModal()" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition">
+                Tutup Pengumuman
+            </button>
         </div>
     `);
 }
