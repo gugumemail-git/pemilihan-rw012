@@ -9,10 +9,9 @@ async function doLoginAdmin(e) {
     const { data: siteData, error } = await supabaseClient
         .from('site_config').select('data').eq('id', 1).maybeSingle();
 
-    // Fallback hash yang valid
     const fallbackAuth = {
-        userHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", // admin
-        passHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"  // admin123
+        userHash: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+        passHash: "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"
     };
 
     let adminAuth = fallbackAuth;
@@ -39,7 +38,6 @@ function doLogout() {
 async function simpanAgendaBar(e) {
     e.preventDefault();
     
-    // Ambil data dari form
     const newAgendaBar = {
         badge: document.getElementById("abBadge").value.trim(),
         judulText: document.getElementById("abJudulText").value.trim(),
@@ -47,18 +45,15 @@ async function simpanAgendaBar(e) {
         lokasiText: document.getElementById("abLokasiText").value.trim()
     };
 
-    // Ambil data profil yang sudah ada agar tidak tertimpa
     const currentProfil = DB.profil || {};
     const currentAuth = DB.adminAuth || {};
 
-    // ... kode atasnya tetap sama ...
     const siteConfigData = {
         agendaBar: newAgendaBar,
         profil: currentProfil,
         adminAuth: currentAuth
     };
 
-    // Gunakan Upsert
     const { error } = await supabaseClient.from('site_config').upsert({ id: 1, data: siteConfigData });
     if (error) { showToast("❌", "Gagal menyimpan: " + error.message); return; }
 
@@ -71,9 +66,8 @@ async function simpanAgendaBar(e) {
 async function simpanKontakProfil(e) {
     e.preventDefault();
     
-    // Ambil data dari form
     const updatedProfil = {
-        ...DB.profil, // Ambil data profil lama
+        ...DB.profil,
         wa: document.getElementById("eWaPanitia").value.trim(),
         jamLayanan: document.getElementById("eJamLayanan").value.trim(),
         email: document.getElementById("eEmailPanitia").value.trim(),
@@ -83,14 +77,12 @@ async function simpanKontakProfil(e) {
     const currentAgenda = DB.agendaBar || {};
     const currentAuth = DB.adminAuth || {};
 
-    // ... kode atasnya tetap sama ...
     const siteConfigData = {
         agendaBar: currentAgenda,
         profil: updatedProfil,
         adminAuth: currentAuth
     };
 
-    // Gunakan Upsert
     const { error } = await supabaseClient.from('site_config').upsert({ id: 1, data: siteConfigData });
     if (error) { showToast("❌", "Gagal menyimpan: " + error.message); return; }
 
@@ -103,19 +95,16 @@ async function simpanKontakProfil(e) {
 async function simpanTatibPdf(e) {
     e.preventDefault();
     
-    // Ambil data dari form
     const j1 = document.getElementById("inTatibJudul1").value.trim();
     const u1 = document.getElementById("inTatibPdfUrl1").value.trim();
     const j2 = document.getElementById("inTatibJudul2").value.trim();
     const u2 = document.getElementById("inTatibPdfUrl2").value.trim();
 
-    // 1. Simpan ke memori aplikasi (DB)
     DB.tatibJudul1 = j1;
     DB.tatibPdf1 = u1;
     DB.tatibJudul2 = j2;
     DB.tatibPdf2 = u2;
 
-    // 2. Simpan KHUSUS ke tabel `tatib` di Supabase
     const tatibData = {
         id: 1,
         judul1: j1,
@@ -131,9 +120,7 @@ async function simpanTatibPdf(e) {
         return;
     }
 
-    // Simpan ke LocalStorage sebagai cadangan
     saveDB();
-    
     showToast("✅", "Dokumen PDF berhasil disimpan ke database!");
     render();
 }
@@ -150,7 +137,6 @@ function handleUploadTatibPdf(e, docNum) {
         if (docNum === 1) DB.tatibPdf1 = evt.target.result;
         else DB.tatibPdf2 = evt.target.result;
         
-        // PERBAIKAN: Simpan langsung ke tabel `tatib`
         const tatibData = {
             id: 1,
             judul1: DB.tatibJudul1,
@@ -170,7 +156,7 @@ function handleUploadTatibPdf(e, docNum) {
         showToast("✅", "File PDF berhasil diunggah ke database!");
         render();
     };
-    reader.readAsDataURL(file); // Gunakan readAsDataURL agar file terbaca sebagai Base64
+    reader.readAsDataURL(file);
 }
 
 // ================= KELOLA TIMELINE =================
@@ -253,10 +239,8 @@ async function simpanTimeline(id) {
     let response;
 
     if (id) {
-        // JIKA EDIT: Jangan ubah urutan
         response = await supabaseClient.from('timeline').update(data).eq('id', id);
     } else {
-        // JIKA TAMBAH BARU: Cari urutan paling akhir, lalu tambah 1
         const maxUrutan = DB.timeline.length > 0 ? Math.max(...DB.timeline.map(t => t.urutan || 0)) : 0;
         data.id = Date.now();
         data.urutan = maxUrutan + 1;
@@ -292,11 +276,14 @@ function formKandidat(id) {
     const k = isEdit ? DB.kandidat.find(x => x.id === id) : {
         no: (DB.kandidat.length ? Math.max(...DB.kandidat.map(x => x.no)) + 1 : 1),
         nama: "", umur: 40, pekerjaan: "Wiraswasta", alamat: "Blok GMG",
-        emoji: "👤", warna: "from-emerald-600 to-emerald-800", visi: "", misi: ["Meningkatkan keamanan dan kebersihan."]
+        emoji: "👤", warna: "from-emerald-600 to-emerald-800",
+        videoUrl: "",
+        visi: "", misi: ["Meningkatkan keamanan dan kebersihan."]
     };
 
     const isFoto = k.emoji && (k.emoji.startsWith('http') || k.emoji.startsWith('data:'));
     const fotoPreview = isFoto ? k.emoji : '';
+    const videoVal = k.videoUrl || k.video_url || '';
 
     openModal(`
         <div class="gradient-primary text-white p-6 relative">
@@ -312,8 +299,17 @@ function formKandidat(id) {
                 <div><label class="block text-xs font-bold mb-1">Alamat Blok *</label><input id="fAlamat" type="text" value="${k.alamat}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"></div>
                 <div><label class="block text-xs font-bold mb-1">Pekerjaan</label><input id="fPekerjaan" type="text" value="${k.pekerjaan}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"></div>
             </div>
+
+            <!-- INPUT VIDEO YOUTUBE VISI MISI -->
+            <div class="bg-rose-50/70 p-4 border border-rose-200 rounded-xl">
+                <label class="block text-xs font-bold text-rose-700 mb-1">
+                    <i class="fa-brands fa-youtube mr-1"></i> Link Video YouTube Visi & Misi (Opsional)
+                </label>
+                <input id="fVideoUrl" type="url" value="${videoVal}" placeholder="https://www.youtube.com/watch?v=... atau https://youtu.be/..." class="w-full px-3 py-2 bg-white border border-rose-200 rounded-xl text-xs">
+                <p class="text-[10px] text-slate-500 mt-1">Jika diisi, tombol "Lihat Video Visi Misi" akan muncul di profil kandidat dan bisa dipratinjau langsung.</p>
+            </div>
             
-            <!-- INPUT FOTO BARU -->
+            <!-- INPUT FOTO -->
             <div class="bg-slate-50 p-4 border border-slate-200 rounded-xl space-y-3">
                 <label class="block text-xs font-bold text-emerald-700">Foto Kandidat</label>
                 <div class="mb-2">
@@ -345,6 +341,7 @@ async function simpanKandidat(id) {
     const no = parseInt(document.getElementById("fNo").value);
     const nama = document.getElementById("fNama").value.trim();
     const fotoUrl = document.getElementById("fFotoUrl").value.trim();
+    const videoUrl = document.getElementById("fVideoUrl").value.trim();
     const fileInput = document.getElementById("fFotoFile");
 
     if (!no || !nama) { showToast("⚠️", "Nomor & Nama wajib diisi!"); return; }
@@ -353,7 +350,7 @@ async function simpanKandidat(id) {
 
     if (fileInput.files && fileInput.files[0]) {
         const file = fileInput.files[0];
-        if (file.size > 1 * 1024 * 1024) return showToast("⚠️", "Ukuran foto maksimal 1MB"); // Batasi 1MB
+        if (file.size > 1 * 1024 * 1024) return showToast("⚠️", "Ukuran foto maksimal 1MB");
         
         emoji = await new Promise((resolve) => {
             const reader = new FileReader();
@@ -373,7 +370,8 @@ async function simpanKandidat(id) {
         alamat: document.getElementById("fAlamat").value.trim(),
         pekerjaan: document.getElementById("fPekerjaan").value.trim(),
         umur: 40, 
-        emoji: emoji, 
+        emoji: emoji,
+        videoUrl: videoUrl,
         warna: "from-emerald-600 to-emerald-800",
         visi: document.getElementById("fVisi").value.trim(),
         misi: document.getElementById("fMisi").value.split("\n").filter(s => s.trim()),
@@ -437,7 +435,6 @@ function formPengumuman(id) {
             <div><label class="block text-xs font-bold mb-1">Judul *</label><input id="fJudulPengumuman" type="text" value="${a.judul}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold"></div>
             <div><label class="block text-xs font-bold mb-1">Isi Pengumuman *</label><textarea id="fIsiPengumuman" rows="5" class="w-full px-3 py-2 bg-slate-50 border text-xs resize-none">${a.isi}</textarea></div>
             
-            <!-- CHECKBOX TAMPIL DI BERANDA -->
             <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                 <label class="flex items-start gap-3 cursor-pointer">
                     <input id="fTampilBeranda" type="checkbox" ${a.tampilDiBeranda ? 'checked' : ''} class="mt-0.5 w-4 h-4 rounded border-emerald-300 text-emerald-700 focus:ring-emerald-500">
@@ -526,7 +523,6 @@ function restoreBackupJSON(event) {
                 showToast("⏳", "Sedang memproses & mengunggah ke tabel Supabase...");
                 DB = parsedData;
 
-                // 1. Simpan Profil & Agenda ke site_config
                 const siteConfigData = {
                     profil: DB.profil,
                     agendaBar: DB.agendaBar,
@@ -534,27 +530,22 @@ function restoreBackupJSON(event) {
                 };
                 await supabaseClient.from('site_config').upsert({ id: 1, data: siteConfigData });
 
-                // 2. Simpan Kandidat (Gunakan upsert agar data lama tertimpa/baru masuk)
                 if (DB.kandidat && DB.kandidat.length > 0) {
                     await supabaseClient.from('kandidat').upsert(DB.kandidat);
                 }
 
-                // 3. Simpan Timeline
                 if (DB.timeline && DB.timeline.length > 0) {
                     await supabaseClient.from('timeline').upsert(DB.timeline);
                 }
 
-                // 4. Simpan Pengumuman
                 if (DB.pengumuman && DB.pengumuman.length > 0) {
                     await supabaseClient.from('pengumuman').upsert(DB.pengumuman);
                 }
 
-                // 5. Simpan Panitia (Tabel panitia bentuknya JSONB di kolom data)
                 if (DB.panitia) {
                     await supabaseClient.from('panitia').upsert({ id: 1, data: DB.panitia });
                 }
 
-                // 6. Simpan Tatib
                 if (DB.tatibPdf1) {
                     await supabaseClient.from('tatib').upsert({ 
                         id: 1, 
@@ -563,12 +554,10 @@ function restoreBackupJSON(event) {
                     });
                 }
 
-                // 7. Tambahan: Simpan Dokumen
                 if (DB.dokumen && DB.dokumen.length > 0) {
                     await supabaseClient.from('dokumen').upsert(DB.dokumen);
                 }
 
-                // Selesai
                 saveDB();
                 showToast("✅", "Semua data berhasil masuk ke tabel Supabase masing-masing!");
                 render();
@@ -603,8 +592,6 @@ function doResetData() {
     localStorage.removeItem("pilwe012_session");
     window.location.reload(); 
 }
-// ================= FITUR DRAG & DROP TIMELINE =================
-// Panggil fungsi ini setelah render() selesai di app.js
 
 // ================= KELOLA DOKUMEN =================
 function formDokumen(id) {

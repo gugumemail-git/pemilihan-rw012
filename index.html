@@ -222,6 +222,11 @@
         <div id="modalContent" class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto my-auto relative border border-slate-200"></div>
     </div>
 
+    <!-- VIDEO PREVIEW MODAL CONTAINER (QUICK PREVIEW YOUTUBE) -->
+    <div id="videoModal" class="fixed inset-0 z-[65] hidden items-center justify-center p-3 sm:p-6 modal-backdrop overflow-y-auto">
+        <div id="videoModalContent" class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full h-[80vh] flex flex-col overflow-hidden relative border border-slate-200"></div>
+    </div>
+
     <!-- GLOBAL TOAST NOTIFICATION -->
     <div id="toast" class="fixed z-[70] bottom-5 left-4 right-4 sm:left-auto sm:right-6 hidden transition-all duration-300">
         <div class="bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 text-sm border border-slate-700">
@@ -236,12 +241,11 @@
     <script src="js/utils.js"></script>
     
     <!-- File Views Baru -->
-        <!-- File Views Baru -->
     <script src="js/views/beranda.js"></script>
     <script src="js/views/info.js"></script>
     <script src="js/views/profil.js"></script>
     <script src="js/views/login.js"></script>
-    <script src="js/views/hitung.js"></script> <!-- TAMBAHKAN INI -->
+    <script src="js/views/hitung.js"></script>
 
     <script src="js/admin.js"></script>
     <script src="js/app.js"></script>

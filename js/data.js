@@ -5,12 +5,11 @@ const DEFAULT_DATA = {
         "jamText": "06:00 – 11:00 WIB",
         "lokasiText": "GOR Perum GMG"
     },
-        "profil": {
+    "profil": {
         "rw": "012", "perumahan": "Perum Grand Mutiara Gading", "desa": "Telajung",
         "kecamatan": "Cikarang Barat", "kabupaten": "Bekasi", "periode": "2027–2030",
-        "dpt": 150, // TAMBAHKAN INI (Sesuaikan jumlah KK)
+        "dpt": 150,
         "tagline": "Bersama Membangun Lingkungan GMG yang Guyub, Aman, Transparan & Maju",
-        // ... sisa kode ...
         "countdown": "2027-01-17T06:00:00+07:00",
         "lokasiTps": "Sekretariat RW 012 Perum GMG",
         "alamatSekretariat": "Kantor Sekretariat RW 012 Perum Grand Mutiara Gading, Desa Telajung, Kec. Cikarang Barat, Kab. Bekasi",
@@ -21,13 +20,14 @@ const DEFAULT_DATA = {
         "mapsLink": "https://maps.google.com/?q=-6.327153,107.059916"
     },
     "adminAuth": {
-        "userHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", // admin
-        "passHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"  // admin123 (Sudah valid SHA-256)
+        "userHash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+        "passHash": "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"
     },
     "kandidat": [
         {
             "id": 1, "no": 1, "nama": "Calon 1", "umur": 40, "pekerjaan": "Wiraswasta", "alamat": "Blok xx No. 00",
             "emoji": "👨‍💼", "warna": "from-emerald-600 to-emerald-800",
+            "videoUrl": "",
             "visi": "Mewujudkan RW 012 Perum Grand Mutiara Gading sebagai lingkungan yang asri, aman berbasis teknologi modern, serta transparan dalam pengelolaan kas warga.",
             "misi": ["Pemasangan sistem CCTV online 24 jam dan optimalisasi ronda malam poskamling.", "Digitalisasi laporan keuangan kas RW dan pelayanan surat pengantar warga.", "Program pengolahan sampah mandiri dan bank sampah bernilai ekonomis.", "Meningkatkan kerukunan antar blok melalui kegiatan sosial dan olahraga berkala."],
             "program": [{ "icon": "⭐", "judul": "Program Kerja Utama", "desc": "Optimalisasi kebersihan & keamanan RW 012." }]
@@ -35,6 +35,7 @@ const DEFAULT_DATA = {
         {
             "id": 2, "no": 2, "nama": "Calon 2", "umur": 40, "pekerjaan": "Ibu Rumah Tangga / UMKM", "alamat": "Blok xx No. 00",
             "emoji": "👩‍💼", "warna": "from-amber-600 to-amber-800",
+            "videoUrl": "",
             "visi": "Memberdayakan warga RW 012 melalui penguatan UMKM lokal, kesehatan keluarga, dan lingkungan yang ramah anak serta lansia.",
             "misi": ["Mengembangkan potensi UMKM warga GMG dengan pelatihan usaha & bazar bulanan.", "Mengoptimalkan Posyandu Balita, Ibu Hamil, dan Posbindu Lansia secara rutin.", "Membangun taman baca dan revitalisasi area bermain anak di lingkungan RW.", "Penguatan peranan PKK dan kegiatan keagamaan warga."],
             "program": [{ "icon": "⭐", "judul": "Program Kerja Utama", "desc": "Optimalisasi kebersihan & keamanan RW 012." }]
@@ -42,15 +43,16 @@ const DEFAULT_DATA = {
         {
             "id": 3, "no": 3, "nama": "Calon 3", "umur": 40, "pekerjaan": "Karyawan Swasta / IT", "alamat": "Blok xx No. 00",
             "emoji": "👨‍💻", "warna": "from-blue-600 to-blue-800",
+            "videoUrl": "",
             "visi": "Menjadikan RW 012 sebagai pemukiman hijau, bebas banjir, responsif terhadap keluhan, serta mendorong partisipasi aktif generasi muda.",
             "misi": ["Percepatan normalisasi drainase dan saluran air lingkungan bebas genangan.", "Penyediaan kanal pengaduan cepat tanggap warga berbasis WhatsApp Bot.", "Penerangan Jalan Umum (PJU) hemat energi solar cell di titik remang.", "Pemberdayaan Karang Taruna GMG dalam inovasi teknologi dan kebersihan."],
             "program": [{ "icon": "⭐", "judul": "Program Kerja Utama", "desc": "Optimalisasi kebersihan & keamanan RW 012." }]
         }
     ],
     "pengumuman": [
-    { "id": 1, "tanggal": "2026-10-25", "kategori": "Informasi", "judul": "Penetapan Tata Tertib, Tahapan & Anggaran PILWE 012", "isi": "...", "tampilDiBeranda": true },
-    { "id": 2, "tanggal": "2026-10-31", "kategori": "Informasi", "judul": "Pendataan Daftar Pemilih Sementara (DPS)", "isi": "...", "tampilDiBeranda": true },
-    { "id": 3, "tanggal": "2026-11-01", "kategori": "Penting", "judul": "Pendaftaran Bakal Calon Ketua RW 012 Resmi Dibuka", "isi": "...", "tampilDiBeranda": true }
+        { "id": 1, "tanggal": "2026-10-25", "kategori": "Informasi", "judul": "Penetapan Tata Tertib, Tahapan & Anggaran PILWE 012", "isi": "...", "tampilDiBeranda": true },
+        { "id": 2, "tanggal": "2026-10-31", "kategori": "Informasi", "judul": "Pendataan Daftar Pemilih Sementara (DPS)", "isi": "...", "tampilDiBeranda": true },
+        { "id": 3, "tanggal": "2026-11-01", "kategori": "Penting", "judul": "Pendaftaran Bakal Calon Ketua RW 012 Resmi Dibuka", "isi": "...", "tampilDiBeranda": true }
     ],
     "timeline": [
         { "id": 1, "urutan": 1, "tanggal": "10–25 Okt 2026", "icon": "📝", "judul": "Pembuatan Tata Tertib, Tahapan dan Anggaran", "status": "selesai", "desc": "Pembuatan Tata Tertib, Tahapan dan Anggaran oleh Panitia Pemilihan Ketua RW 012 Perum GMG" },
@@ -73,7 +75,7 @@ const DEFAULT_DATA = {
     "tatibJudul1": "Dokumen Tata Tertib & Pedoman Pemilihan",
     "tatibPdf2": "https://drive.google.com/file/d/1e5_JxU8O2IjXuqVRXQ-gPJBf5EHl2z46/preview?usp=sharing",
     "tatibJudul2": "Dokumen Berita Acara & Lampiran Tambahan",
-    "dokumen": [] // Tambahan array dokumen
+    "dokumen": []
 };
 
 async function loadDB() {
@@ -89,19 +91,18 @@ async function loadDB() {
         ] = await Promise.all([
             supabaseClient.from('site_config').select('*').eq('id', 1).maybeSingle(),
             supabaseClient.from('kandidat').select('*').order('no', { ascending: true }),
-            supabaseClient.from('timeline').select('*').order('urutan', { ascending: true }), // Diurutkan
+            supabaseClient.from('timeline').select('*').order('urutan', { ascending: true }),
             supabaseClient.from('pengumuman').select('*').order('tanggal', { descending: false }),
             supabaseClient.from('panitia').select('*').eq('id', 1).maybeSingle(),
             supabaseClient.from('tatib').select('*').eq('id', 1).maybeSingle(),
             supabaseClient.from('dokumen').select('*').order('created_at', { ascending: false })
         ]);
 
-                return {
-            siteConfigRaw: siteConfig?.data || {}, // TAMBAHKAN BARIS INI
+        return {
+            siteConfigRaw: siteConfig?.data || {},
             profil: siteConfig?.data?.profil || DEFAULT_DATA.profil,
             agendaBar: siteConfig?.data?.agendaBar || DEFAULT_DATA.agendaBar,
             adminAuth: siteConfig?.data?.adminAuth || DEFAULT_DATA.adminAuth,
-            // ... sisa kode ...
             kandidat: kandidat?.length ? kandidat : DEFAULT_DATA.kandidat,
             timeline: timeline?.length ? timeline : DEFAULT_DATA.timeline,
             pengumuman: pengumuman?.length ? pengumuman : DEFAULT_DATA.pengumuman,

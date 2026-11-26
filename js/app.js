@@ -1,5 +1,6 @@
 function go(r) {
     route = r;
+    closeVideoPreviewModal();
     closeModal();
     closeMobileMenu();
     render();
@@ -7,14 +8,14 @@ function go(r) {
 }
 
 function renderNav() {
-        const menus = [
+    const menus = [
         { r: "beranda", label: "Beranda", icon: "fa-house" },
         { r: "pengumuman", label: "Pengumuman", icon: "fa-bullhorn" },
         { r: "panitia", label: "Panitia", icon: "fa-users" },
         { r: "timeline", label: "Timeline", icon: "fa-calendar-days" },
         { r: "dokumen", label: "Dokumen", icon: "fa-folder-open" },
         { r: "kontak", label: "Kontak", icon: "fa-address-book" },
-        { r: "hitung", label: "Hitung Suara", icon: "fa-calculator" } // TAMBAHKAN INI
+        { r: "hitung", label: "Hitung Suara", icon: "fa-calculator" }
     ];
 
     const navDesktop = document.getElementById("navDesktop");
@@ -41,20 +42,19 @@ function render() {
     const app = document.getElementById("app");
     if (!app) return; 
 
-    // Bersihkan interval countdown lama agar tidak memory leak
     if (typeof cdInterval !== 'undefined' && cdInterval) {
         clearInterval(cdInterval);
     }
 
     let html = "";
-        switch (route) {
+    switch (route) {
         case "beranda": html = viewBeranda(); break;
         case "pengumuman": html = viewPengumuman(); break;
         case "panitia": html = viewPanitia(); break;
         case "timeline": html = viewTimeline(); break;
         case "dokumen": html = viewDokumen(); break;
         case "kontak": html = viewKontak(); break;
-        case "hitung": html = viewHitungSuara(); break; // TAMBAHKAN INI
+        case "hitung": html = viewHitungSuara(); break;
         case "loginAdmin": html = viewLoginAdmin(); break;
         case "admin": html = viewAdmin(); break;
         default: html = viewBeranda();
@@ -64,26 +64,19 @@ function render() {
     if (typeof initReveal === 'function') initReveal();
     if (typeof syncDynamicTexts === 'function') syncDynamicTexts();
     if (route === "beranda" && typeof startCountdown === 'function') startCountdown();
-    
-    // Panggil drag and drop jika berada di halaman admin
-    
 }
 
-// Event Listener Menu Mobile (DENGAN PENGAMAN)
 function closeMobileMenu() {
     const mobileMenu = document.getElementById("mobileMenu");
     const iconMenu = document.getElementById("iconMenu");
     const iconClose = document.getElementById("iconClose");
     
-    // Cek dulu apakah elemennya ada sebelum diakses
     if (mobileMenu) mobileMenu.classList.add("hidden");
     if (iconMenu) iconMenu.classList.remove("hidden");
     if (iconClose) iconClose.classList.add("hidden");
 }
 
-// Pastikan kode berjalan setelah HTML selesai dimuat
 document.addEventListener("DOMContentLoaded", () => {
-    
     const btnMenu = document.getElementById("btnMenu");
     if (btnMenu) {
         btnMenu.addEventListener("click", () => {
@@ -91,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const iconMenu = document.getElementById("iconMenu");
             const iconClose = document.getElementById("iconClose");
             
-            if (!mobileMenu) return; // Jika menu tidak ada, hentikan
+            if (!mobileMenu) return;
 
             const isHidden = mobileMenu.classList.contains("hidden");
             if (isHidden) {
@@ -111,11 +104,27 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Jalankan aplikasi utama
+    const videoModal = document.getElementById("videoModal");
+    if (videoModal) {
+        videoModal.addEventListener("click", e => {
+            if (e.target.id === "videoModal") closeVideoPreviewModal();
+        });
+    }
+
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+            const vm = document.getElementById("videoModal");
+            if (vm && !vm.classList.contains("hidden")) {
+                closeVideoPreviewModal();
+            } else {
+                closeModal();
+            }
+        }
+    });
+
     initApp();
 });
 
-// Fungsi Inisialisasi Aplikasi
 async function initApp() {
     if (typeof loadDB === 'function') {
         DB = await loadDB();

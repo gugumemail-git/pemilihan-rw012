@@ -11,7 +11,6 @@ function clearSession() { session = null; localStorage.removeItem("pilwe012_sess
 
 function fmtTanggal(str) {
     if (!str) return "-";
-    // Menambahkan T00:00:00 agar tidak terjadi pergeseran zona waktu (off-by-one)
     const d = new Date(str.includes('T') ? str : str + 'T00:00:00');
     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
@@ -21,7 +20,7 @@ function showToast(icon, msg) {
     const ti = document.getElementById("toastIcon");
     const tm = document.getElementById("toastMsg");
     
-    if (!t || !ti || !tm) return; // Guard
+    if (!t || !ti || !tm) return;
 
     ti.textContent = icon;
     tm.textContent = msg;
@@ -47,7 +46,85 @@ function closeModal() {
     document.body.style.overflow = "";
 }
 
-// Tambahkan ini di bawah fungsi closeModal() di dalam utils.js
+// Konversi Link YouTube (watch, youtu.be, shorts) ke URL Embed
+function getYoutubeEmbedUrl(url) {
+    if (!url) return "";
+    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch && ytMatch[1]) {
+        return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+    }
+    return url;
+}
+
+// Buka Modal Quick Preview Video Visi Misi
+function openVideoPreviewModal(kandidatId) {
+    const k = DB.kandidat.find(x => x.id === kandidatId);
+    if (!k) return;
+
+    const rawUrl = (k.videoUrl || k.video_url || "").trim();
+    if (!rawUrl) {
+        showToast("⚠️", "Link video visi misi belum tersedia untuk kandidat ini.");
+        return;
+    }
+
+    const embedUrl = getYoutubeEmbedUrl(rawUrl);
+    const vm = document.getElementById("videoModal");
+    const vmc = document.getElementById("videoModalContent");
+    if (!vm || !vmc) return;
+
+    vmc.innerHTML = `
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 bg-slate-50 shrink-0">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                    <i class="fa-brands fa-youtube text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                    <h3 class="font-bold text-sm sm:text-base text-slate-900 truncate">
+                        Video Visi & Misi — No. Urut 0${k.no} (${k.nama})
+                    </h3>
+                    <p class="text-[11px] font-mono text-slate-500 truncate">${rawUrl}</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 ml-2">
+                <a href="${rawUrl}" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-sm">
+                    <span>Buka di YouTube</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[11px]"></i>
+                </a>
+                <button type="button" onclick="closeVideoPreviewModal()" aria-label="Tutup Pratinjau"
+                        class="w-9 h-9 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-200/80 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 relative bg-slate-950">
+            <iframe id="videoPreviewIframe" class="w-full h-full border-0"
+                    src="${embedUrl}"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+        </div>
+    `;
+
+    vm.classList.remove("hidden");
+    vm.classList.add("flex");
+    document.body.style.overflow = "hidden";
+}
+
+function closeVideoPreviewModal() {
+    const vm = document.getElementById("videoModal");
+    const iframe = document.getElementById("videoPreviewIframe");
+    if (iframe) iframe.src = "about:blank"; // Hentikan suara video seketika
+    if (vm) {
+        vm.classList.add("hidden");
+        vm.classList.remove("flex");
+    }
+    // Pertahankan kunci scroll jika modal profil kandidat di belakangnya masih terbuka
+    const mainModal = document.getElementById("modal");
+    if (!mainModal || mainModal.classList.contains("hidden")) {
+        document.body.style.overflow = "";
+    }
+}
 
 let cdInterval = null;
 function startCountdown() {

@@ -3,7 +3,6 @@
 function viewPanitia() {
     const p = DB.panitia;
     
-    // Perbaikan Helper: Jika foto kosong, tampilkan ikon. Jika diisi link/base64, tampilkan gambar.
     const renderAvatar = (fotoUrl, iconClass, bgClass) => {
         if (fotoUrl && fotoUrl.trim() !== "") {
             return `<img src="${fotoUrl}" alt="Foto Panitia" class="w-full h-full object-cover rounded-2xl shadow" onerror="this.style.display='none';">`;
@@ -146,8 +145,8 @@ function showKandidatModal(id) {
     const k = DB.kandidat.find(x => x.id === id);
     if (!k) return;
 
-    // PERBAIKAN: Pengecekan ketat apakah emoji berisi gambar (URL/Base64) atau teks biasa
     const isFoto = (k.emoji && k.emoji.startsWith('data:image')) || (k.emoji && k.emoji.startsWith('http'));
+    const videoLink = (k.videoUrl || k.video_url || "").trim();
 
     const html = `
         <div class="bg-gradient-to-r ${k.warna} text-white p-6 sm:p-8 relative overflow-hidden">
@@ -156,7 +155,6 @@ function showKandidatModal(id) {
             </button>
             <div class="relative flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
                 
-                <!-- BAGIAN GAMBAR YANG DIPERBAIKI -->
                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-5xl sm:text-6xl border border-white/30 shrink-0 overflow-hidden">
                     ${isFoto 
                         ? `<img src="${k.emoji}" class="w-full h-full object-cover">` 
@@ -198,8 +196,16 @@ function showKandidatModal(id) {
             </div>
         </div>
 
-        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end">
-            <button onclick="closeModal()" class="px-5 py-2 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition">
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            ${videoLink ? `
+                <button type="button" onclick="openVideoPreviewModal(${k.id})"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition">
+                    <i class="fa-brands fa-youtube text-base"></i>
+                    <span>Lihat Video Visi Misi</span>
+                </button>
+            ` : `<div></div>`}
+
+            <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition ml-auto">
                 Tutup Window
             </button>
         </div>
