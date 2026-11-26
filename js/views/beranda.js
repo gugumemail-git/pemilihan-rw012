@@ -87,7 +87,7 @@ function viewBeranda() {
         <div class="text-center max-w-3xl mx-auto mb-14 reveal">
             <span class="inline-block text-xs font-extrabold uppercase tracking-widest text-emerald-700 bg-emerald-100 px-3.5 py-1 rounded-full mb-3">CALON KETUA RW 012 GMG</span>
             <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Mengenal Kandidat Calon Pemimpin RW 012</h2>
-            <p class="text-slate-600 mt-3 text-sm sm:text-base">Klik tombol detail untuk membaca rincian Visi, Misi, serta Program Kerja Unggulan dari masing-masing calon.</p>
+            <p class="text-slate-600 mt-3 text-sm sm:text-base">Klik tombol detail untuk membaca rincian Visi, Misi dari masing-masing calon.</p>
         </div>
 
         <div class="flex flex-wrap justify-center gap-8 max-w-5xl mx-auto">
