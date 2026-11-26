@@ -60,9 +60,12 @@ function renderGaleriPengumuman(a, maxPreview = 12) {
     `;
 }
 
-// ================= PENGUMUMAN (DAFTAR RINGKAS TANPA FOTO) =================
+// ================= PENGUMUMAN (URUTAN SAMA DENGAN ADMIN & FILTER DRAFT) =================
 function viewPengumuman() {
-    const list = DB.pengumuman.slice().sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+    const list = DB.pengumuman
+        .filter(a => a.status !== 'draft')
+        .slice()
+        .sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
     return `
     <section class="gradient-primary text-white py-12">
@@ -77,7 +80,7 @@ function viewPengumuman() {
         ${list.length === 0 ? `
             <div class="text-center text-sm text-slate-400 py-16 bg-white rounded-3xl border border-dashed border-slate-300">
                 <i class="fa-regular fa-bell-slash text-3xl mb-3 block"></i>
-                Belum ada pengumuman.
+                Belum ada pengumuman yang dipublikasikan.
             </div>
         ` : `
             <div class="space-y-5">
@@ -105,7 +108,7 @@ function viewPengumuman() {
     `;
 }
 
-// ================= MODAL BACA SELENGKAPNYA (FOTO MUNCUL DI SINI) =================
+// ================= MODAL BACA SELENGKAPNYA =================
 function showPengumumanModal(id) {
     const a = DB.pengumuman.find(x => x.id === id);
     if (!a) return;

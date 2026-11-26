@@ -2,11 +2,11 @@ function viewBeranda() {
     const p = DB.profil;
     const ab = DB.agendaBar || DEFAULT_DATA.agendaBar;
 
-    // Filter pengumuman: hanya yang tampilDiBeranda, fallback ke 3 terbaru jika kosong
-    const pengumumanBeranda = DB.pengumuman.filter(a => a.tampilDiBeranda === true);
-    const pengumumanTampil = pengumumanBeranda.length > 0
-        ? pengumumanBeranda.slice(0, 3)
-        : DB.pengumuman.slice(-3).reverse();
+    // Filter pengumuman: hanya yang tampilDiBeranda & bukan draft, diurutkan dari tanggal terlama seperti di Admin
+    const pengumumanTampil = DB.pengumuman
+        .filter(a => a.tampilDiBeranda === true && a.status !== 'draft')
+        .slice()
+        .sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
     return `
     <section class="relative gradient-primary text-white overflow-hidden pt-8 pb-16 lg:pt-16 lg:pb-24">
@@ -63,22 +63,49 @@ function viewBeranda() {
     </section>
 
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-200/80 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold shrink-0"><i class="fa-solid fa-user-tie"></i></div>
-                <div><div class="text-2xl font-black text-slate-900">${DB.kandidat.length} Paslon</div><div class="text-xs font-semibold text-slate-500">Kandidat Ketua RW</div></div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+            <!-- Kartu 1: Paslon -->
+            <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-lg flex flex-col sm:flex-row items-center text-center sm:text-left gap-3 sm:gap-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl sm:text-2xl shrink-0">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-lg sm:text-2xl font-black text-slate-900 leading-tight">${DB.kandidat.length} Paslon</div>
+                    <div class="text-xs text-slate-500 mt-0.5 leading-snug">Kandidat Ketua RW</div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-200/80 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold shrink-0"><i class="fa-solid fa-scale-balanced"></i></div>
-                <div><div class="text-2xl font-black text-slate-900">LUBER</div><div class="text-xs font-semibold text-slate-500">Langsung, Umum, Bebas</div></div>
+
+            <!-- Kartu 2: LUBER -->
+            <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-lg flex flex-col sm:flex-row items-center text-center sm:text-left gap-3 sm:gap-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl sm:text-2xl shrink-0">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-lg sm:text-2xl font-black text-slate-900 leading-tight">LUBER</div>
+                    <div class="text-xs text-slate-500 mt-0.5 leading-snug">Langsung, Umum, Bebas</div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-200/80 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold shrink-0"><i class="fa-solid fa-shield-halved"></i></div>
-                <div><div class="text-2xl font-black text-slate-900">JURDIL</div><div class="text-xs font-semibold text-slate-500">Jujur & Adil</div></div>
+
+            <!-- Kartu 3: JURDIL -->
+            <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-lg flex flex-col sm:flex-row items-center text-center sm:text-left gap-3 sm:gap-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl sm:text-2xl shrink-0">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-lg sm:text-2xl font-black text-slate-900 leading-tight">JURDIL</div>
+                    <div class="text-xs text-slate-500 mt-0.5 leading-snug">Jujur & Adil</div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-200/80 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold shrink-0"><i class="fa-solid fa-house-user"></i></div>
-                <div><div class="text-2xl font-black text-slate-900">1 Suara</div><div class="text-xs font-semibold text-slate-500">Tiap Kepala Keluarga</div></div>
+
+            <!-- Kartu 4: 1 Suara -->
+            <div class="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-lg flex flex-col sm:flex-row items-center text-center sm:text-left gap-3 sm:gap-4">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl sm:text-2xl shrink-0">
+                    <i class="fa-solid fa-house-chimney-user"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-lg sm:text-2xl font-black text-slate-900 leading-tight">1 Suara</div>
+                    <div class="text-xs text-slate-500 mt-0.5 leading-snug">Tiap Kepala Keluarga</div>
+                </div>
             </div>
         </div>
     </section>
@@ -103,10 +130,10 @@ function viewBeranda() {
                         </div>
                         <div class="pt-6 px-6 text-center">
                             <div class="w-28 h-28 mx-auto rounded-2xl bg-emerald-50 border-4 border-white shadow-lg flex items-center justify-center text-6xl overflow-hidden">
-    ${(k.emoji && k.emoji.startsWith('data:image')) || (k.emoji && k.emoji.startsWith('http')) 
-        ? `<img src="${k.emoji}" class="w-full h-full object-cover">` 
-        : (k.emoji || '👤')}
-</div>
+                                ${(k.emoji && k.emoji.startsWith('data:image')) || (k.emoji && k.emoji.startsWith('http')) 
+                                    ? `<img src="${k.emoji}" class="w-full h-full object-cover">` 
+                                    : (k.emoji || '👤')}
+                            </div>
                             <div class="mt-4 text-xs font-semibold text-slate-500 uppercase tracking-wide">📍 ${k.alamat} • 💼 ${k.pekerjaan}</div>
                         </div>
                         <div class="p-6">
