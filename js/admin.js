@@ -409,12 +409,17 @@ async function hapusKandidat(id) {
 }
 
 // ================= KELOLA PENGUMUMAN =================
+// ================= KELOLA PENGUMUMAN =================
 function formPengumuman(id) {
     const isEdit = !!id;
     const a = isEdit ? DB.pengumuman.find(x => x.id === id) : {
         kategori: "Informasi", judul: "", isi: "", tanggal: new Date().toISOString().slice(0, 10),
-        tampilDiBeranda: false
+        tampilDiBeranda: false,
+        fotoUrls: [],
+        albumUrl: ""
     };
+
+    const fotoListText = Array.isArray(a.fotoUrls) ? a.fotoUrls.join("\n") : "";
 
     openModal(`
         <div class="gradient-primary text-white p-6 relative">
@@ -433,8 +438,29 @@ function formPengumuman(id) {
                 <div><label class="block text-xs font-bold mb-1">Tanggal *</label><input id="fTglPengumuman" type="date" value="${a.tanggal}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs"></div>
             </div>
             <div><label class="block text-xs font-bold mb-1">Judul *</label><input id="fJudulPengumuman" type="text" value="${a.judul}" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-bold"></div>
-            <div><label class="block text-xs font-bold mb-1">Isi Pengumuman *</label><textarea id="fIsiPengumuman" rows="5" class="w-full px-3 py-2 bg-slate-50 border text-xs resize-none">${a.isi}</textarea></div>
+            <div><label class="block text-xs font-bold mb-1">Isi Pengumuman *</label><textarea id="fIsiPengumuman" rows="4" class="w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs resize-none">${a.isi}</textarea></div>
+
+            <!-- INPUT DOKUMENTASI FOTO GOOGLE DRIVE -->
+            <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-4 space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-blue-900 mb-1">
+                        <i class="fa-brands fa-google-drive mr-1 text-blue-600"></i> Lampiran Foto Dokumentasi Google Drive (Opsional)
+                    </label>
+                    <textarea id="fFotoUrls" rows="4" placeholder="Tempel link bagikan foto Google Drive di sini (satu link per baris), contoh:&#10;https://drive.google.com/file/d/1AbCdEfGh.../view?usp=sharing&#10;https://drive.google.com/file/d/2XyZ12345.../view?usp=sharing"
+                              class="w-full px-3 py-2 bg-white border border-blue-200 rounded-xl text-xs font-mono">${fotoListText}</textarea>
+                    <p class="text-[10px] text-slate-600 mt-1">
+                        Pastikan akses file/folder di Google Drive sudah diatur ke <strong>"Siapa saja yang memiliki link"</strong>.
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-blue-900 mb-1">Link Folder/Album Lengkap Google Drive (Opsional)</label>
+                    <input id="fAlbumUrl" type="url" value="${a.albumUrl || ''}" placeholder="https://drive.google.com/drive/folders/..."
+                           class="w-full px-3 py-2 bg-white border border-blue-200 rounded-xl text-xs">
+                </div>
+            </div>
             
+            <!-- CHECKBOX TAMPIL DI BERANDA -->
             <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                 <label class="flex items-start gap-3 cursor-pointer">
                     <input id="fTampilBeranda" type="checkbox" ${a.tampilDiBeranda ? 'checked' : ''} class="mt-0.5 w-4 h-4 rounded border-emerald-300 text-emerald-700 focus:ring-emerald-500">
@@ -459,15 +485,19 @@ async function simpanPengumuman(id) {
     const isi = document.getElementById("fIsiPengumuman").value.trim();
     const tampilDiBeranda = document.getElementById("fTampilBeranda").checked;
 
+    const fotoRaw = document.getElementById("fFotoUrls").value;
+    const fotoUrls = fotoRaw.split("\n").map(s => s.trim()).filter(Boolean);
+    const albumUrl = document.getElementById("fAlbumUrl").value.trim();
+
     if (!judul || !isi) { showToast("⚠️", "Judul & Isi wajib diisi!"); return; }
 
-    const data = { kategori: kat, tanggal: tgl, judul, isi, tampilDiBeranda };
+    const data = { kategori: kat, tanggal: tgl, judul, isi, tampilDiBeranda, fotoUrls, albumUrl };
     let response;
     if (id) response = await supabaseClient.from('pengumuman').update(data).eq('id', id);
     else { data.id = Date.now(); response = await supabaseClient.from('pengumuman').insert([data]); }
 
     if (response.error) { showToast("❌", "Gagal: " + response.error.message); return; }
-    DB = await loadDB(); closeModal(); showToast("✅", "Pengumuman disimpan!"); render();
+    DB = await loadDB(); closeModal(); showToast("✅", "Pengumuman & galeri disimpan!"); render();
 }
 
 function confirmHapusPengumuman(id) {

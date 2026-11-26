@@ -46,7 +46,7 @@ function closeModal() {
     document.body.style.overflow = "";
 }
 
-// Konversi Link YouTube (watch, youtu.be, shorts) ke URL Embed
+// Konversi Link YouTube ke URL Embed
 function getYoutubeEmbedUrl(url) {
     if (!url) return "";
     const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -54,6 +54,18 @@ function getYoutubeEmbedUrl(url) {
         return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
     }
     return url;
+}
+
+// Konversi Link Bagikan Google Drive ke Direct Image HD
+function getGdriveImageUrl(url) {
+    if (!url) return "";
+    const cleanUrl = url.trim();
+    // Format: drive.google.com/file/d/FILE_ID/view atau open?id=FILE_ID atau uc?id=FILE_ID
+    const match = cleanUrl.match(/(?:\/file\/d\/|[?&]id=)([a-zA-Z0-9_-]{20,})/);
+    if (match && match[1]) {
+        return `https://lh3.googleusercontent.com/d/${match[1]}=w1600`;
+    }
+    return cleanUrl;
 }
 
 // Buka Modal Quick Preview Video Visi Misi
@@ -114,17 +126,102 @@ function openVideoPreviewModal(kandidatId) {
 function closeVideoPreviewModal() {
     const vm = document.getElementById("videoModal");
     const iframe = document.getElementById("videoPreviewIframe");
-    if (iframe) iframe.src = "about:blank"; // Hentikan suara video seketika
+    if (iframe) iframe.src = "about:blank";
     if (vm) {
         vm.classList.add("hidden");
         vm.classList.remove("flex");
     }
-    // Pertahankan kunci scroll jika modal profil kandidat di belakangnya masih terbuka
     const mainModal = document.getElementById("modal");
     if (!mainModal || mainModal.classList.contains("hidden")) {
         document.body.style.overflow = "";
     }
 }
+
+// ================= LIGHTBOX GALERI FOTO DOKUMENTASI =================
+let lbState = { photos: [], rawUrls: [], index: 0, title: "" };
+
+function openLightbox(pengumumanId, startIndex = 0) {
+    const item = DB.pengumuman.find(x => x.id === pengumumanId);
+    if (!item || !Array.isArray(item.fotoUrls) || item.fotoUrls.length === 0) return;
+
+    lbState = {
+        rawUrls: item.fotoUrls,
+        photos: item.fotoUrls.map(u => getGdriveImageUrl(u)),
+        index: startIndex,
+        title: item.judul || "Dokumentasi Kegiatan"
+    };
+
+    const lbModal = document.getElementById("lightboxModal");
+    if (!lbModal) return;
+
+    lbModal.classList.remove("hidden");
+    lbModal.classList.add("flex");
+    document.body.style.overflow = "hidden";
+    renderLightboxSlide();
+}
+
+function renderLightboxSlide() {
+    const total = lbState.photos.length;
+    const idx = lbState.index;
+
+    const imgEl = document.getElementById("lbImage");
+    const counterEl = document.getElementById("lbCounter");
+    const titleEl = document.getElementById("lbTitle");
+    const driveLinkEl = document.getElementById("lbDriveLink");
+    const prevBtn = document.getElementById("lbPrevBtn");
+    const nextBtn = document.getElementById("lbNextBtn");
+    const thumbsEl = document.getElementById("lbThumbs");
+
+    if (imgEl) imgEl.src = lbState.photos[idx];
+    if (counterEl) counterEl.textContent = `Foto ${idx + 1} dari ${total}`;
+    if (titleEl) titleEl.textContent = lbState.title;
+    if (driveLinkEl) driveLinkEl.href = lbState.rawUrls[idx] || "#";
+
+    if (prevBtn) prevBtn.classList.toggle("hidden", total <= 1);
+    if (nextBtn) nextBtn.classList.toggle("hidden", total <= 1);
+
+    if (thumbsEl) {
+        if (total <= 1) {
+            thumbsEl.innerHTML = "";
+        } else {
+            thumbsEl.innerHTML = lbState.photos.map((src, i) => `
+                <button type="button" onclick="lbState.index=${i}; renderLightboxSlide();"
+                        class="w-12 h-12 rounded-lg overflow-hidden shrink-0 border-2 transition ${i === idx ? 'border-amber-400 scale-105 opacity-100' : 'border-transparent opacity-50 hover:opacity-80'}">
+                    <img src="${src}" class="w-full h-full object-cover">
+                </button>
+            `).join("");
+        }
+    }
+}
+
+function navLightbox(step) {
+    const total = lbState.photos.length;
+    if (total <= 1) return;
+    lbState.index = (lbState.index + step + total) % total;
+    renderLightboxSlide();
+}
+
+function closeLightbox() {
+    const lbModal = document.getElementById("lightboxModal");
+    if (lbModal) {
+        lbModal.classList.add("hidden");
+        lbModal.classList.remove("flex");
+    }
+    const mainModal = document.getElementById("modal");
+    if (!mainModal || mainModal.classList.contains("hidden")) {
+        document.body.style.overflow = "";
+    }
+}
+
+// Navigasi keyboard (Panah Kiri/Kanan & ESC) untuk Lightbox
+document.addEventListener("keydown", e => {
+    const lbModal = document.getElementById("lightboxModal");
+    if (lbModal && !lbModal.classList.contains("hidden")) {
+        if (e.key === "ArrowLeft") navLightbox(-1);
+        else if (e.key === "ArrowRight") navLightbox(1);
+        else if (e.key === "Escape") closeLightbox();
+    }
+});
 
 let cdInterval = null;
 function startCountdown() {

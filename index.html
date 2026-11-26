@@ -27,25 +27,6 @@
                 }
             }
         }
-
-        function confirmHapusDokumen(id) {
-            if(confirm("Apakah Anda yakin ingin menghapus dokumen ini?")) {
-                hapusDokumen(id);
-            }
-        }
-
-        async function hapusDokumen(id) {
-            const response = await supabaseClient.from('dokumen').delete().eq('id', id);
-            
-            if (response.error) {
-                showToast("❌", "Gagal menghapus: " + response.error.message);
-                return;
-            }
-
-            DB = await loadDB();
-            showToast("🗑️", "Dokumen berhasil dihapus.");
-            render();
-        }
     </script>
     
     <!-- Google Fonts & FontAwesome -->
@@ -177,7 +158,7 @@
                     <li><button onclick="go('pengumuman')" class="hover:text-amber-300 transition-colors">Pengumuman Panitia</button></li>
                     <li><button onclick="go('panitia')" class="hover:text-amber-300 transition-colors">Susunan Kepanitiaan</button></li>
                     <li><button onclick="go('timeline')" class="hover:text-amber-300 transition-colors">Timeline & Jadwal</button></li>
-                    <li><button onclick="go('tatib')" class="hover:text-amber-300 transition-colors">Tata Tertib & Berita Acara</button></li>
+                    <li><button onclick="go('dokumen')" class="hover:text-amber-300 transition-colors">Dokumen & Berkas</button></li>
                     <li><button onclick="go('kontak')" class="hover:text-amber-300 transition-colors">Kontak</button></li>
                 </ul>
             </div>
@@ -222,9 +203,48 @@
         <div id="modalContent" class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto my-auto relative border border-slate-200"></div>
     </div>
 
-    <!-- VIDEO PREVIEW MODAL CONTAINER (QUICK PREVIEW YOUTUBE) -->
+    <!-- VIDEO PREVIEW MODAL CONTAINER -->
     <div id="videoModal" class="fixed inset-0 z-[65] hidden items-center justify-center p-3 sm:p-6 modal-backdrop overflow-y-auto">
         <div id="videoModalContent" class="bg-white rounded-3xl shadow-2xl max-w-4xl w-full h-[80vh] flex flex-col overflow-hidden relative border border-slate-200"></div>
+    </div>
+
+    <!-- LIGHTBOX GALERI FOTO DOKUMENTASI -->
+    <div id="lightboxModal" onclick="if(event.target===this) closeLightbox()" class="fixed inset-0 z-[68] hidden flex-col items-center justify-between p-4 sm:p-6 bg-slate-950/95 backdrop-blur-md select-none">
+        <!-- Header Lightbox -->
+        <div class="w-full max-w-5xl flex items-center justify-between text-white gap-3">
+            <div class="min-w-0">
+                <span id="lbCounter" class="text-xs font-extrabold text-amber-400 uppercase tracking-wider">Foto 1 / 1</span>
+                <h4 id="lbTitle" class="text-sm sm:text-base font-bold truncate">Dokumentasi Kegiatan</h4>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a id="lbDriveLink" href="#" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-semibold transition">
+                    <i class="fa-brands fa-google-drive text-emerald-400"></i>
+                    <span class="hidden sm:inline">Buka Asli</span>
+                </a>
+                <button type="button" onclick="closeLightbox()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-rose-600 text-white flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Area Gambar & Tombol Navigasi -->
+        <div class="relative flex-1 w-full max-w-5xl flex items-center justify-center my-3 min-h-0">
+            <button type="button" id="lbPrevBtn" onclick="navLightbox(-1)"
+                    class="absolute left-1 sm:left-3 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-emerald-600 text-white border border-white/20 flex items-center justify-center transition">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <img id="lbImage" src="" alt="Dokumentasi" class="max-h-full max-w-full object-contain rounded-2xl shadow-2xl transition-all duration-200">
+
+            <button type="button" id="lbNextBtn" onclick="navLightbox(1)"
+                    class="absolute right-1 sm:right-3 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-emerald-600 text-white border border-white/20 flex items-center justify-center transition">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Thumbnail Strip Bawah -->
+        <div id="lbThumbs" class="flex items-center gap-2 overflow-x-auto max-w-full py-1 px-2"></div>
     </div>
 
     <!-- GLOBAL TOAST NOTIFICATION -->
@@ -240,7 +260,7 @@
     <script src="js/data.js"></script>
     <script src="js/utils.js"></script>
     
-    <!-- File Views Baru -->
+    <!-- File Views -->
     <script src="js/views/beranda.js"></script>
     <script src="js/views/info.js"></script>
     <script src="js/views/profil.js"></script>

@@ -1,8 +1,74 @@
 // js/views/info.js
 
+// Helper merender Grid Galeri Dokumentasi
+function renderGaleriPengumuman(a, maxPreview = 4) {
+    const fotos = Array.isArray(a.fotoUrls) ? a.fotoUrls.filter(Boolean) : [];
+    if (fotos.length === 0) return "";
+
+    const total = fotos.length;
+    const tampil = fotos.slice(0, maxPreview);
+    const sisa = total - maxPreview;
+
+    // Layout grid menyesuaikan jumlah foto (1 foto = lebar penuh, 2 = 2 kolom, 3+ = 3 atau 4 kolom)
+    let gridClass = "grid-cols-2 sm:grid-cols-4";
+    let aspectClass = "aspect-square";
+    if (total === 1) {
+        gridClass = "grid-cols-1";
+        aspectClass = "aspect-video max-h-80";
+    } else if (total === 2) {
+        gridClass = "grid-cols-2";
+        aspectClass = "aspect-[4/3]";
+    } else if (total === 3) {
+        gridClass = "grid-cols-3";
+        aspectClass = "aspect-square";
+    }
+
+    return `
+        <div class="mt-4 pt-4 border-t border-slate-100" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between mb-2.5">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                    <i class="fa-regular fa-images text-emerald-600"></i> Dokumentasi Kegiatan (${total} Foto)
+                </span>
+                ${a.albumUrl ? `
+                    <a href="${a.albumUrl}" target="_blank" rel="noopener noreferrer"
+                       class="text-[11px] font-bold text-emerald-700 hover:underline flex items-center gap-1">
+                        <i class="fa-brands fa-google-drive"></i> Album Google Drive
+                    </a>
+                ` : ""}
+            </div>
+
+            <div class="grid ${gridClass} gap-2.5">
+                ${tampil.map((rawUrl, idx) => {
+                    const imgSrc = getGdriveImageUrl(rawUrl);
+                    const isLastWithMore = (idx === maxPreview - 1) && sisa > 0;
+                    return `
+                        <button type="button" onclick="openLightbox(${a.id}, ${idx})"
+                                class="group relative ${aspectClass} w-full rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 focus:outline-none">
+                            <img src="${imgSrc}" alt="Dokumentasi ${idx + 1}" loading="lazy"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                 onerror="this.src='https://placehold.co/400x400/e2e8f0/64748b?text=Foto+Drive'">
+                            ${isLastWithMore ? `
+                                <div class="absolute inset-0 bg-slate-950/65 backdrop-blur-[1px] flex flex-col items-center justify-center text-white">
+                                    <span class="text-lg sm:text-xl font-black">+${sisa}</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider">Foto Lainnya</span>
+                                </div>
+                            ` : `
+                                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition flex items-center justify-center">
+                                    <span class="opacity-0 group-hover:opacity-100 w-9 h-9 rounded-full bg-white/90 text-slate-900 flex items-center justify-center text-xs shadow transition">
+                                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                                    </span>
+                                </div>
+                            `}
+                        </button>
+                    `;
+                }).join("")}
+            </div>
+        </div>
+    `;
+}
+
 // ================= PENGUMUMAN =================
 function viewPengumuman() {
-    // Urutkan: terbaru dulu
     const list = DB.pengumuman.slice().sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
     return `
@@ -10,7 +76,7 @@ function viewPengumuman() {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
             <span class="text-xs font-extrabold uppercase tracking-widest text-amber-300">INFORMASI RESMI</span>
             <h1 class="text-3xl sm:text-4xl font-extrabold mt-1">Pengumuman Panitia</h1>
-            <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Seluruh informasi & pengumuman resmi seputar Pemilihan Ketua RW 012 Perum Grand Mutiara Gading.</p>
+            <p class="text-emerald-100 text-xs sm:text-sm mt-2 max-w-xl">Seluruh informasi, pengumuman resmi, dan dokumentasi kegiatan Pemilihan Ketua RW 012 Perum Grand Mutiara Gading.</p>
         </div>
     </section>
 
@@ -21,21 +87,27 @@ function viewPengumuman() {
                 Belum ada pengumuman.
             </div>
         ` : `
-            <div class="space-y-4">
-                ${list.map(a => `
+            <div class="space-y-5">
+                ${list.map(a => {
+                    const jmlFoto = Array.isArray(a.fotoUrls) ? a.fotoUrls.filter(Boolean).length : 0;
+                    return `
                     <div onclick="showPengumumanModal(${a.id})" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm card-lift cursor-pointer">
                         <div class="flex items-center justify-between text-xs mb-3 flex-wrap gap-2">
-                            <div class="flex items-center gap-2">
+                            <div class="flex items-center gap-2 flex-wrap">
                                 <span class="px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px] ${a.kategori === 'Penting' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${a.kategori}</span>
                                 ${a.tampilDiBeranda ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800"><i class="fa-solid fa-eye mr-1"></i>Di Beranda</span>` : ''}
+                                ${jmlFoto > 0 ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700"><i class="fa-regular fa-images mr-1"></i>${jmlFoto} Foto</span>` : ''}
                             </div>
                             <span class="text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${fmtTanggal(a.tanggal)}</span>
                         </div>
-                        <h3 class="font-bold text-slate-900 text-base mb-2">${a.judul}</h3>
-                        <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">${a.isi}</p>
-                        <div class="mt-3 text-xs font-bold text-emerald-700 flex items-center gap-1">Baca Selengkapnya <i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+                        <h3 class="font-bold text-slate-900 text-base sm:text-lg mb-2">${a.judul}</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed">${a.isi}</p>
+                        
+                        ${renderGaleriPengumuman(a, 4)}
+
+                        <div class="mt-4 text-xs font-bold text-emerald-700 flex items-center gap-1">Baca Selengkapnya <i class="fa-solid fa-chevron-right text-[10px]"></i></div>
                     </div>
-                `).join("")}
+                `;}).join("")}
             </div>
         `}
     </section>
@@ -46,6 +118,8 @@ function showPengumumanModal(id) {
     const a = DB.pengumuman.find(x => x.id === id);
     if (!a) return;
 
+    const fotos = Array.isArray(a.fotoUrls) ? a.fotoUrls.filter(Boolean) : [];
+
     openModal(`
         <div class="gradient-primary text-white p-6 relative">
             <button onclick="closeModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white"><i class="fa-solid fa-xmark"></i></button>
@@ -55,9 +129,16 @@ function showPengumumanModal(id) {
         </div>
         <div class="p-6">
             <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">${a.isi}</p>
+            ${fotos.length > 0 ? renderGaleriPengumuman(a, 12) : ""}
         </div>
-        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end">
-            <button onclick="closeModal()" class="px-5 py-2 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition">Tutup</button>
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+            ${a.albumUrl ? `
+                <a href="${a.albumUrl}" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition">
+                    <i class="fa-brands fa-google-drive"></i> Buka Folder Google Drive
+                </a>
+            ` : `<div></div>`}
+            <button onclick="closeModal()" class="px-5 py-2 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition ml-auto">Tutup</button>
         </div>
     `);
 }
@@ -118,7 +199,6 @@ function viewDokumen() {
         return map[k] || 'bg-slate-100 text-slate-700';
     };
 
-    // Dokumen default dari tatib (jika ada)
     const defaultDocs = [];
     if (DB.tatibPdf1) defaultDocs.push({ id: 'tatib1', judul: DB.tatibJudul1 || 'Tata Tertib', kategori: 'Tata Tertib', url: DB.tatibPdf1 });
     if (DB.tatibPdf2) defaultDocs.push({ id: 'tatib2', judul: DB.tatibJudul2 || 'Berita Acara', kategori: 'Berita Acara', url: DB.tatibPdf2 });
