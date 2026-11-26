@@ -29,33 +29,6 @@ function viewLoginAdmin() {
     `;
 }
 
-function showPengumumanModal(id) {
-    const a = DB.pengumuman.find(x => x.id === id);
-    if (!a) return;
-
-    const html = `
-        <div class="p-6 sm:p-8">
-            <div class="flex items-start justify-between gap-4 mb-4">
-                <div>
-                    <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider ${a.kategori === 'Penting' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${a.kategori}</span>
-                    <div class="text-xs text-slate-400 mt-2"><i class="fa-regular fa-calendar mr-1"></i>${fmtTanggal(a.tanggal)}</div>
-                </div>
-                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mb-4">${a.judul}</h2>
-            <p class="text-slate-600 leading-relaxed text-xs sm:text-sm whitespace-pre-line">${a.isi}</p>
-            <div class="mt-6 pt-4 border-t border-slate-100 flex justify-end">
-                <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-emerald-700 text-white font-bold text-xs hover:bg-emerald-800">
-                    Tutup Pengumuman
-                </button>
-            </div>
-        </div>
-    `;
-    openModal(html);
-}
-
 function viewAdmin() {
     if (!session || session.role !== "admin") {
         return `
