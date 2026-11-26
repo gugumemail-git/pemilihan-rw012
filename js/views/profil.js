@@ -196,16 +196,16 @@ function showKandidatModal(id) {
             </div>
         </div>
 
-        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col sm:flex-row items-center ${videoLink ? 'sm:justify-between' : 'sm:justify-end'} gap-2.5">
             ${videoLink ? `
                 <button type="button" onclick="openVideoPreviewModal(${k.id})"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition">
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition">
                     <i class="fa-brands fa-youtube text-base"></i>
                     <span>Lihat Video Visi Misi</span>
                 </button>
-            ` : `<div></div>`}
+            ` : ''}
 
-            <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition ml-auto">
+            <button onclick="closeModal()" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold text-xs hover:bg-slate-800 transition">
                 Tutup Window
             </button>
         </div>
